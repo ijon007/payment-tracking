@@ -5,41 +5,44 @@
 
 :root {
   /* Linear Theme Colors */
-  /* #222326 – Nordic Gray → backgrounds, inputs, surfaces */
-  /* #F4F5F8 – Mercury White → main dark text / headers / sidebar / cards */
-  /* #5E6AD2 – Magic Blue → primary buttons, highlights, call-to-action */
-  --background: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --card: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --card-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --popover: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --popover-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --primary: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
-  --primary-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --secondary: oklch(0.25 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.20 0 0);
-  --muted-foreground: oklch(0.70 0 0);
-  --accent: oklch(0.25 0 0);
-  --accent-foreground: oklch(0.97 0 0);
+  /* #08090a – Main background (very dark) */
+  /* #ffffff – Primary text (white) */
+  /* #f7f8f8 – Light gray backgrounds */
+  /* #8a8f98 – Muted/secondary text */
+  /* #5e6ad2 – Primary accent (Magic Blue) */
+  --background: #08090a; /* Linear main background */
+  --foreground: #ffffff; /* Linear primary text */
+  --card: #08090a;
+  --inset: #08090a;
+  --card-foreground: #ffffff; /* Linear primary text */
+  --popover: #08090a; /* Linear main background */
+  --popover-foreground: #ffffff; /* Linear primary text */
+  --primary: #5e6ad2; /* Linear Magic Blue */
+  --primary-foreground: #ffffff; /* White text on blue */
+  --secondary: #f7f8f8; /* Linear light gray */
+  --secondary-foreground: #08090a; /* Dark text on light */
+  --muted: #08090a; /* Dark background */
+  --muted-foreground: #8a8f98; /* Linear muted text */
+  --accent: #f7f8f8; /* Linear light gray */
+  --accent-foreground: #08090a; /* Dark text on light */
   --destructive: oklch(0.4959 0.0645 19.6143);
-  --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --ring: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
+  --destructive-foreground: #ffffff;
+  --border: oklch(0.20 0.01 270); /* Subtle border */
+  --input: #08090a; /* Linear main background */
+  --ring: #5e6ad2; /* Linear Magic Blue */
   --chart-1: oklch(0.5122 0.0675 265.4469);
   --chart-2: oklch(0.5209 0.0997 299.7692);
   --chart-3: oklch(0.4959 0.0645 19.6143);
   --chart-4: oklch(0.5585 0.0648 54.9884);
   --chart-5: oklch(0.4510 0.0563 155.4011);
-  --sidebar: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --sidebar-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --sidebar-primary: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
-  --sidebar-primary-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --sidebar-accent: oklch(0.25 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
+  --sidebar: #08090a; /* Linear main background */
+  --sidebar-foreground: #ffffff; /* Linear primary text */
+  --sidebar-primary: #5e6ad2; /* Linear Magic Blue */
+  --sidebar-primary-foreground: #ffffff; /* White text on blue */
+  --sidebar-accent: #f7f8f8; /* Linear light gray */
+  --sidebar-accent-foreground: #08090a; /* Dark text on light */
+  --sidebar-border: oklch(0.20 0.01 270); /* Subtle border */
+  --sidebar-ring: #5e6ad2; /* Linear Magic Blue */
   --font-sans: Geist, sans-serif;
   --font-serif: Poppins, sans-serif;
   --font-mono: monospace;
@@ -64,38 +67,39 @@
 
 .dark {
   /* Keep same Linear theme colors for dark mode */
-  --background: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --card: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --card-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --popover: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --popover-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --primary: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
-  --primary-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --secondary: oklch(0.25 0 0);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted: oklch(0.20 0 0);
-  --muted-foreground: oklch(0.70 0 0);
-  --accent: oklch(0.25 0 0);
-  --accent-foreground: oklch(0.97 0 0);
+  --background: #08090a; /* Linear main background */
+  --foreground: #ffffff; /* Linear primary text */
+  --card: #08090a; /* Linear inset with blue tint */
+  --inset: #08090a; /* Linear inset with blue tint */
+  --card-foreground: #ffffff; /* Linear primary text */
+  --popover: #08090a; /* Linear main background */
+  --popover-foreground: #ffffff; /* Linear primary text */
+  --primary: #5e6ad2; /* Linear Magic Blue */
+  --primary-foreground: #ffffff; /* White text on blue */
+  --secondary: #f7f8f8; /* Linear light gray */
+  --secondary-foreground: #08090a; /* Dark text on light */
+  --muted: #08090a; /* Dark background */
+  --muted-foreground: #8a8f98; /* Linear muted text */
+  --accent: #f7f8f8; /* Linear light gray */
+  --accent-foreground: #08090a; /* Dark text on light */
   --destructive: oklch(0.5577 0.0878 20.2327);
-  --destructive-foreground: oklch(0.97 0 0);
-  --border: oklch(0.25 0 0);
-  --input: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --ring: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
+  --destructive-foreground: #ffffff;
+  --border: oklch(0.20 0.01 270); /* Subtle border */
+  --input: #08090a; /* Linear main background */
+  --ring: #5e6ad2; /* Linear Magic Blue */
   --chart-1: oklch(0.5629 0.0756 259.9421);
   --chart-2: oklch(0.5763 0.0984 297.6107);
   --chart-3: oklch(0.5577 0.0878 20.2327);
   --chart-4: oklch(0.5585 0.0648 54.9884);
   --chart-5: oklch(0.5233 0.0636 155.3469);
-  --sidebar: oklch(0.15 0 0); /* #222326 Nordic Gray */
-  --sidebar-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --sidebar-primary: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
-  --sidebar-primary-foreground: oklch(0.97 0 0); /* #F4F5F8 Mercury White */
-  --sidebar-accent: oklch(0.25 0 0);
-  --sidebar-accent-foreground: oklch(0.97 0 0);
-  --sidebar-border: oklch(0.25 0 0);
-  --sidebar-ring: oklch(0.55 0.15 270); /* #5E6AD2 Magic Blue */
+  --sidebar: #08090a; /* Linear main background */
+  --sidebar-foreground: #ffffff; /* Linear primary text */
+  --sidebar-primary: #5e6ad2; /* Linear Magic Blue */
+  --sidebar-primary-foreground: #ffffff; /* White text on blue */
+  --sidebar-accent: #f7f8f8; /* Linear light gray */
+  --sidebar-accent-foreground: #08090a; /* Dark text on light */
+  --sidebar-border: oklch(0.20 0.01 270); /* Subtle border */
+  --sidebar-ring: #5e6ad2; /* Linear Magic Blue */
   --font-sans: Geist, sans-serif;
   --font-serif: Poppins, sans-serif;
   --font-mono: monospace;
@@ -121,6 +125,7 @@
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-inset: var(--inset);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
