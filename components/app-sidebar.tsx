@@ -9,6 +9,7 @@ import {
   Wrench,
   CreditCard,
   Home,
+  Calendar,
 } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -28,7 +29,7 @@ import {
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Overview",
     url: "/",
     icon: LayoutDashboard,
   },
@@ -36,6 +37,11 @@ const menuItems = [
     title: "Clients",
     url: "/clients",
     icon: Users,
+  },
+  {
+    title: "Timeline",
+    url: "/timeline",
+    icon: Calendar,
   },
 ]
 
@@ -52,7 +58,7 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-2">
               {menuItems.map((item) => (
