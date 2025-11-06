@@ -63,14 +63,14 @@ export function AppSidebar() {
   const pathname = usePathname()
 
   return (
-    <Sidebar variant="inset">
-      <SidebarHeader>
+    <Sidebar variant="inset" className="bg-black">
+      <SidebarHeader className="bg-black">
         <div className="flex items-center gap-2 px-2 py-4">
           <Home className="size-5" />
           <span className="font-semibold text-lg">Payments Tracker</span>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="bg-black">
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
