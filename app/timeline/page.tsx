@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Badge } from "@/components/ui/badge"
 
 type PaymentWithStatus = Payment & {
   status: "paid" | "pending" | "overdue"
@@ -17,15 +18,18 @@ type PaymentWithStatus = Payment & {
   clientId: string
 }
 
-// Color palette for clients using theme colors
+// Color palette for clients - distinct colors for better differentiation
 const clientColors = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-  "hsl(var(--primary))",
-  "hsl(var(--secondary))",
+  "hsl(217, 91%, 60%)", // Blue
+  "hsl(142, 76%, 36%)", // Green
+  "hsl(38, 92%, 50%)",  // Orange
+  "hsl(340, 82%, 52%)", // Pink
+  "hsl(262, 83%, 58%)", // Purple
+  "hsl(0, 84%, 60%)",   // Red
+  "hsl(199, 89%, 48%)", // Cyan
+  "hsl(280, 100%, 70%)", // Light Purple
+  "hsl(47, 96%, 53%)",  // Yellow
+  "hsl(158, 64%, 52%)", // Teal
 ]
 
 export default function TimelinePage() {
@@ -190,6 +194,7 @@ export default function TimelinePage() {
       monthMarkers,
       weekMarkers,
       todayPosition,
+      pixelsPerDay,
     }
   }, [dateRange])
 
@@ -285,8 +290,29 @@ export default function TimelinePage() {
             {/* Render all payments on the timeline */}
             {allPayments.map((payment, index) => {
                 const position = timelineConfig.dateToPixel(payment.dueDate)
-                const barWidth = 80
-                const barHeight = 32
+                const barHeight = 24
+                
+                // Find the next payment from the same client
+                const nextPayment = allPayments.find(
+                  (p) => 
+                    p.clientId === payment.clientId && 
+                    p.id !== payment.id &&
+                    p.dueDate > payment.dueDate
+                )
+                
+                // Calculate bar width based on time until next payment
+                let barWidth: number
+                if (nextPayment) {
+                  // Extend to the next payment's due date
+                  const nextPosition = timelineConfig.dateToPixel(nextPayment.dueDate)
+                  barWidth = Math.max(60, nextPosition - position) // Minimum 60px width
+                } else {
+                  // Last payment for this client - extend 30 days forward or to end of timeline
+                  const daysToExtend = 30
+                  const extendedWidth = daysToExtend * timelineConfig.pixelsPerDay
+                  const maxWidth = timelineConfig.timelineWidth - position
+                  barWidth = Math.max(60, Math.min(extendedWidth, maxWidth))
+                }
                 
                 // Stagger payments vertically to fill the height
                 // Distribute payments across multiple rows to fill available space
@@ -300,24 +326,28 @@ export default function TimelinePage() {
                 // Get client color
                 const clientColor = clientColorMap.get(payment.clientId) || clientColors[0]
                 
-                // Determine opacity and border based on status
-                let bgOpacity = 0.4
-                let borderOpacity = 0.8
-                let borderWidth = "1px"
+                // Better coloring based on status with improved contrast
+                let bgOpacity = 0.7
+                let borderOpacity = 1
+                let borderWidth = "1.5px"
+                let textColor = "text-foreground"
+                
                 if (payment.status === "paid") {
-                  bgOpacity = 0.3
-                  borderOpacity = 0.6
+                  bgOpacity = 0.5
+                  borderOpacity = 0.7
+                  borderWidth = "1px"
                 } else if (payment.status === "overdue") {
-                  bgOpacity = 0.6
+                  bgOpacity = 0.85
                   borderOpacity = 1
                   borderWidth = "2px"
+                  textColor = "text-foreground"
                 }
 
                 return (
                   <Tooltip key={payment.id}>
                     <TooltipTrigger asChild>
                       <div
-                        className="absolute rounded px-2 flex items-center text-xs cursor-pointer hover:opacity-100 transition-opacity border"
+                        className="absolute rounded-md px-2 flex items-center justify-center text-xs cursor-pointer transition-opacity border shadow-sm"
                         style={{
                           left: `${position}px`,
                           top: `${topOffset}px`,
@@ -328,31 +358,44 @@ export default function TimelinePage() {
                           borderWidth: borderWidth,
                         }}
                       >
-                        <span className="truncate text-[11px] font-medium text-foreground">
+                        <span className={`truncate text-[11px] font-semibold ${textColor}`}>
                           {formatCurrency(payment.amount)}
                         </span>
                       </div>
                     </TooltipTrigger>
-                    <TooltipContent side="top" className="max-w-xs">
-                      <div className="space-y-1">
-                        <div className="font-semibold">{payment.clientName}</div>
-                        <div className="text-sm">
-                          <div>Amount: {formatCurrency(payment.amount)}</div>
-                          <div>Due: {payment.dueDate.toLocaleDateString()}</div>
-                          {payment.paidDate ? (
-                            <div>Paid: {payment.paidDate.toLocaleDateString()}</div>
-                          ) : null}
-                          <div className="mt-1">
-                            Status:{" "}
-                            <span className="capitalize">{payment.status}</span>
+                    <TooltipContent 
+                      side="bottom" 
+                      hideArrow
+                      className="w-80 !bg-zinc-900 !text-white border border-zinc-700 shadow-lg"
+                    >
+                      <div className="space-y-2.5 py-1.5">
+                        <div className="font-semibold text-base text-white">{payment.clientName}</div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-zinc-400">Amount:</span>
+                            <span className="font-medium text-white">{formatCurrency(payment.amount)}</span>
                           </div>
-                          {payment.type === "retainer" ? (
-                            <div className="text-xs text-muted-foreground">Retainer</div>
-                          ) : (
-                            <div className="text-xs text-muted-foreground">
-                              Installment #{payment.installmentNumber}
-                            </div>
-                          )}
+                          <div className="flex justify-between items-center">
+                            <span className="text-zinc-400">Due:</span>
+                            <span className="text-white">{payment.dueDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-zinc-400">Status:</span>
+                            <Badge 
+                              variant={
+                                payment.status === "paid" ? "default" :
+                                payment.status === "pending" ? "secondary" : "destructive"
+                              }
+                              className="text-xs"
+                            >
+                              {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="pt-1.5 border-t border-zinc-700">
+                          <div className="text-xs text-zinc-400">
+                            {payment.type === "retainer" ? "Retainer" : `Installment #${payment.installmentNumber}`}
+                          </div>
                         </div>
                       </div>
                     </TooltipContent>
