@@ -114,6 +114,7 @@ function deserializeContracts(json: string): Contract[] {
     issueDate: new Date(contract.issueDate),
     startDate: new Date(contract.startDate),
     endDate: new Date(contract.endDate),
+    projectCompletionDate: contract.projectCompletionDate ? new Date(contract.projectCompletionDate) : undefined,
   }))
 }
 

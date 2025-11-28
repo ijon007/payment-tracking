@@ -366,7 +366,7 @@ export default function TimelinePage() {
                     <TooltipContent 
                       side="bottom" 
                       hideArrow
-                      className="w-80 !bg-zinc-900 !text-white border border-zinc-700 shadow-lg"
+                      className="w-80 bg-zinc-900 text-foreground border border-zinc-700 shadow-lg"
                     >
                       <div className="space-y-2.5 py-1.5">
                         <div className="font-semibold text-base text-white">{payment.clientName}</div>

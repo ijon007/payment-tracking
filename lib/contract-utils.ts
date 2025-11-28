@@ -24,6 +24,7 @@ export type Contract = {
   projectCost?: number
   paymentMethod?: string
   projectDuration?: string // e.g., "30 ditë", "2 muaj"
+  projectCompletionDate?: Date
   maintenanceCost?: number
   clientAddress?: string
   clientEmail?: string

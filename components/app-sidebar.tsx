@@ -1,15 +1,12 @@
 "use client"
 
-import * as React from "react"
 import {
   LayoutDashboard,
   Users,
   FileText,
-  Layers,
-  Wrench,
-  CreditCard,
   Home,
   Calendar,
+  CalendarDays,
   Receipt,
 } from "lucide-react"
 import Link from "next/link"
@@ -43,6 +40,11 @@ const menuItems = [
     title: "Timeline",
     url: "/timeline",
     icon: Calendar,
+  },
+  {
+    title: "Calendar",
+    url: "/calendar",
+    icon: CalendarDays,
   },
   {
     title: "Invoices",
@@ -79,7 +81,8 @@ export function AppSidebar() {
                     isActive={
                       pathname === item.url || 
                       (item.url === "/invoices" && pathname?.startsWith("/invoices")) ||
-                      (item.url === "/contracts" && pathname?.startsWith("/contracts"))
+                      (item.url === "/contracts" && pathname?.startsWith("/contracts")) ||
+                      (item.url === "/calendar" && pathname?.startsWith("/calendar"))
                     }
                   >
                     <Link href={item.url} className="rounded-sm hover:bg-sidebar-accent/10 hover:text-white data-[active=true]:bg-sidebar-accent/10 data-[active=true]:text-white active:bg-sidebar-accent/10 active:text-white">
