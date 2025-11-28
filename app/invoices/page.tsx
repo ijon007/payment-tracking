@@ -17,6 +17,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { InvoicePreview } from "@/components/invoice-preview"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { formatCurrency } from "@/lib/payment-utils"
@@ -30,6 +37,7 @@ export default function InvoicesPage() {
   } = usePaymentStore()
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null)
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null)
 
   const handleDelete = (id: string) => {
     deleteInvoiceTemplate(id)
@@ -162,7 +170,8 @@ export default function InvoicesPage() {
                   {invoices.map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="p-4 flex items-center justify-between hover:bg-white/10 rounded-md mx-2" 
+                      className="p-4 flex items-center justify-between hover:bg-white/10 rounded-md mx-2 cursor-pointer transition-colors"
+                      onClick={() => setSelectedInvoiceId(invoice.id)}
                     >
                       <div>
                         <p className="font-medium">{invoice.invoiceNumber}</p>
@@ -210,6 +219,20 @@ export default function InvoicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={selectedInvoiceId !== null}
+        onOpenChange={(open) => !open && setSelectedInvoiceId(null)}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Invoice Details</DialogTitle>
+          </DialogHeader>
+          {selectedInvoiceId && (
+            <InvoicePreview invoiceId={selectedInvoiceId} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
