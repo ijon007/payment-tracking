@@ -54,7 +54,7 @@ export function ContractPreview({
   }
 
   return (
-    <Card className="bg-card">
+    <Card className="bg-white text-black">
       <CardContent className="p-8">
         <div className="space-y-8">
           {/* Header */}

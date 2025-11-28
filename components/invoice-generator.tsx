@@ -158,10 +158,10 @@ export function InvoiceGenerator({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto gap-5">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto gap-5">
         <DialogHeader>
           <DialogTitle>Generate Invoice for {client.name}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="sr-only">
             Select a template and payments to include in the invoice.
           </DialogDescription>
         </DialogHeader>
@@ -181,12 +181,12 @@ export function InvoiceGenerator({
           <div className="space-y-6">
             <div className="grid gap-5">
               <div className="grid gap-2">
-                <Label htmlFor="template">Invoice Template</Label>
+                <Label htmlFor="template" className="text-xs">Invoice Template</Label>
                 <Select
                   value={selectedTemplateId}
                   onValueChange={setSelectedTemplateId}
                 >
-                  <SelectTrigger id="template">
+                  <SelectTrigger id="template" className="border-border w-full">
                     <SelectValue placeholder="Select a template" />
                   </SelectTrigger>
                   <SelectContent align="start">
@@ -205,7 +205,7 @@ export function InvoiceGenerator({
               </div>
 
               <div className="grid gap-2">
-                <Label>Due Date</Label>
+                <Label className="text-xs">Due Date</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -232,7 +232,7 @@ export function InvoiceGenerator({
               </div>
 
               <div className="grid gap-2">
-                <Label>Select Payments to Invoice</Label>
+                <Label className="text-xs">Select Payments to Invoice</Label>
                 {unpaidPayments.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     No unpaid payments available for this client.

@@ -184,10 +184,10 @@ export function ContractGenerator({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto gap-5">
-        <DialogHeader>
+      <DialogContent className="w-2/5 max-h-[90vh] overflow-y-auto gap-5 scrollbar-hide">
+        <DialogHeader className="mb-3">
           <DialogTitle>Generate Contract for {client.name}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="sr-only">
             Select a template and set contract dates.
           </DialogDescription>
         </DialogHeader>
@@ -204,92 +204,94 @@ export function ContractGenerator({
             </DialogFooter>
           </div>
         ) : (
-          <div className="space-y-6">
-            <div className="grid gap-5">
-              <div className="grid gap-2">
-                <Label htmlFor="template">Contract Template</Label>
-                <Select
-                  value={selectedTemplateId}
-                  onValueChange={setSelectedTemplateId}
-                >
-                  <SelectTrigger id="template">
-                    <SelectValue placeholder="Select a template" />
-                  </SelectTrigger>
-                  <SelectContent align="start">
-                    {contractTemplates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
-                        {template.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {contractTemplates.length === 0 && (
-                  <p className="text-xs text-muted-foreground">
-                    No templates available. Create one in the Contracts page.
-                  </p>
-                )}
+          <div className="space-y-10">
+            <div className="grid gap-10">
+              <div className="grid gap-5">
+                <div className="grid gap-2">
+                  <Label htmlFor="template" className="text-xs">Contract Template</Label>
+                  <Select
+                    value={selectedTemplateId}
+                    onValueChange={setSelectedTemplateId}
+                  >
+                    <SelectTrigger id="template" className="border-border w-full">
+                      <SelectValue placeholder="Select a template" />
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                      {contractTemplates.map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {contractTemplates.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      No templates available. Create one in the Contracts page.
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid gap-2">
+                  <Label className="text-xs">Start Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus
+                        className="[--cell-size:2.5rem] p-2"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label className="text-xs">End Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        initialFocus
+                        className="[--cell-size:2.5rem] p-2"
+                        disabled={(date) => startDate ? date < startDate : false}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
 
-              <div className="grid gap-2">
-                <Label>Start Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
-                        !startDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={startDate}
-                      onSelect={setStartDate}
-                      initialFocus
-                      className="[--cell-size:2.5rem] p-2"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="grid gap-2">
-                <Label>End Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
-                        !endDate && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={endDate}
-                      onSelect={setEndDate}
-                      initialFocus
-                      className="[--cell-size:2.5rem] p-2"
-                      disabled={(date) => startDate ? date < startDate : false}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div className="border-t pt-4 space-y-4">
+              <div className="border-t border-white pt-4 space-y-6">
                 <h3 className="font-semibold text-sm">Contract Details</h3>
                 
                 <div className="grid gap-2">
-                  <Label htmlFor="projectCost">Project Cost (lekë)</Label>
+                  <Label htmlFor="projectCost" className="text-xs">Project Cost (lekë)</Label>
                   <Input
                     id="projectCost"
                     type="text"
@@ -300,7 +302,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="paymentMethod">Payment Method</Label>
+                  <Label htmlFor="paymentMethod" className="text-xs">Payment Method</Label>
                   <Input
                     id="paymentMethod"
                     value={paymentMethod}
@@ -310,7 +312,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="projectDuration">Project Duration</Label>
+                  <Label htmlFor="projectDuration" className="text-xs">Project Duration</Label>
                   <Input
                     id="projectDuration"
                     value={projectDuration}
@@ -320,7 +322,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="maintenanceCost">Maintenance Cost (lekë/muaj)</Label>
+                  <Label htmlFor="maintenanceCost" className="text-xs">Maintenance Cost (lekë/muaj)</Label>
                   <Input
                     id="maintenanceCost"
                     type="text"
@@ -331,7 +333,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="companyRepresentatives">Company Representatives</Label>
+                  <Label htmlFor="companyRepresentatives" className="text-xs">Company Representatives</Label>
                   <Input
                     id="companyRepresentatives"
                     value={companyRepresentatives}
@@ -341,11 +343,11 @@ export function ContractGenerator({
                 </div>
               </div>
 
-              <div className="border-t pt-4 space-y-4">
+              <div className="border-t border-white pt-4 space-y-4">
                 <h3 className="font-semibold text-sm">Client Contact Information</h3>
                 
                 <div className="grid gap-2">
-                  <Label htmlFor="clientAddress">Client Address</Label>
+                  <Label htmlFor="clientAddress" className="text-xs">Client Address</Label>
                   <Textarea
                     id="clientAddress"
                     value={clientAddress}
@@ -356,7 +358,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="clientEmail">Client Email</Label>
+                  <Label htmlFor="clientEmail" className="text-xs">Client Email</Label>
                   <Input
                     id="clientEmail"
                     type="email"
@@ -367,7 +369,7 @@ export function ContractGenerator({
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="clientPhone">Client Phone</Label>
+                  <Label htmlFor="clientPhone" className="text-xs">Client Phone</Label>
                   <Input
                     id="clientPhone"
                     type="tel"
@@ -379,7 +381,7 @@ export function ContractGenerator({
               </div>
 
               {selectedTemplate && startDate && endDate && (
-                <div className="border-t pt-4">
+                <div className="border-t border-white pt-4">
                   <ContractPreview
                     template={selectedTemplate}
                     client={client}
