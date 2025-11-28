@@ -1,16 +1,44 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { InvoiceTemplateBuilder } from "@/components/invoice-template-builder"
+import { TemplatePreview } from "@/components/template-preview"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { usePaymentStore } from "@/lib/store"
+import type { InvoiceTemplate } from "@/lib/invoice-utils"
 
 export default function EditTemplatePage() {
   const params = useParams()
   const templateId = params.id as string
   const { getInvoiceTemplate } = usePaymentStore()
   const template = getInvoiceTemplate(templateId)
+  const [previewTemplate, setPreviewTemplate] = useState<Partial<InvoiceTemplate>>(
+    template ? {
+      name: template.name,
+      companyName: template.companyName,
+      companyAddress: template.companyAddress,
+      companyEmail: template.companyEmail,
+      companyPhone: template.companyPhone,
+      logoUrl: template.logoUrl,
+      notes: template.notes,
+    } : {}
+  )
+
+  useEffect(() => {
+    if (template) {
+      setPreviewTemplate({
+        name: template.name,
+        companyName: template.companyName,
+        companyAddress: template.companyAddress,
+        companyEmail: template.companyEmail,
+        companyPhone: template.companyPhone,
+        logoUrl: template.logoUrl,
+        notes: template.notes,
+      })
+    }
+  }, [template])
 
   if (!template) {
     return (
@@ -36,14 +64,27 @@ export default function EditTemplatePage() {
         <SidebarTrigger className="-ml-1" />
         <h1 className="text-xl font-bold">Edit Template</h1>
       </div>
-      <Card>
-        <CardHeader>
-          <CardTitle>{template.name}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <InvoiceTemplateBuilder templateId={templateId} />
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -mt-2"> 
+        <Card>
+          <CardHeader>
+            <CardTitle>Template Settings</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <InvoiceTemplateBuilder
+              templateId={templateId}
+              onChange={setPreviewTemplate}
+            />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Live Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TemplatePreview template={previewTemplate} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

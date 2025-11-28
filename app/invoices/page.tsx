@@ -119,13 +119,13 @@ export default function InvoicesPage() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
+            <Card className="py-2">
               <CardContent className="p-0">
                 <div className="divide-y">
                   {invoices.map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="p-4 flex items-center justify-between hover:bg-accent/50"
+                      className="p-4 flex items-center justify-between hover:bg-white/10 rounded-md mx-2" 
                     >
                       <div>
                         <p className="font-medium">{invoice.invoiceNumber}</p>

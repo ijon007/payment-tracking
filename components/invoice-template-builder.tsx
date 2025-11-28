@@ -12,11 +12,13 @@ import { useRouter } from "next/navigation"
 interface InvoiceTemplateBuilderProps {
   templateId?: string
   onSave?: () => void
+  onChange?: (template: Partial<InvoiceTemplate>) => void
 }
 
 export function InvoiceTemplateBuilder({
   templateId,
   onSave,
+  onChange,
 }: InvoiceTemplateBuilderProps) {
   const router = useRouter()
   const {
@@ -46,6 +48,21 @@ export function InvoiceTemplateBuilder({
       setNotes(existingTemplate.notes)
     }
   }, [existingTemplate])
+
+  // Notify parent of changes for live preview
+  useEffect(() => {
+    if (onChange) {
+      onChange({
+        name,
+        companyName,
+        companyAddress,
+        companyEmail,
+        companyPhone,
+        logoUrl: logoUrl || undefined,
+        notes,
+      })
+    }
+  }, [name, companyName, companyAddress, companyEmail, companyPhone, logoUrl, notes, onChange])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,7 +96,7 @@ export function InvoiceTemplateBuilder({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-4">
+      <div className="grid gap-5">
         <div className="grid gap-2">
           <Label htmlFor="name">Template Name</Label>
           <Input
