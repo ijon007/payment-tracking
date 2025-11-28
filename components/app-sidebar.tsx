@@ -49,6 +49,11 @@ const menuItems = [
     url: "/invoices",
     icon: Receipt,
   },
+  {
+    title: "Contracts",
+    url: "/contracts",
+    icon: FileText,
+  },
 ]
 
 export function AppSidebar() {
@@ -71,7 +76,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={pathname === item.url || (item.url === "/invoices" && pathname?.startsWith("/invoices"))}
+                    isActive={
+                      pathname === item.url || 
+                      (item.url === "/invoices" && pathname?.startsWith("/invoices")) ||
+                      (item.url === "/contracts" && pathname?.startsWith("/contracts"))
+                    }
                   >
                     <Link href={item.url} className="rounded-sm hover:bg-sidebar-accent/10 hover:text-white data-[active=true]:bg-sidebar-accent/10 data-[active=true]:text-white active:bg-sidebar-accent/10 active:text-white">
                       <item.icon />

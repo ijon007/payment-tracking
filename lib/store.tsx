@@ -3,16 +3,20 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
 import type { Client, Payment } from "./payment-utils"
 import type { InvoiceTemplate, Invoice } from "./invoice-utils"
+import type { ContractTemplate, Contract } from "./contract-utils"
 import {
   calculatePaymentPlan,
   calculateClientStatus,
   PAYMENT_PLAN_TEMPLATES,
 } from "./payment-utils"
 import { generateInvoiceNumber, calculateInvoiceTotals } from "./invoice-utils"
+import { generateContractNumber } from "./contract-utils"
 
 const STORAGE_KEY = "payment-tracker-clients"
 const INVOICE_TEMPLATES_STORAGE_KEY = "payment-tracker-invoice-templates"
 const INVOICES_STORAGE_KEY = "payment-tracker-invoices"
+const CONTRACT_TEMPLATES_STORAGE_KEY = "payment-tracker-contract-templates"
+const CONTRACTS_STORAGE_KEY = "payment-tracker-contracts"
 
 // Helper to serialize/deserialize dates
 function serializeClients(clients: Client[]): string {
@@ -74,6 +78,45 @@ function deserializeInvoices(json: string): Invoice[] {
   }))
 }
 
+// Helper to serialize/deserialize contract templates
+function serializeContractTemplates(templates: ContractTemplate[]): string {
+  return JSON.stringify(templates, (key, value) => {
+    if (value instanceof Date) {
+      return { __type: "Date", value: value.toISOString() }
+    }
+    return value
+  })
+}
+
+function deserializeContractTemplates(json: string): ContractTemplate[] {
+  const parsed = JSON.parse(json)
+  return parsed.map((template: any) => ({
+    ...template,
+    createdAt: new Date(template.createdAt),
+    updatedAt: new Date(template.updatedAt),
+  }))
+}
+
+// Helper to serialize/deserialize contracts
+function serializeContracts(contracts: Contract[]): string {
+  return JSON.stringify(contracts, (key, value) => {
+    if (value instanceof Date) {
+      return { __type: "Date", value: value.toISOString() }
+    }
+    return value
+  })
+}
+
+function deserializeContracts(json: string): Contract[] {
+  const parsed = JSON.parse(json)
+  return parsed.map((contract: any) => ({
+    ...contract,
+    issueDate: new Date(contract.issueDate),
+    startDate: new Date(contract.startDate),
+    endDate: new Date(contract.endDate),
+  }))
+}
+
 type PaymentStoreContextType = {
   clients: Client[]
   addClient: (client: Omit<Client, "id" | "status" | "amountPaid" | "amountDue" | "payments"> & { paymentPlanId: string }) => void
@@ -94,6 +137,28 @@ type PaymentStoreContextType = {
     tax?: number
   }) => Invoice
   getInvoice: (id: string) => Invoice | undefined
+  contractTemplates: ContractTemplate[]
+  contracts: Contract[]
+  addContractTemplate: (template: Omit<ContractTemplate, "id" | "createdAt" | "updatedAt">) => void
+  updateContractTemplate: (id: string, updates: Partial<ContractTemplate>) => void
+  deleteContractTemplate: (id: string) => void
+  getContractTemplate: (id: string) => ContractTemplate | undefined
+  generateContract: (data: {
+    templateId: string
+    clientId: string
+    startDate: Date
+    endDate: Date
+    terms: string
+    projectCost?: number
+    paymentMethod?: string
+    projectDuration?: string
+    maintenanceCost?: number
+    clientAddress?: string
+    clientEmail?: string
+    clientPhone?: string
+    companyRepresentatives?: string
+  }) => Contract
+  getContract: (id: string) => Contract | undefined
 }
 
 const PaymentStoreContext = createContext<PaymentStoreContextType | undefined>(
@@ -147,6 +212,34 @@ export function PaymentStoreProvider({
     return []
   })
 
+  // Load contract templates from localStorage on mount
+  const [contractTemplates, setContractTemplates] = useState<ContractTemplate[]>(() => {
+    if (typeof window === "undefined") return []
+    try {
+      const stored = localStorage.getItem(CONTRACT_TEMPLATES_STORAGE_KEY)
+      if (stored) {
+        return deserializeContractTemplates(stored)
+      }
+    } catch (error) {
+      console.error("Failed to load contract templates from localStorage:", error)
+    }
+    return []
+  })
+
+  // Load contracts from localStorage on mount
+  const [contracts, setContracts] = useState<Contract[]>(() => {
+    if (typeof window === "undefined") return []
+    try {
+      const stored = localStorage.getItem(CONTRACTS_STORAGE_KEY)
+      if (stored) {
+        return deserializeContracts(stored)
+      }
+    } catch (error) {
+      console.error("Failed to load contracts from localStorage:", error)
+    }
+    return []
+  })
+
   // Save clients to localStorage whenever they change
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -179,6 +272,28 @@ export function PaymentStoreProvider({
       }
     }
   }, [invoices])
+
+  // Save contract templates to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(CONTRACT_TEMPLATES_STORAGE_KEY, serializeContractTemplates(contractTemplates))
+      } catch (error) {
+        console.error("Failed to save contract templates to localStorage:", error)
+      }
+    }
+  }, [contractTemplates])
+
+  // Save contracts to localStorage whenever they change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(CONTRACTS_STORAGE_KEY, serializeContracts(contracts))
+      } catch (error) {
+        console.error("Failed to save contracts to localStorage:", error)
+      }
+    }
+  }, [contracts])
 
   const addClient = useCallback(
     (
@@ -368,6 +483,92 @@ export function PaymentStoreProvider({
     [invoices]
   )
 
+  const addContractTemplate = useCallback(
+    (templateData: Omit<ContractTemplate, "id" | "createdAt" | "updatedAt">) => {
+      const now = new Date()
+      const template: ContractTemplate = {
+        ...templateData,
+        id: `contract-template-${Date.now()}`,
+        createdAt: now,
+        updatedAt: now,
+      }
+      setContractTemplates((prev) => [...prev, template])
+    },
+    []
+  )
+
+  const updateContractTemplate = useCallback(
+    (id: string, updates: Partial<ContractTemplate>) => {
+      setContractTemplates((prev) =>
+        prev.map((template) =>
+          template.id === id
+            ? { ...template, ...updates, updatedAt: new Date() }
+            : template
+        )
+      )
+    },
+    []
+  )
+
+  const deleteContractTemplate = useCallback((id: string) => {
+    setContractTemplates((prev) => prev.filter((template) => template.id !== id))
+  }, [])
+
+  const getContractTemplate = useCallback(
+    (id: string) => {
+      return contractTemplates.find((t) => t.id === id)
+    },
+    [contractTemplates]
+  )
+
+  const generateContract = useCallback(
+    (data: {
+      templateId: string
+      clientId: string
+      startDate: Date
+      endDate: Date
+      terms: string
+      projectCost?: number
+      paymentMethod?: string
+      projectDuration?: string
+      maintenanceCost?: number
+      clientAddress?: string
+      clientEmail?: string
+      clientPhone?: string
+      companyRepresentatives?: string
+    }): Contract => {
+      const contract: Contract = {
+        id: `contract-${Date.now()}`,
+        templateId: data.templateId,
+        clientId: data.clientId,
+        contractNumber: generateContractNumber(),
+        issueDate: new Date(),
+        startDate: data.startDate,
+        endDate: data.endDate,
+        terms: data.terms,
+        projectCost: data.projectCost,
+        paymentMethod: data.paymentMethod,
+        projectDuration: data.projectDuration,
+        maintenanceCost: data.maintenanceCost,
+        clientAddress: data.clientAddress,
+        clientEmail: data.clientEmail,
+        clientPhone: data.clientPhone,
+        companyRepresentatives: data.companyRepresentatives,
+        status: "draft",
+      }
+      setContracts((prev) => [...prev, contract])
+      return contract
+    },
+    []
+  )
+
+  const getContract = useCallback(
+    (id: string) => {
+      return contracts.find((c) => c.id === id)
+    },
+    [contracts]
+  )
+
   return (
     <PaymentStoreContext.Provider
       value={{
@@ -384,6 +585,14 @@ export function PaymentStoreProvider({
         getInvoiceTemplate,
         generateInvoice,
         getInvoice,
+        contractTemplates,
+        contracts,
+        addContractTemplate,
+        updateContractTemplate,
+        deleteContractTemplate,
+        getContractTemplate,
+        generateContract,
+        getContract,
       }}
     >
       {children}

@@ -20,10 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Search, Mail, FileText } from "lucide-react"
+import { Search, Mail, FileText, FileSignature } from "lucide-react"
 import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
 import { InvoiceGenerator } from "@/components/invoice-generator"
+import { ContractGenerator } from "@/components/contract-generator"
 import { formatCurrency } from "@/lib/payment-utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -37,6 +38,7 @@ export default function ClientsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [invoiceDialogClientId, setInvoiceDialogClientId] = useState<string | null>(null)
+  const [contractDialogClientId, setContractDialogClientId] = useState<string | null>(null)
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
@@ -56,6 +58,10 @@ export default function ClientsPage() {
 
   const handleSendInvoice = (client: typeof clients[0]) => {
     setInvoiceDialogClientId(client.id)
+  }
+
+  const handleGenerateContract = (client: typeof clients[0]) => {
+    setContractDialogClientId(client.id)
   }
 
   const getStatusBadgeVariant = (
@@ -207,6 +213,20 @@ export default function ClientsPage() {
                             <p>Send Invoice</p>
                           </TooltipContent>
                         </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="secondary"
+                              size="icon"
+                              onClick={() => handleGenerateContract(client)}
+                            >
+                              <FileSignature className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent side="bottom">
+                            <p>Generate Contract</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -222,6 +242,14 @@ export default function ClientsPage() {
           clientId={invoiceDialogClientId}
           open={invoiceDialogClientId !== null}
           onOpenChange={(open) => !open && setInvoiceDialogClientId(null)}
+        />
+      )}
+
+      {contractDialogClientId && (
+        <ContractGenerator
+          clientId={contractDialogClientId}
+          open={contractDialogClientId !== null}
+          onOpenChange={(open) => !open && setContractDialogClientId(null)}
         />
       )}
     </div>
