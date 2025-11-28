@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ContractTemplateBuilder } from "@/components/contract-template-builder"
-import { ContractTemplatePreview } from "@/components/contract-template-preview"
+import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder"
+import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { ContractTemplate } from "@/lib/contract-utils"
 

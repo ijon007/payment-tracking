@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { InvoiceTemplateBuilder } from "@/components/invoice-template-builder"
-import { TemplatePreview } from "@/components/template-preview"
+import { InvoiceTemplateBuilder } from "@/components/invoice/invoice-template-builder"
+import { TemplatePreview } from "@/components/invoice/template-preview"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { InvoiceTemplate } from "@/lib/invoice-utils"
 

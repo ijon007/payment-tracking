@@ -10,7 +10,6 @@ import {
 } from "@react-pdf/renderer"
 import type { Contract, ContractTemplate } from "@/lib/contract-utils"
 import type { Client } from "@/lib/payment-utils"
-import { format } from "date-fns"
 
 // Define styles matching the Albanian contract template
 const styles = StyleSheet.create({

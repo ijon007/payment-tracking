@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { ContractPreview } from "@/components/contract-preview"
+import { ContractPreview } from "@/components/contracts/contract-preview"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 

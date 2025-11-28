@@ -16,8 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { usePaymentStore } from "@/lib/store"
 import { format } from "date-fns"
 import { pdf } from "@react-pdf/renderer"
-import { InvoicePDF } from "./invoice-pdf"
-import { ContractPDF } from "./contract-pdf"
+import { InvoicePDF } from "../invoice/invoice-pdf"
+import { ContractPDF } from "../contracts/contract-pdf"
 import { SimpleTextEditor } from "./simple-text-editor"
 
 interface EmailDialogProps {

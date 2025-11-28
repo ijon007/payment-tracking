@@ -23,9 +23,9 @@ import {
 import { Search, Mail, FileText, FileSignature } from "lucide-react"
 import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
-import { InvoiceGenerator } from "@/components/invoice-generator"
-import { ContractGenerator } from "@/components/contract-generator"
-import { EmailDialog } from "@/components/email-dialog"
+import { InvoiceGenerator } from "@/components/invoice/invoice-generator"
+import { ContractGenerator } from "@/components/contracts/contract-generator"
+import { EmailDialog } from "@/components/email/email-dialog"
 import { formatCurrency } from "@/lib/payment-utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {

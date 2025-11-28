@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { InvoicePreview } from "@/components/invoice-preview"
+import { InvoicePreview } from "@/components/invoice/invoice-preview"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { formatCurrency } from "@/lib/payment-utils"
