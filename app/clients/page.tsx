@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -25,6 +25,7 @@ import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
 import { InvoiceGenerator } from "@/components/invoice-generator"
 import { ContractGenerator } from "@/components/contract-generator"
+import { EmailDialog } from "@/components/email-dialog"
 import { formatCurrency } from "@/lib/payment-utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -39,6 +40,13 @@ export default function ClientsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [invoiceDialogClientId, setInvoiceDialogClientId] = useState<string | null>(null)
   const [contractDialogClientId, setContractDialogClientId] = useState<string | null>(null)
+  const [emailDialogClientId, setEmailDialogClientId] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
@@ -52,8 +60,7 @@ export default function ClientsPage() {
   })
 
   const handleEmail = (client: typeof clients[0]) => {
-    console.log("Email client:", client.name)
-    // Placeholder for email functionality
+    setEmailDialogClientId(client.id)
   }
 
   const handleSendInvoice = (client: typeof clients[0]) => {
@@ -141,7 +148,11 @@ export default function ClientsPage() {
           </div>
         </CardHeader>
         <CardContent>
-          {filteredClients.length === 0 ? (
+          {!mounted ? (
+            <div className="text-center py-8 text-muted-foreground">
+              Loading...
+            </div>
+          ) : filteredClients.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {clients.length === 0
                 ? "No clients found. Add your first client to get started."
@@ -250,6 +261,14 @@ export default function ClientsPage() {
           clientId={contractDialogClientId}
           open={contractDialogClientId !== null}
           onOpenChange={(open) => !open && setContractDialogClientId(null)}
+        />
+      )}
+
+      {emailDialogClientId && (
+        <EmailDialog
+          clientId={emailDialogClientId}
+          open={emailDialogClientId !== null}
+          onOpenChange={(open) => !open && setEmailDialogClientId(null)}
         />
       )}
     </div>

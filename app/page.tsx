@@ -314,7 +314,7 @@ export default function Dashboard() {
       </div>
 
       <Dialog open={openDialog === "revenue"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl p-0">
+        <DialogContent className="max-w-2xl p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Revenue</DialogTitle>
           </DialogHeader>
@@ -323,7 +323,7 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "outstanding"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl p-0">
+        <DialogContent className="max-w-2xl p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Outstanding Balance</DialogTitle>
           </DialogHeader>
@@ -332,7 +332,7 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "due"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl p-0">
+        <DialogContent className="max-w-2xl p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Due</DialogTitle>
           </DialogHeader>
@@ -341,7 +341,7 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "retainers"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl p-0">
+        <DialogContent className="max-w-2xl p-0">
           <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Retainers</DialogTitle>
           </DialogHeader>

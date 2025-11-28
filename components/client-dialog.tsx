@@ -58,7 +58,7 @@ export function ClientDialog() {
       <DialogTrigger asChild>
         <Button>Add Client</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="w-1/3 max-h-[90vh] overflow-y-auto gap-5 scrollbar-hide">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="sr-only">
             <DialogTitle>Add New Client</DialogTitle>
