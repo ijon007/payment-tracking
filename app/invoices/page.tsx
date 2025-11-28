@@ -72,21 +72,57 @@ export default function InvoicesPage() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {invoiceTemplates.map((template) => (
-                <Card key={template.id}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-base">{template.name}</CardTitle>
-                        <CardDescription className="mt-1">
+                <Card 
+                  key={template.id}
+                  className="transition-all duration-200 p-3"
+                >
+                  <CardHeader className="p-0">
+                    <div className="flex items-start gap-3">
+                      <div className="shrink-0 mt-1">
+                        {template.logoUrl ? (
+                          <div className="size-12 rounded-md overflow-hidden border border-border/60 bg-muted/50 flex items-center justify-center">
+                            <img
+                              src={template.logoUrl}
+                              alt={template.companyName}
+                              className="size-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none"
+                                const parent = e.currentTarget.parentElement
+                                if (parent) {
+                                  parent.innerHTML = '<svg class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>'
+                                }
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <div className="size-12 rounded-md border border-border/60 bg-primary/10 flex items-center justify-center">
+                            <FileText className="h-6 w-6 text-primary/70" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors">
+                          {template.name}
+                        </CardTitle>
+                        <CardDescription className="mt-1.5 line-clamp-1">
                           {template.companyName}
                         </CardDescription>
+                        {template.companyEmail && (
+                          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">
+                            {template.companyEmail}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2">
-                      <Link href={`/invoices/templates/${template.id}`}>
-                        <Button variant="outline" size="sm">
+                  <CardContent className="p-0">
+                    <div className="flex items-center gap-2 w-full">
+                      <Link href={`/invoices/templates/${template.id}`} className="w-1/2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full border-primary/50 text-primary hover:text-primary transition-colors hover:bg-white/5 duration-200"
+                        >
                           <Edit className="mr-2 h-4 w-4" />
                           Edit
                         </Button>
@@ -95,6 +131,7 @@ export default function InvoicesPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setDeleteDialogOpen(template.id)}
+                        className="w-1/2 border-destructive/50 text-destructive hover:text-destructive transition-colors hover:bg-white/5 duration-200"
                       >
                         <Trash className="mr-2 h-4 w-4" />
                         Delete
