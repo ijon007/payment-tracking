@@ -23,6 +23,7 @@ import {
 import { Search, Mail, FileText } from "lucide-react"
 import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
+import { InvoiceGenerator } from "@/components/invoice-generator"
 import { formatCurrency } from "@/lib/payment-utils"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
@@ -35,6 +36,7 @@ export default function ClientsPage() {
   const { clients } = usePaymentStore()
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [invoiceDialogClientId, setInvoiceDialogClientId] = useState<string | null>(null)
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
@@ -53,8 +55,7 @@ export default function ClientsPage() {
   }
 
   const handleSendInvoice = (client: typeof clients[0]) => {
-    console.log("Send invoice to:", client.name)
-    // Placeholder for invoice functionality
+    setInvoiceDialogClientId(client.id)
   }
 
   const getStatusBadgeVariant = (
@@ -215,6 +216,14 @@ export default function ClientsPage() {
           )}
         </CardContent>
       </Card>
+
+      {invoiceDialogClientId && (
+        <InvoiceGenerator
+          clientId={invoiceDialogClientId}
+          open={invoiceDialogClientId !== null}
+          onOpenChange={(open) => !open && setInvoiceDialogClientId(null)}
+        />
+      )}
     </div>
   )
 }
