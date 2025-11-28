@@ -69,8 +69,8 @@ export default function Dashboard() {
   }
 
   const renderChart = (data: typeof revenueData, title: string, gradientId: string) => (
-    <div className="w-full overflow-hidden">
-      <ChartContainer config={chartConfig} className="h-[300px] w-full">
+    <div className="w-full overflow-hidden -mx-10 px-0">
+      <ChartContainer config={chartConfig} className="h-[400px] w-full">
         <AreaChart data={data} margin={{ left: 50, right: 20, top: 10, bottom: 30 }}>
           <defs>
             <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
@@ -314,8 +314,8 @@ export default function Dashboard() {
       </div>
 
       <Dialog open={openDialog === "revenue"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Revenue</DialogTitle>
           </DialogHeader>
           {renderChart(revenueData, "Total Revenue", "gradient-revenue-dialog")}
@@ -323,8 +323,8 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "outstanding"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Outstanding Balance</DialogTitle>
           </DialogHeader>
           {renderChart(outstandingData, "Total Outstanding Balance", "gradient-outstanding-dialog")}
@@ -332,8 +332,8 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "due"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Due</DialogTitle>
           </DialogHeader>
           {renderChart(dueData, "Total Due", "gradient-due-dialog")}
@@ -341,8 +341,8 @@ export default function Dashboard() {
       </Dialog>
 
       <Dialog open={openDialog === "retainers"} onOpenChange={(open) => !open && setOpenDialog(null)}>
-        <DialogContent className="max-w-6xl">
-          <DialogHeader>
+        <DialogContent className="max-w-6xl p-0">
+          <DialogHeader className="px-6 pt-6 pb-4">
             <DialogTitle>Total Retainers</DialogTitle>
           </DialogHeader>
           {renderChart(retainersData, "Total Retainers", "gradient-retainers-dialog")}
