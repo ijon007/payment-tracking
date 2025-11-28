@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -23,26 +23,32 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 export default function Dashboard() {
   const { clients } = usePaymentStore()
   const [openDialog, setOpenDialog] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // Calculate totals
-  const totalRevenue = clients.reduce(
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // Calculate totals - use empty array during SSR to prevent hydration mismatch
+  const clientsToUse = mounted ? clients : []
+  const totalRevenue = clientsToUse.reduce(
     (sum, client) => sum + client.amountPaid,
     0
   )
 
-  const totalOutstanding = clients.reduce(
+  const totalOutstanding = clientsToUse.reduce(
     (sum, client) => sum + client.amountDue,
     0
   )
 
-  const totalDue = clients.reduce((sum, client) => {
+  const totalDue = clientsToUse.reduce((sum, client) => {
     const unpaid = client.payments
       .filter((p) => !p.paidDate)
       .reduce((s, p) => s + p.amount, 0)
     return sum + unpaid
   }, 0)
 
-  const totalRetainers = clients.reduce((sum, client) => {
+  const totalRetainers = clientsToUse.reduce((sum, client) => {
     const retainers = client.payments
       .filter((p) => p.type === "retainer" && p.paidDate)
       .reduce((s, p) => s + p.amount, 0)
@@ -50,10 +56,10 @@ export default function Dashboard() {
   }, 0)
 
   // Generate chart data
-  const revenueData = generateChartData(clients, "revenue", 6)
-  const outstandingData = generateChartData(clients, "outstanding", 6)
-  const dueData = generateChartData(clients, "due", 6)
-  const retainersData = generateChartData(clients, "retainers", 6)
+  const revenueData = generateChartData(clientsToUse, "revenue", 6)
+  const outstandingData = generateChartData(clientsToUse, "outstanding", 6)
+  const dueData = generateChartData(clientsToUse, "due", 6)
+  const retainersData = generateChartData(clientsToUse, "retainers", 6)
 
   const chartConfig = {
     value: {
@@ -266,7 +272,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.filter((c) => c.status === "paid").length}
+              {clientsToUse.filter((c) => c.status === "paid").length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Clients with all payments completed
@@ -282,7 +288,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.filter((c) => c.status === "pending").length}
+              {clientsToUse.filter((c) => c.status === "pending").length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Clients with pending payments
@@ -298,7 +304,7 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {clients.filter((c) => c.status === "overdue").length}
+              {clientsToUse.filter((c) => c.status === "overdue").length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               Clients with overdue payments
