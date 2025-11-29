@@ -100,7 +100,7 @@ export default function ClientsPage() {
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
               <CardTitle>Client List</CardTitle>
-              <CardDescription>
+              <CardDescription className="sr-only">
                 Searchable and filterable client directory
               </CardDescription>
             </div>
@@ -222,6 +222,7 @@ export default function ClientsPage() {
                           <TooltipTrigger asChild>
                             <Button
                               variant="secondary"
+                              className="bg-green-900 text-white hover:bg-green-900/90"
                               size="icon"
                               onClick={() => handleSendInvoice(client)}
                             >
