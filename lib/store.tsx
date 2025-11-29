@@ -124,6 +124,8 @@ type PaymentStoreContextType = {
   updateClient: (id: string, updates: Partial<Client>) => void
   addPayment: (clientId: string, paymentId: string, paidDate: Date) => void
   getClient: (id: string) => Client | undefined
+  getClientContracts: (clientId: string) => Contract[]
+  getClientInvoices: (clientId: string) => Invoice[]
   invoiceTemplates: InvoiceTemplate[]
   invoices: Invoice[]
   addInvoiceTemplate: (template: Omit<InvoiceTemplate, "id" | "createdAt" | "updatedAt">) => void
@@ -340,6 +342,7 @@ export function PaymentStoreProvider({
         amountDue,
         status: "pending",
         payments,
+        currency: clientData.currency || "USD",
       }
 
       // Recalculate status
@@ -409,6 +412,20 @@ export function PaymentStoreProvider({
       return clients.find((c) => c.id === id)
     },
     [clients]
+  )
+
+  const getClientContracts = useCallback(
+    (clientId: string) => {
+      return contracts.filter((c) => c.clientId === clientId)
+    },
+    [contracts]
+  )
+
+  const getClientInvoices = useCallback(
+    (clientId: string) => {
+      return invoices.filter((i) => i.clientId === clientId)
+    },
+    [invoices]
   )
 
   const addInvoiceTemplate = useCallback(
@@ -578,6 +595,8 @@ export function PaymentStoreProvider({
         updateClient,
         addPayment,
         getClient,
+        getClientContracts,
+        getClientInvoices,
         invoiceTemplates,
         invoices,
         addInvoiceTemplate,

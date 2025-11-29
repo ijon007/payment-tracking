@@ -25,6 +25,13 @@ export type Client = {
   status: "paid" | "pending" | "overdue"
   paymentPlanId: string | null
   payments: Payment[]
+  email?: string
+  phone?: string
+  address?: string
+  serviceType?: string
+  retainerDetails?: string
+  initialRequests?: string
+  currency?: string
 }
 
 // Hardcoded payment plan templates
@@ -155,10 +162,10 @@ export function calculateClientStatus(client: Client): "paid" | "pending" | "ove
 /**
  * Format number as currency
  */
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number, currency: string = "USD"): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: currency,
   }).format(amount)
 }
 

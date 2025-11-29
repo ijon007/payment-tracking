@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Search, Mail, FileText, FileSignature } from "lucide-react"
+import Link from "next/link"
 import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
 import { InvoiceGenerator } from "@/components/invoice/invoice-generator"
@@ -174,7 +175,14 @@ export default function ClientsPage() {
               <TableBody>
                 {filteredClients.map((client) => (
                   <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <Link
+                        href={`/clients/${client.id}`}
+                        className="text-primary hover:underline"
+                      >
+                        {client.name}
+                      </Link>
+                    </TableCell>
                     <TableCell>
                       <a
                         href={client.notionPageLink}

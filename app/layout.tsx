@@ -33,9 +33,11 @@ export default function RootLayout({
         <PaymentStoreProvider>
           <SidebarProvider>
             <AppSidebar />
-            <SidebarInset className="bg-background overflow-hidden">
-              <div className="flex flex-1 flex-col gap-4 p-4">
-                {children}
+            <SidebarInset className="bg-background overflow-hidden h-[calc(100svh-1rem)] flex flex-col">
+              <div className="flex-1 overflow-y-auto min-h-0">
+                <div className="flex flex-col gap-4 p-4">
+                  {children}
+                </div>
               </div>
             </SidebarInset>
           </SidebarProvider>
