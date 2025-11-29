@@ -143,9 +143,8 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="flex flex-col h-full -m-4">
-      {/* Header */}
-      <div className="flex items-center justify-between gap-2 px-4 py-4 border-b border-border shrink-0">
+    <div className="absolute inset-0 flex flex-col -m-4">
+      <div className="flex items-center justify-between gap-2 px-7 py-2 pt-6 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <h1 className="text-xl font-bold">Calendar</h1>
@@ -195,7 +194,7 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto px-4 py-4">
+      <div className="flex-1 overflow-auto px-4 py-4 min-h-0">
         <div className="h-full w-full">
           <MonthCalendar
             year={currentYear}
