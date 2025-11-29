@@ -28,17 +28,18 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
   const { contracts, getContractTemplate } = usePaymentStore()
   const clientContracts = contracts.filter((c) => c.clientId === client.id)
   const [convertedCosts, setConvertedCosts] = useState<Record<string, number>>({})
-  const baseCurrency = (client.currency as Currency) || "USD"
 
   useEffect(() => {
     const convertCosts = async () => {
+      // All amounts are stored in USD (base currency)
+      // Convert from USD to display currency
       const converted: Record<string, number> = {}
       for (const contract of clientContracts) {
         if (contract.projectCost) {
-          if (baseCurrency !== displayCurrency) {
+          if (displayCurrency !== "USD") {
             converted[contract.id] = await convertCurrency(
               contract.projectCost,
-              baseCurrency,
+              "USD",
               displayCurrency
             )
           } else {
@@ -49,7 +50,7 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
       setConvertedCosts(converted)
     }
     convertCosts()
-  }, [clientContracts, baseCurrency, displayCurrency])
+  }, [clientContracts, displayCurrency])
 
   const getStatusBadgeVariant = (
     status: "draft" | "sent" | "signed" | "active" | "expired"

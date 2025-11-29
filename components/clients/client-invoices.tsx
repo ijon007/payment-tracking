@@ -28,16 +28,17 @@ export function ClientInvoices({ client, displayCurrency }: ClientInvoicesProps)
   const { invoices } = usePaymentStore()
   const clientInvoices = invoices.filter((i) => i.clientId === client.id)
   const [convertedTotals, setConvertedTotals] = useState<Record<string, number>>({})
-  const baseCurrency = (client.currency as Currency) || "USD"
 
   useEffect(() => {
     const convertTotals = async () => {
+      // All amounts are stored in USD (base currency)
+      // Convert from USD to display currency
       const converted: Record<string, number> = {}
       for (const invoice of clientInvoices) {
-        if (baseCurrency !== displayCurrency) {
+        if (displayCurrency !== "USD") {
           converted[invoice.id] = await convertCurrency(
             invoice.total,
-            baseCurrency,
+            "USD",
             displayCurrency
           )
         } else {
@@ -47,7 +48,7 @@ export function ClientInvoices({ client, displayCurrency }: ClientInvoicesProps)
       setConvertedTotals(converted)
     }
     convertTotals()
-  }, [clientInvoices, baseCurrency, displayCurrency])
+  }, [clientInvoices, displayCurrency])
 
   const getStatusBadgeVariant = (
     status: "draft" | "sent" | "paid"

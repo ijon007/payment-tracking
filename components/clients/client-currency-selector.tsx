@@ -32,11 +32,12 @@ export function ClientCurrencySelector({
 
   useEffect(() => {
     const convert = async () => {
-      const fromCurrency = (client.currency as Currency) || "USD"
-      if (fromCurrency !== selectedCurrency) {
+      // All amounts are stored in USD (base currency)
+      // Convert from USD to selected display currency
+      if (selectedCurrency !== "USD") {
         const converted = await convertCurrency(
           client.agreedPrice,
-          fromCurrency,
+          "USD",
           selectedCurrency
         )
         setConvertedPrice(converted)
@@ -45,7 +46,7 @@ export function ClientCurrencySelector({
       }
     }
     convert()
-  }, [selectedCurrency, client.agreedPrice, client.currency])
+  }, [selectedCurrency, client.agreedPrice])
 
   const handleCurrencyChange = (currency: Currency) => {
     setSelectedCurrency(currency)
@@ -89,13 +90,9 @@ export function ClientCurrencySelector({
                 {formatCurrencyUtil(convertedPrice, selectedCurrency)}
               </span>
             </div>
-            {selectedCurrency !== (client.currency as Currency) && (
+            {selectedCurrency !== "USD" && (
               <p className="text-xs text-muted-foreground">
-                Converted from{" "}
-                {formatCurrencyUtil(
-                  client.agreedPrice,
-                  (client.currency as Currency) || "USD"
-                )}
+                Converted from {formatCurrencyUtil(client.agreedPrice, "USD")}
               </p>
             )}
           </div>

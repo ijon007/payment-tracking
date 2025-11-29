@@ -58,6 +58,8 @@ async function getExchangeRates(): Promise<Record<string, number>> {
 
 /**
  * Convert currency amount from one currency to another
+ * Exchange rates are relative to USD (base currency)
+ * Example: rates["EUR"] = 0.92 means 1 USD = 0.92 EUR
  */
 export async function convertCurrency(
   amount: number,
@@ -70,18 +72,25 @@ export async function convertCurrency(
 
   const rates = await getExchangeRates()
   
-  // Convert to USD first if not already
-  let amountInUSD = amount
-  if (fromCurrency !== "USD") {
-    const fromRate = rates[fromCurrency] || 1
-    amountInUSD = amount / fromRate
+  // All rates are relative to USD
+  // If fromCurrency is USD, we just multiply by the target rate
+  if (fromCurrency === "USD") {
+    const toRate = rates[toCurrency] || 1
+    return amount * toRate
   }
 
-  // Convert from USD to target currency
+  // If toCurrency is USD, we divide by the source rate
   if (toCurrency === "USD") {
-    return amountInUSD
+    const fromRate = rates[fromCurrency] || 1
+    return amount / fromRate
   }
 
+  // Convert between two non-USD currencies
+  // Step 1: Convert from source currency to USD
+  const fromRate = rates[fromCurrency] || 1
+  const amountInUSD = amount / fromRate
+  
+  // Step 2: Convert from USD to target currency
   const toRate = rates[toCurrency] || 1
   return amountInUSD * toRate
 }
