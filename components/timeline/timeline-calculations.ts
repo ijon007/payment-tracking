@@ -41,13 +41,13 @@ export function calculateDateRange() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Start 1 month back, end 5 months forward (6 months total)
+  // Start 1 month back, end 11 months forward (12 months total)
   const start = new Date(today);
   start.setMonth(start.getMonth() - 1);
   start.setDate(1); // First day of the month
 
   const end = new Date(today);
-  end.setMonth(end.getMonth() + 5);
+  end.setMonth(end.getMonth() + 11);
   // Last day of the month
   end.setMonth(end.getMonth() + 1);
   end.setDate(0);

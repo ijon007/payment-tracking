@@ -141,10 +141,10 @@ export function MonthCalendar({
   return (
     <div className={cn("flex h-full w-full flex-col", className)}>
       {/* Weekday headers */}
-      <div className="grid shrink-0 grid-cols-7 gap-px border-border border-b">
+      <div className="grid shrink-0 grid-cols-7 gap-px">
         {weekdays.map((day) => (
           <div
-            className="bg-muted/30 p-2 text-center font-medium text-muted-foreground text-xs"
+            className="p-2 text-center font-medium text-muted-foreground text-xs"
             key={day}
           >
             {day}

@@ -44,10 +44,10 @@ export function TimelineHeader({ config }: TimelineHeaderProps) {
           {config.todayPosition >= 0 &&
             config.todayPosition <= config.timelineWidth && (
               <div
-                className="absolute top-0 z-10 h-full w-0.5 bg-primary"
+                className="absolute top-0 z-10 h-full w-px bg-primary"
                 style={{ left: `${config.todayPosition}px` }}
               >
-                <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-primary" />
+                <div className="absolute -top-1 left-1/2 size-1.5 -translate-x-1/2 rounded-full bg-primary" />
               </div>
             )}
         </div>

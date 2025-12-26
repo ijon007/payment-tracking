@@ -35,7 +35,7 @@ export default function TimelinePage() {
     return createClientColorMap(clients);
   }, [clients]);
 
-  // Calculate date range - always 6 months from today
+  // Calculate date range - always 12 months from today
   const dateRange = useMemo(() => {
     if (!mounted) {
       // Return a stable default for SSR
@@ -43,7 +43,7 @@ export default function TimelinePage() {
       defaultStart.setMonth(defaultStart.getMonth() - 1);
       defaultStart.setDate(1);
       const defaultEnd = new Date();
-      defaultEnd.setMonth(defaultEnd.getMonth() + 5);
+      defaultEnd.setMonth(defaultEnd.getMonth() + 11);
       defaultEnd.setMonth(defaultEnd.getMonth() + 1);
       defaultEnd.setDate(0);
       return { start: defaultStart, end: defaultEnd };
@@ -57,9 +57,9 @@ export default function TimelinePage() {
   }, [dateRange]);
 
   return (
-    <div className="-m-4 flex h-[calc(100vh-2rem)] w-[calc(100%+2rem)] flex-col overflow-hidden">
+    <div className="-m-4 flex h-[calc(100%+2rem)] w-[calc(100%+2rem)] flex-col overflow-hidden">
       {/* Fixed Header */}
-      <div className="flex shrink-0 items-center gap-2 border-border border-b px-4 py-4">
+      <div className="flex shrink-0 items-center gap-2 border-border border-b px-4 py-2">
         <SidebarTrigger className="-ml-1" />
         <h1 className="font-semibold">Payment Timeline</h1>
       </div>

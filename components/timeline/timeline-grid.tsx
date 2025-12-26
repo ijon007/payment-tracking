@@ -30,6 +30,18 @@ export function TimelineGrid({ config }: TimelineGridProps) {
           }}
         />
       ))}
+
+      {/* Full-height today indicator */}
+      {config.todayPosition >= 0 &&
+        config.todayPosition <= config.timelineWidth && (
+          <div
+            className="pointer-events-none absolute top-0 z-10 w-px bg-primary"
+            style={{
+              left: `${config.todayPosition}px`,
+              height: "100%",
+            }}
+          />
+        )}
     </>
   );
 }
