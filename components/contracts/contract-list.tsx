@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Contract } from "@/lib/contract-utils";
+import { Badge } from "../ui/badge";
 
 interface ContractListProps {
   contracts: Contract[];
@@ -29,10 +30,10 @@ export function ContractList({
   return (
     <Card className="py-2">
       <CardContent className="p-0">
-        <div className="divide-y">
+        <div className="space-y-1">
           {contracts.map((contract) => (
             <div
-              className="mx-2 flex cursor-pointer items-center justify-between rounded-md p-4 transition-colors hover:bg-white/10"
+              className="mx-2 flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors hover:bg-white/10"
               key={contract.id}
               onClick={() => onContractClick(contract.id)}
             >
@@ -43,9 +44,10 @@ export function ContractList({
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="rounded bg-secondary px-2 py-1 text-secondary-foreground text-xs">
-                  {contract.status}
-                </span>
+                <Badge variant="secondary">
+                  {contract.status.charAt(0).toUpperCase() +
+                    contract.status.slice(1)}
+                </Badge>
               </div>
             </div>
           ))}

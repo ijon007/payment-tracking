@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Invoice } from "@/lib/invoice-utils";
 import { formatCurrency } from "@/lib/payment-utils";
+import { Badge } from "../ui/badge";
 
 interface InvoiceListProps {
   invoices: Invoice[];
@@ -26,10 +27,10 @@ export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
   return (
     <Card className="py-2">
       <CardContent className="p-0">
-        <div className="divide-y">
+        <div className="space-y-1">
           {invoices.map((invoice) => (
             <div
-              className="mx-2 flex cursor-pointer items-center justify-between rounded-md p-4 transition-colors hover:bg-white/10"
+              className="mx-2 flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors hover:bg-white/10"
               key={invoice.id}
               onClick={() => onInvoiceClick(invoice.id)}
             >
@@ -43,9 +44,10 @@ export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
                 <span className="font-medium text-sm">
                   {formatCurrency(invoice.total)}
                 </span>
-                <span className="rounded bg-secondary px-2 py-1 text-secondary-foreground text-xs">
-                  {invoice.status}
-                </span>
+                <Badge variant="secondary">
+                  {invoice.status.charAt(0).toUpperCase() +
+                    invoice.status.slice(1)}
+                </Badge>
               </div>
             </div>
           ))}

@@ -7,7 +7,7 @@ import {
   Signature,
 } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClientContracts } from "@/components/clients/client-contracts";
 import { ClientDealInfo } from "@/components/clients/client-deal-info";
 import { ClientGeneralInfo } from "@/components/clients/client-general-info";
@@ -37,6 +37,8 @@ export default function ClientDetailPage() {
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("general-info");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -50,6 +52,20 @@ export default function ClientDetailPage() {
       setDisplayCurrency((client.currency as Currency) || "USD");
     }
   }, [mounted, client]);
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current?.closest(
+      ".custom-scrollbar"
+    );
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setIsScrolled(scrollContainer.scrollTop > 0);
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll);
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
+  }, [mounted]);
 
   if (!mounted) {
     return (
@@ -86,7 +102,7 @@ export default function ClientDetailPage() {
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <div className="space-y-6">
-        <div className="sticky top-0 z-50 w-full bg-background">
+        <div className="sticky top-0 z-50 -mx-4 w-[calc(100%+2rem)] bg-background px-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center justify-center gap-2">
               <SidebarTrigger className="-ml-1" />
@@ -150,7 +166,7 @@ export default function ClientDetailPage() {
           </div>
         </div>
 
-        <div className="space-y-6 pb-8">
+        <div className="space-y-6">
           <TabsContent value="general-info" className="mt-6 space-y-6">
             <div className="grid gap-6 md:grid-cols-">
               <ClientGeneralInfo client={client} />

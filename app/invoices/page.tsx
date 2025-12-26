@@ -50,7 +50,7 @@ export default function InvoicesPage() {
         </div>
         <Link href="/invoices/templates/new">
           <Button>
-            <Plus className="mr-2 size-3" weight="bold" />
+            <Plus className="size-3" weight="bold" />
             New Template
           </Button>
         </Link>
