@@ -345,8 +345,7 @@ export default function TimelinePage() {
 
                 return (
                   <Tooltip key={payment.id}>
-                    <TooltipTrigger asChild>
-                      <div
+                    <TooltipTrigger render={<div
                         className="absolute rounded-md px-2 flex items-center justify-center text-xs cursor-pointer transition-opacity border shadow-sm"
                         style={{
                           left: `${position}px`,
@@ -361,8 +360,7 @@ export default function TimelinePage() {
                         <span className={`truncate text-[11px] font-semibold ${textColor}`}>
                           {formatCurrency(payment.amount)}
                         </span>
-                      </div>
-                    </TooltipTrigger>
+                      </div>} />
                     <TooltipContent 
                       side="bottom" 
                       hideArrow

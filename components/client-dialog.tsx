@@ -85,9 +85,7 @@ export function ClientDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>Add Client</Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button>Add Client</Button>} />
       <DialogContent className="w-1/2 max-h-[90vh] overflow-y-auto gap-5 scrollbar-hide">
         <form onSubmit={handleSubmit}>
           <DialogHeader className="sr-only">
@@ -221,7 +219,7 @@ export function ClientDialog() {
                       key={template.id}
                       className={cn(
                         "cursor-pointer transition-all hover:border-ring border-border",
-                        isSelected && "border-ring border"
+                        isSelected && "border-primary border"
                       )}
                       onClick={() => setPaymentPlanId(template.id)}
                     >

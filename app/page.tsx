@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button"
 import { usePaymentStore } from "@/lib/store"
 import { generateChartData, formatCurrency } from "@/lib/payment-utils"
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid } from "recharts"
-import { DollarSign, TrendingUp, Calendar, Wallet, ExternalLink } from "lucide-react"
+import { CurrencyDollar, TrendUp, Calendar, Wallet, ArrowSquareOut } from "@phosphor-icons/react"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function Dashboard() {
@@ -159,7 +159,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <CurrencyDollar weight="fill" className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-sm font-medium">
                   Total Revenue
                 </CardTitle>
@@ -170,7 +170,7 @@ export default function Dashboard() {
                 className="h-6 w-6"
                 onClick={() => setOpenDialog("revenue")}
               >
-                <ExternalLink className="h-4 w-4" />
+                <ArrowSquareOut className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -186,7 +186,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <TrendUp weight="fill" className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-sm font-medium">
                   Total Outstanding Balance
                 </CardTitle>
@@ -197,7 +197,7 @@ export default function Dashboard() {
                 className="h-6 w-6"
                 onClick={() => setOpenDialog("outstanding")}
               >
-                <ExternalLink className="h-4 w-4" />
+                <ArrowSquareOut className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -213,7 +213,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+                <Calendar weight="fill" className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-sm font-medium">Total Due</CardTitle>
               </div>
               <Button
@@ -222,7 +222,7 @@ export default function Dashboard() {
                 className="h-6 w-6"
                 onClick={() => setOpenDialog("due")}
               >
-                <ExternalLink className="h-4 w-4" />
+                <ArrowSquareOut className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>
@@ -238,7 +238,7 @@ export default function Dashboard() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Wallet className="h-4 w-4 text-muted-foreground" />
+                <Wallet weight="fill" className="h-4 w-4 text-muted-foreground" />
                 <CardTitle className="text-sm font-medium">
                   Total Retainers
                 </CardTitle>
@@ -249,7 +249,7 @@ export default function Dashboard() {
                 className="h-6 w-6"
                 onClick={() => setOpenDialog("retainers")}
               >
-                <ExternalLink className="h-4 w-4" />
+                <ArrowSquareOut className="h-4 w-4" />
               </Button>
             </div>
           </CardHeader>

@@ -1,14 +1,15 @@
 "use client"
 
 import {
-  LayoutDashboard,
+  SquaresFour,
   Users,
   FileText,
-  Home,
+  House,
   Calendar,
-  CalendarDays,
+  CalendarBlank,
   Receipt,
-} from "lucide-react"
+  LayoutIcon,
+} from "@phosphor-icons/react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
@@ -32,7 +33,7 @@ const menuGroups = [
       {
         title: "Overview",
         url: "/",
-        icon: LayoutDashboard,
+        icon: LayoutIcon,
       },
       {
         title: "Clients",
@@ -52,7 +53,7 @@ const menuGroups = [
       {
         title: "Calendar",
         url: "/calendar",
-        icon: CalendarDays,
+        icon: CalendarBlank,
       },
     ],
   },
@@ -80,7 +81,7 @@ export function AppSidebar() {
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-4">
-          <Home className="size-5" />
+          <House className="size-5" />
           <span className="font-semibold text-lg hidden group-data-[collapsible=icon]:hidden">Payments Tracker</span>
         </div>
       </SidebarHeader>
@@ -90,25 +91,27 @@ export function AppSidebar() {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu className="gap-2">
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      tooltip={item.title}
-                      isActive={
-                        pathname === item.url || 
-                        (item.url === "/invoices" && pathname?.startsWith("/invoices")) ||
-                        (item.url === "/contracts" && pathname?.startsWith("/contracts")) ||
-                        (item.url === "/calendar" && pathname?.startsWith("/calendar"))
-                      }
-                    >
-                      <Link href={item.url} className="rounded-sm hover:bg-sidebar-accent/10 hover:text-white data-[active=true]:bg-sidebar-accent/10 data-[active=true]:text-white active:bg-sidebar-accent/10 active:text-white">
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  const isActive = pathname === item.url || 
+                    (item.url === "/invoices" && pathname?.startsWith("/invoices")) ||
+                    (item.url === "/contracts" && pathname?.startsWith("/contracts")) ||
+                    (item.url === "/calendar" && pathname?.startsWith("/calendar"))
+                  
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        render={(props) => (
+                          <Link href={item.url} {...props}>
+                            <item.icon weight="fill" />
+                            <span>{item.title}</span>
+                          </Link>
+                        )}
+                        tooltip={item.title}
+                        isActive={isActive}
+                      />
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

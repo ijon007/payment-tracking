@@ -9,7 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { formatCurrency } from "@/lib/payment-utils"
-import { Calendar as CalendarIcon, CreditCard, FileText, CheckCircle, AlertCircle } from "lucide-react"
+import { Calendar as CalendarIcon, CreditCard, FileText, CheckCircle, WarningCircle } from "@phosphor-icons/react"
 
 export type CalendarEvent = {
   id: string
@@ -94,7 +94,7 @@ export function MonthCalendar({ year, month, events, className }: MonthCalendarP
       case "contract-start":
         return FileText
       case "contract-expiration":
-        return AlertCircle
+        return WarningCircle
       case "project-completion":
         return CheckCircle
     }
@@ -172,8 +172,7 @@ export function MonthCalendar({ year, month, events, className }: MonthCalendarP
                   const Icon = getEventIcon(event.type)
                   return (
                     <Tooltip key={event.id}>
-                      <TooltipTrigger asChild>
-                        <div
+                      <TooltipTrigger render={<div
                           className={cn(
                             "text-[10px] px-1 py-0.5 rounded border cursor-pointer truncate flex items-center gap-1",
                             getEventColor(event.type)
@@ -181,8 +180,7 @@ export function MonthCalendar({ year, month, events, className }: MonthCalendarP
                         >
                           <Icon className="size-4 shrink-0" />
                           <span className="truncate">{getEventLabel(event)}</span>
-                        </div>
-                      </TooltipTrigger>
+                        </div>} />
                       <TooltipContent side="top" hideArrow className="w-64 bg-zinc-900 text-foreground border border-white/6  0">
                         <div className="space-y-1.5">
                           <div className="font-semibold">{event.clientName}</div>

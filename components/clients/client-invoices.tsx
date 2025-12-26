@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Table,
@@ -16,7 +16,7 @@ import { usePaymentStore } from "@/lib/store"
 import { formatCurrency as formatCurrencyUtil, convertCurrency, type Currency } from "@/lib/currency-utils"
 import type { Client } from "@/lib/payment-utils"
 import { format } from "date-fns"
-import { ExternalLink } from "lucide-react"
+import { ArrowSquareOut } from "@phosphor-icons/react"
 import Link from "next/link"
 
 interface ClientInvoicesProps {
@@ -26,7 +26,10 @@ interface ClientInvoicesProps {
 
 export function ClientInvoices({ client, displayCurrency }: ClientInvoicesProps) {
   const { invoices } = usePaymentStore()
-  const clientInvoices = invoices.filter((i) => i.clientId === client.id)
+  const clientInvoices = useMemo(
+    () => invoices.filter((i) => i.clientId === client.id),
+    [invoices, client.id]
+  )
   const [convertedTotals, setConvertedTotals] = useState<Record<string, number>>({})
 
   useEffect(() => {
@@ -118,7 +121,7 @@ export function ClientInvoices({ client, displayCurrency }: ClientInvoicesProps)
                 <TableCell className="text-right">
                   <Link href={`/invoices?invoice=${invoice.id}`}>
                     <Button variant="ghost" size="sm">
-                      <ExternalLink className="h-4 w-4 mr-2" />
+                      <ArrowSquareOut className="h-4 w-4 mr-2" />
                       View
                     </Button>
                   </Link>

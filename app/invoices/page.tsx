@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { usePaymentStore } from "@/lib/store"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Plus, FileText, Edit, Trash } from "lucide-react"
+import { Plus, FileText, PencilSimple, Trash } from "@phosphor-icons/react"
 import Link from "next/link"
 import {
   AlertDialog,
@@ -131,7 +131,7 @@ export default function InvoicesPage() {
                           size="sm" 
                           className="w-full border-primary/50 text-primary hover:text-primary transition-colors hover:bg-white/5 duration-200"
                         >
-                          <Edit className="mr-2 h-4 w-4" />
+                          <PencilSimple className="mr-2 h-4 w-4" />
                           Edit
                         </Button>
                       </Link>

@@ -2,7 +2,7 @@
 
 import { useRef } from "react"
 import { Button } from "@/components/ui/button"
-import { Bold, Italic, Underline, List, ListOrdered } from "lucide-react"
+import { TextB, TextItalic, TextUnderline, ListBullets, ListNumbers } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 interface SimpleTextEditorProps {
@@ -108,7 +108,7 @@ export function SimpleTextEditor({
           onClick={formatBold}
           title="Bold"
         >
-          <Bold className="h-4 w-4" />
+          <TextB className="h-4 w-4" />
         </Button>
         <Button
           type="button"
@@ -118,7 +118,7 @@ export function SimpleTextEditor({
           onClick={formatItalic}
           title="Italic"
         >
-          <Italic className="h-4 w-4" />
+          <TextItalic className="h-4 w-4" />
         </Button>
         <Button
           type="button"
@@ -128,7 +128,7 @@ export function SimpleTextEditor({
           onClick={formatUnderline}
           title="Underline"
         >
-          <Underline className="h-4 w-4" />
+          <TextUnderline className="h-4 w-4" />
         </Button>
         <div className="w-px h-6 bg-border mx-1" />
         <Button
@@ -139,7 +139,7 @@ export function SimpleTextEditor({
           onClick={formatBulletList}
           title="Bullet List"
         >
-          <List className="h-4 w-4" />
+          <ListBullets className="h-4 w-4" />
         </Button>
         <Button
           type="button"
@@ -149,7 +149,7 @@ export function SimpleTextEditor({
           onClick={formatNumberedList}
           title="Numbered List"
         >
-          <ListOrdered className="h-4 w-4" />
+          <ListNumbers className="h-4 w-4" />
         </Button>
       </div>
       <textarea

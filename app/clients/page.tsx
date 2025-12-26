@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Search, Mail, FileText, FileSignature } from "lucide-react"
+import { MagnifyingGlass, Envelope, FileText, Signature } from "@phosphor-icons/react"
 import Link from "next/link"
 import { usePaymentStore } from "@/lib/store"
 import { ClientDialog } from "@/components/client-dialog"
@@ -38,7 +38,7 @@ import {
 export default function ClientsPage() {
   const { clients } = usePaymentStore()
   const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [statusFilter, setStatusFilter] = useState<string>("All Status")
   const [invoiceDialogClientId, setInvoiceDialogClientId] = useState<string | null>(null)
   const [contractDialogClientId, setContractDialogClientId] = useState<string | null>(null)
   const [emailDialogClientId, setEmailDialogClientId] = useState<string | null>(null)
@@ -55,7 +55,7 @@ export default function ClientsPage() {
       client.notionPageLink.toLowerCase().includes(searchQuery.toLowerCase())
 
     const matchesStatus =
-      statusFilter === "all" || client.status === statusFilter
+      statusFilter === "All Status" || client.status === statusFilter
 
     return matchesSearch && matchesStatus
   })
@@ -105,39 +105,39 @@ export default function ClientsPage() {
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <div className="relative w-64">
+                <MagnifyingGlass weight="fill" className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   placeholder="Search clients..."
-                  className="pl-8 w-64"
+                  className="w-full pl-8"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value || "All Status")}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">
+                  <SelectItem value="All Status">
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-muted-foreground" />
                       <span>All Status</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="paid">
+                  <SelectItem value="Paid">
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-primary" />
                       <span>Paid</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="pending">
+                  <SelectItem value="Pending">
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-secondary" />
                       <span>Pending</span>
                     </div>
                   </SelectItem>
-                  <SelectItem value="overdue">
+                  <SelectItem value="Overdue">
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-destructive" />
                       <span>Overdue</span>
@@ -205,44 +205,38 @@ export default function ClientsPage() {
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
+                          <TooltipTrigger render={<Button
                               variant="default"
                               size="icon"
                               onClick={() => handleEmail(client)}
                             >
-                              <Mail className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
+                              <Envelope className="h-4 w-4" />
+                            </Button>} />
                           <TooltipContent side="bottom" className="">
                             <p>Email</p>
                           </TooltipContent>
                         </Tooltip>
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
+                          <TooltipTrigger render={<Button
                               variant="secondary"
                               className="bg-green-900 text-white hover:bg-green-900/90"
                               size="icon"
                               onClick={() => handleSendInvoice(client)}
                             >
                               <FileText className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
+                            </Button>} />
                           <TooltipContent side="bottom">
                             <p>Send Invoice</p>
                           </TooltipContent>
                         </Tooltip>
                         <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
+                          <TooltipTrigger render={<Button
                               variant="secondary"
                               size="icon"
                               onClick={() => handleGenerateContract(client)}
                             >
-                              <FileSignature className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
+                              <Signature className="h-4 w-4" />
+                            </Button>} />
                           <TooltipContent side="bottom">
                             <p>Generate Contract</p>
                           </TooltipContent>

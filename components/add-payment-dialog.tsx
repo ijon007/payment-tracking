@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { DollarSign } from "lucide-react"
+import { CurrencyDollar } from "@phosphor-icons/react"
 import { usePaymentStore } from "@/lib/store"
 import { formatCurrency } from "@/lib/payment-utils"
 
@@ -55,16 +55,20 @@ export function AddPaymentDialog({
     return null
   }
 
+  const defaultTrigger = (
+    <Button variant="ghost" size="sm" className="w-full justify-start">
+      <CurrencyDollar className="mr-2 h-4 w-4" />
+      Add Payment
+    </Button>
+  )
+
+  const triggerElement = trigger && typeof trigger === 'object' && 'type' in trigger 
+    ? trigger 
+    : defaultTrigger
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="ghost" size="sm" className="w-full justify-start">
-            <DollarSign className="mr-2 h-4 w-4" />
-            Add Payment
-          </Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger render={triggerElement} />
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
@@ -77,12 +81,12 @@ export function AddPaymentDialog({
             <div className="grid gap-2">
               <Label htmlFor="payment">Select Payment</Label>
               <Select
-                value={selectedPaymentId}
-                onValueChange={setSelectedPaymentId}
+                value={selectedPaymentId || null}
+                onValueChange={(value) => setSelectedPaymentId(value || "")}
                 required
               >
                 <SelectTrigger id="payment">
-                  <SelectValue placeholder="Select a payment to mark as paid" />
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {unpaidPayments.map((payment) => (

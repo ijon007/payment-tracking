@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { usePaymentStore } from "@/lib/store"
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
+import { CaretLeft, CaretRight, Calendar as CalendarIcon } from "@phosphor-icons/react"
 import { format } from "date-fns"
 
 export default function CalendarPage() {
@@ -158,16 +158,14 @@ export default function CalendarPage() {
             onClick={goToPreviousMonth}
             aria-label="Previous month"
           >
-            <ChevronLeft className="size-4" />
+            <CaretLeft weight="fill" className="size-4" />
           </Button>
 
           <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="min-w-[200px] justify-start">
-                <CalendarIcon className="mr-2 size-4" />
+            <PopoverTrigger render={<Button variant="outline" className="min-w-[200px] justify-start cursor-pointer">
+                <CalendarIcon weight="fill" className="mr-2 size-4" />
                 {format(currentDate, "MMMM yyyy")}
-              </Button>
-            </PopoverTrigger>
+              </Button>} />
             <PopoverContent align="center" className="w-auto p-0">
               <Calendar
                 mode="single"
@@ -189,7 +187,7 @@ export default function CalendarPage() {
             onClick={goToNextMonth}
             aria-label="Next month"
           >
-            <ChevronRight className="size-4" />
+            <CaretRight weight="fill" className="size-4" />
           </Button>
         </div>
       </div>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { usePaymentStore } from "@/lib/store"
 import type { Client } from "@/lib/payment-utils"
 import { PAYMENT_PLAN_TEMPLATES } from "@/lib/payment-utils"
-import { Edit2, Save, X, ExternalLink } from "lucide-react"
+import { PencilSimple, FloppyDisk, X, ArrowSquareOut } from "@phosphor-icons/react"
 
 interface ClientDealInfoProps {
   client: Client
@@ -54,7 +54,7 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
           </div>
           {!isEditing ? (
             <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              <Edit2 className="h-4 w-4 mr-2" />
+              <PencilSimple className="h-4 w-4 mr-2" />
               Edit
             </Button>
           ) : (
@@ -64,7 +64,7 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
                 Cancel
               </Button>
               <Button variant="default" size="sm" onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />
+                <FloppyDisk className="h-4 w-4 mr-2" />
                 Save
               </Button>
             </div>
@@ -134,7 +134,7 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
             className="flex items-center gap-2 text-sm text-primary hover:underline"
           >
             {client.notionPageLink}
-            <ExternalLink className="h-4 w-4" />
+            <ArrowSquareOut className="h-4 w-4" />
           </a>
         </div>
       </CardContent>

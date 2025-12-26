@@ -29,7 +29,7 @@ import { ContractPreview } from "./contract-preview"
 import { ContractPDF } from "./contract-pdf"
 import { format } from "date-fns"
 import { pdf } from "@react-pdf/renderer"
-import { Download, CalendarIcon } from "lucide-react"
+import { Download, Calendar as CalendarIcon } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -214,7 +214,7 @@ export function ContractGenerator({
                     onValueChange={setSelectedTemplateId}
                   >
                     <SelectTrigger id="template" className="border-border w-full">
-                      <SelectValue placeholder="Select a template" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent align="start">
                       {contractTemplates.map((template) => (
@@ -234,8 +234,7 @@ export function ContractGenerator({
                 <div className="grid gap-2">
                   <Label className="text-xs">Start Date</Label>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
+                    <PopoverTrigger render={<Button
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
@@ -244,8 +243,7 @@ export function ContractGenerator({
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
+                      </Button>} />
                     <PopoverContent align="start" className="w-auto p-0">
                       <Calendar
                         mode="single"
@@ -261,8 +259,7 @@ export function ContractGenerator({
                 <div className="grid gap-2">
                   <Label className="text-xs">End Date</Label>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
+                    <PopoverTrigger render={<Button
                         variant="outline"
                         className={cn(
                           "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
@@ -271,8 +268,7 @@ export function ContractGenerator({
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
+                      </Button>} />
                     <PopoverContent align="start" className="w-auto p-0">
                       <Calendar
                         mode="single"

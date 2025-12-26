@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { usePaymentStore } from "@/lib/store"
 import type { Client } from "@/lib/payment-utils"
-import { Edit2, Save, X } from "lucide-react"
+import { PencilSimple, FloppyDisk, X } from "@phosphor-icons/react"
 
 interface ClientGeneralInfoProps {
   client: Client
@@ -53,7 +53,7 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
           </div>
           {!isEditing ? (
             <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              <Edit2 className="h-4 w-4 mr-2" />
+              <PencilSimple className="h-4 w-4 mr-2" />
               Edit
             </Button>
           ) : (
@@ -63,7 +63,7 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
                 Cancel
               </Button>
               <Button variant="default" size="sm" onClick={handleSave}>
-                <Save className="h-4 w-4 mr-2" />
+                <FloppyDisk className="h-4 w-4 mr-2" />
                 Save
               </Button>
             </div>

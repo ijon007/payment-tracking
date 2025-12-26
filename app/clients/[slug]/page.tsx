@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { usePaymentStore } from "@/lib/store"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Mail, FileText, FileSignature } from "lucide-react"
+import { ArrowLeft, Envelope, FileText,   Signature } from "@phosphor-icons/react"
 import { ClientNavbar } from "@/components/clients/client-navbar"
 import { ClientGeneralInfo } from "@/components/clients/client-general-info"
 import { ClientCurrencySelector } from "@/components/clients/client-currency-selector"
@@ -92,44 +92,38 @@ export default function ClientDetailPage() {
           <ClientNavbar />
           <div className="flex items-center gap-2">
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   variant="default"
                   size="icon"
                   onClick={() => setEmailDialogOpen(true)}
                 >
-                  <Mail className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
+                  <Envelope className="h-4 w-4" />
+                </Button>} />
               <TooltipContent side="bottom">
                 <p>Email</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   variant="secondary"
                   className="bg-green-900 text-white hover:bg-green-900/90"
                   size="icon"
                   onClick={() => setInvoiceDialogOpen(true)}
                 >
                   <FileText className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
+                </Button>} />
               <TooltipContent side="bottom">
                 <p>Send Invoice</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
+              <TooltipTrigger render={<Button
                   variant="secondary"
                   size="icon"
                   onClick={() => setContractDialogOpen(true)}
                 >
-                  <FileSignature className="h-4 w-4" />
-                </Button>
-              </TooltipTrigger>
+                  <Signature className="h-4 w-4" />
+                </Button>} />
               <TooltipContent side="bottom">
                 <p>Generate Contract</p>
               </TooltipContent>
