@@ -1,7 +1,8 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { CurrencyDollar } from "@phosphor-icons/react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,60 +11,61 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { CurrencyDollar } from "@phosphor-icons/react"
-import { usePaymentStore } from "@/lib/store"
-import { formatCurrency } from "@/lib/payment-utils"
+} from "@/components/ui/select";
+import { formatCurrency } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
-export function AddPaymentDialog({ 
+export function AddPaymentDialog({
   clientId,
-  trigger
-}: { 
-  clientId: string
-  trigger?: React.ReactNode
+  trigger,
+}: {
+  clientId: string;
+  trigger?: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false)
-  const [selectedPaymentId, setSelectedPaymentId] = useState<string>("")
-  const { getClient, addPayment } = usePaymentStore()
+  const [open, setOpen] = useState(false);
+  const [selectedPaymentId, setSelectedPaymentId] = useState<string>("");
+  const { getClient, addPayment } = usePaymentStore();
 
-  const client = getClient(clientId)
-  if (!client) return null
-
-  const unpaidPayments = client.payments.filter((p) => !p.paidDate)
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!selectedPaymentId) {
-      return
-    }
-
-    addPayment(clientId, selectedPaymentId, new Date())
-    setSelectedPaymentId("")
-    setOpen(false)
+  const client = getClient(clientId);
+  if (!client) {
+    return null;
   }
 
+  const unpaidPayments = client.payments.filter((p) => !p.paidDate);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!selectedPaymentId) {
+      return;
+    }
+
+    addPayment(clientId, selectedPaymentId, new Date());
+    setSelectedPaymentId("");
+    setOpen(false);
+  };
+
   if (unpaidPayments.length === 0) {
-    return null
+    return null;
   }
 
   const triggerElement = (
-    <Button variant="ghost" size="sm" className="w-full justify-start">
+    <Button className="w-full justify-start" size="sm" variant="ghost">
       <CurrencyDollar className="mr-2 h-4 w-4" />
       Add Payment
     </Button>
-  )
+  );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger render={triggerElement} />
       <DialogContent>
         <form onSubmit={handleSubmit}>
@@ -77,9 +79,9 @@ export function AddPaymentDialog({
             <div className="grid gap-2">
               <Label htmlFor="payment">Select Payment</Label>
               <Select
-                value={selectedPaymentId || null}
                 onValueChange={(value) => setSelectedPaymentId(value || "")}
                 required
+                value={selectedPaymentId || null}
               >
                 <SelectTrigger id="payment">
                   <SelectValue />
@@ -89,8 +91,7 @@ export function AddPaymentDialog({
                     <SelectItem key={payment.id} value={payment.id}>
                       {payment.type === "retainer"
                         ? `Retainer - ${formatCurrency(payment.amount)}`
-                        : `Installment ${payment.installmentNumber} - ${formatCurrency(payment.amount)}`}
-                      {" "}
+                        : `Installment ${payment.installmentNumber} - ${formatCurrency(payment.amount)}`}{" "}
                       (Due: {new Date(payment.dueDate).toLocaleDateString()})
                     </SelectItem>
                   ))}
@@ -99,16 +100,19 @@ export function AddPaymentDialog({
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              onClick={() => setOpen(false)}
+              type="button"
+              variant="outline"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={!selectedPaymentId}>
+            <Button disabled={!selectedPaymentId} type="submit">
               Record Payment
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

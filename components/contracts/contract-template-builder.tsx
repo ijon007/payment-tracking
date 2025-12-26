@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { usePaymentStore } from "@/lib/store"
-import type { ContractTemplate } from "@/lib/contract-utils"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { ContractTemplate } from "@/lib/contract-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface ContractTemplateBuilderProps {
-  templateId?: string
-  onSave?: () => void
-  onChange?: (template: Partial<ContractTemplate>) => void
+  templateId?: string;
+  onSave?: () => void;
+  onChange?: (template: Partial<ContractTemplate>) => void;
 }
 
 export function ContractTemplateBuilder({
@@ -20,34 +20,31 @@ export function ContractTemplateBuilder({
   onSave,
   onChange,
 }: ContractTemplateBuilderProps) {
-  const router = useRouter()
-  const {
-    getContractTemplate,
-    addContractTemplate,
-    updateContractTemplate,
-  } = usePaymentStore()
+  const router = useRouter();
+  const { getContractTemplate, addContractTemplate, updateContractTemplate } =
+    usePaymentStore();
 
-  const existingTemplate = templateId ? getContractTemplate(templateId) : null
+  const existingTemplate = templateId ? getContractTemplate(templateId) : null;
 
-  const [name, setName] = useState("")
-  const [companyName, setCompanyName] = useState("")
-  const [companyAddress, setCompanyAddress] = useState("")
-  const [companyEmail, setCompanyEmail] = useState("")
-  const [companyPhone, setCompanyPhone] = useState("")
-  const [logoUrl, setLogoUrl] = useState("")
-  const [terms, setTerms] = useState("")
+  const [name, setName] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [companyEmail, setCompanyEmail] = useState("");
+  const [companyPhone, setCompanyPhone] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [terms, setTerms] = useState("");
 
   useEffect(() => {
     if (existingTemplate) {
-      setName(existingTemplate.name)
-      setCompanyName(existingTemplate.companyName)
-      setCompanyAddress(existingTemplate.companyAddress)
-      setCompanyEmail(existingTemplate.companyEmail)
-      setCompanyPhone(existingTemplate.companyPhone)
-      setLogoUrl(existingTemplate.logoUrl || "")
-      setTerms(existingTemplate.terms)
+      setName(existingTemplate.name);
+      setCompanyName(existingTemplate.companyName);
+      setCompanyAddress(existingTemplate.companyAddress);
+      setCompanyEmail(existingTemplate.companyEmail);
+      setCompanyPhone(existingTemplate.companyPhone);
+      setLogoUrl(existingTemplate.logoUrl || "");
+      setTerms(existingTemplate.terms);
     }
-  }, [existingTemplate])
+  }, [existingTemplate]);
 
   // Notify parent of changes for live preview
   useEffect(() => {
@@ -60,15 +57,24 @@ export function ContractTemplateBuilder({
         companyPhone,
         logoUrl: logoUrl || undefined,
         terms,
-      })
+      });
     }
-  }, [name, companyName, companyAddress, companyEmail, companyPhone, logoUrl, terms, onChange])
+  }, [
+    name,
+    companyName,
+    companyAddress,
+    companyEmail,
+    companyPhone,
+    logoUrl,
+    terms,
+    onChange,
+  ]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!name || !companyName || !companyEmail) {
-      return
+    if (!(name && companyName && companyEmail)) {
+      return;
     }
 
     const templateData = {
@@ -79,32 +85,32 @@ export function ContractTemplateBuilder({
       companyPhone,
       logoUrl: logoUrl || undefined,
       terms,
-    }
+    };
 
     if (templateId && existingTemplate) {
-      updateContractTemplate(templateId, templateData)
+      updateContractTemplate(templateId, templateData);
     } else {
-      addContractTemplate(templateData)
+      addContractTemplate(templateData);
     }
 
     if (onSave) {
-      onSave()
+      onSave();
     } else {
-      router.push("/contracts")
+      router.push("/contracts");
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form className="space-y-6" onSubmit={handleSubmit}>
       <div className="grid gap-5">
         <div className="grid gap-2">
           <Label htmlFor="name">Template Name</Label>
           <Input
             id="name"
-            value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g., Default Contract Template"
             required
+            value={name}
           />
         </div>
 
@@ -112,10 +118,10 @@ export function ContractTemplateBuilder({
           <Label htmlFor="companyName">Company Name</Label>
           <Input
             id="companyName"
-            value={companyName}
             onChange={(e) => setCompanyName(e.target.value)}
             placeholder="Your Company Name"
             required
+            value={companyName}
           />
         </div>
 
@@ -123,10 +129,10 @@ export function ContractTemplateBuilder({
           <Label htmlFor="companyAddress">Company Address</Label>
           <Textarea
             id="companyAddress"
-            value={companyAddress}
             onChange={(e) => setCompanyAddress(e.target.value)}
             placeholder="123 Street, City, State, ZIP"
             rows={3}
+            value={companyAddress}
           />
         </div>
 
@@ -134,11 +140,11 @@ export function ContractTemplateBuilder({
           <Label htmlFor="companyEmail">Company Email</Label>
           <Input
             id="companyEmail"
-            type="email"
-            value={companyEmail}
             onChange={(e) => setCompanyEmail(e.target.value)}
             placeholder="billing@company.com"
             required
+            type="email"
+            value={companyEmail}
           />
         </div>
 
@@ -146,10 +152,10 @@ export function ContractTemplateBuilder({
           <Label htmlFor="companyPhone">Company Phone</Label>
           <Input
             id="companyPhone"
-            type="tel"
-            value={companyPhone}
             onChange={(e) => setCompanyPhone(e.target.value)}
             placeholder="+1 (555) 123-4567"
+            type="tel"
+            value={companyPhone}
           />
         </div>
 
@@ -157,10 +163,10 @@ export function ContractTemplateBuilder({
           <Label htmlFor="logoUrl">Logo URL (Optional)</Label>
           <Input
             id="logoUrl"
-            type="url"
-            value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
             placeholder="https://example.com/logo.png"
+            type="url"
+            value={logoUrl}
           />
         </div>
 
@@ -168,10 +174,10 @@ export function ContractTemplateBuilder({
           <Label htmlFor="terms">Terms & Conditions</Label>
           <Textarea
             id="terms"
-            value={terms}
             onChange={(e) => setTerms(e.target.value)}
             placeholder="Enter contract terms and conditions..."
             rows={8}
+            value={terms}
           />
         </div>
       </div>
@@ -181,20 +187,19 @@ export function ContractTemplateBuilder({
           {existingTemplate ? "Update Template" : "Create Template"}
         </Button>
         <Button
-          type="button"
-          variant="outline"
           onClick={() => {
             if (onSave) {
-              onSave()
+              onSave();
             } else {
-              router.push("/contracts")
+              router.push("/contracts");
             }
           }}
+          type="button"
+          variant="outline"
         >
           Cancel
         </Button>
       </div>
     </form>
-  )
+  );
 }
-

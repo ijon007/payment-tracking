@@ -1,30 +1,34 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder"
-import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { usePaymentStore } from "@/lib/store"
-import type { ContractTemplate } from "@/lib/contract-utils"
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder";
+import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { ContractTemplate } from "@/lib/contract-utils";
+import { usePaymentStore } from "@/lib/store";
 
 export default function EditTemplatePage() {
-  const params = useParams()
-  const templateId = params.id as string
-  const { getContractTemplate } = usePaymentStore()
-  const template = getContractTemplate(templateId)
-  const [previewTemplate, setPreviewTemplate] = useState<Partial<ContractTemplate>>(
-    template ? {
-      name: template.name,
-      companyName: template.companyName,
-      companyAddress: template.companyAddress,
-      companyEmail: template.companyEmail,
-      companyPhone: template.companyPhone,
-      logoUrl: template.logoUrl,
-      terms: template.terms,
-    } : {}
-  )
+  const params = useParams();
+  const templateId = params.id as string;
+  const { getContractTemplate } = usePaymentStore();
+  const template = getContractTemplate(templateId);
+  const [previewTemplate, setPreviewTemplate] = useState<
+    Partial<ContractTemplate>
+  >(
+    template
+      ? {
+          name: template.name,
+          companyName: template.companyName,
+          companyAddress: template.companyAddress,
+          companyEmail: template.companyEmail,
+          companyPhone: template.companyPhone,
+          logoUrl: template.logoUrl,
+          terms: template.terms,
+        }
+      : {}
+  );
 
   useEffect(() => {
     if (template) {
@@ -36,9 +40,9 @@ export default function EditTemplatePage() {
         companyPhone: template.companyPhone,
         logoUrl: template.logoUrl,
         terms: template.terms,
-      })
+      });
     }
-  }, [template])
+  }, [template]);
 
   if (!template) {
     return (
@@ -55,7 +59,7 @@ export default function EditTemplatePage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -64,15 +68,15 @@ export default function EditTemplatePage() {
         <SidebarTrigger className="-ml-1" />
         <h1 className="font-semibold">Edit Template</h1>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -mt-2">
+      <div className="-mt-2 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Template Settings</CardTitle>
           </CardHeader>
           <CardContent>
             <ContractTemplateBuilder
-              templateId={templateId}
               onChange={setPreviewTemplate}
+              templateId={templateId}
             />
           </CardContent>
         </Card>
@@ -86,6 +90,5 @@ export default function EditTemplatePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

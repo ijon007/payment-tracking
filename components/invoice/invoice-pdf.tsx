@@ -1,17 +1,17 @@
-"use client"
+"use client";
 
 import {
   Document,
+  Image,
   Page,
+  StyleSheet,
   Text,
   View,
-  StyleSheet,
-  Image,
-} from "@react-pdf/renderer"
-import type { Invoice, InvoiceTemplate } from "@/lib/invoice-utils"
-import type { Client } from "@/lib/payment-utils"
-import { formatCurrency } from "@/lib/payment-utils"
-import { format } from "date-fns"
+} from "@react-pdf/renderer";
+import { format } from "date-fns";
+import type { Invoice, InvoiceTemplate } from "@/lib/invoice-utils";
+import type { Client } from "@/lib/payment-utils";
+import { formatCurrency } from "@/lib/payment-utils";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -133,18 +133,18 @@ const styles = StyleSheet.create({
     height: 80,
     marginBottom: 10,
   },
-})
+});
 
 interface InvoicePDFProps {
-  invoice: Invoice
-  template: InvoiceTemplate
-  client: Client
+  invoice: Invoice;
+  template: InvoiceTemplate;
+  client: Client;
 }
 
 export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
-  const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0)
-  const tax = invoice.tax || 0
-  const total = invoice.total
+  const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
+  const tax = invoice.tax || 0;
+  const total = invoice.total;
 
   return (
     <Document>
@@ -202,7 +202,9 @@ export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
               <Text style={styles.colDescription}>{item.description}</Text>
               <Text style={styles.colQuantity}>{item.quantity}</Text>
               <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
-              <Text style={styles.colAmount}>{formatCurrency(item.amount)}</Text>
+              <Text style={styles.colAmount}>
+                {formatCurrency(item.amount)}
+              </Text>
             </View>
           ))}
         </View>
@@ -233,6 +235,5 @@ export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
         )}
       </Page>
     </Document>
-  )
+  );
 }
-

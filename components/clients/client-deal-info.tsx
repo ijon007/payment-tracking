@@ -1,48 +1,61 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { usePaymentStore } from "@/lib/store"
-import type { Client } from "@/lib/payment-utils"
-import { PAYMENT_PLAN_TEMPLATES } from "@/lib/payment-utils"
-import { PencilSimple, FloppyDisk, X, ArrowSquareOut } from "@phosphor-icons/react"
+import {
+  ArrowSquareOut,
+  FloppyDisk,
+  PencilSimple,
+  X,
+} from "@phosphor-icons/react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import type { Client } from "@/lib/payment-utils";
+import { PAYMENT_PLAN_TEMPLATES } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface ClientDealInfoProps {
-  client: Client
+  client: Client;
 }
 
 export function ClientDealInfo({ client }: ClientDealInfoProps) {
-  const { updateClient } = usePaymentStore()
-  const [isEditing, setIsEditing] = useState(false)
+  const { updateClient } = usePaymentStore();
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     serviceType: client.serviceType || "",
     retainerDetails: client.retainerDetails || "",
     initialRequests: client.initialRequests || "",
-  })
+  });
 
-  const paymentPlan = PAYMENT_PLAN_TEMPLATES.find((p) => p.id === client.paymentPlanId)
+  const paymentPlan = PAYMENT_PLAN_TEMPLATES.find(
+    (p) => p.id === client.paymentPlanId
+  );
 
   const handleSave = () => {
     updateClient(client.id, {
       serviceType: formData.serviceType || undefined,
       retainerDetails: formData.retainerDetails || undefined,
       initialRequests: formData.initialRequests || undefined,
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
     setFormData({
       serviceType: client.serviceType || "",
       retainerDetails: client.retainerDetails || "",
       initialRequests: client.initialRequests || "",
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   return (
     <Card id="deal-info">
@@ -50,24 +63,30 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>Deal Information</CardTitle>
-            <CardDescription>Service details and project information</CardDescription>
+            <CardDescription>
+              Service details and project information
+            </CardDescription>
           </div>
-          {!isEditing ? (
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              <PencilSimple className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          ) : (
+          {isEditing ? (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />
+              <Button onClick={handleCancel} size="sm" variant="outline">
+                <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button variant="default" size="sm" onClick={handleSave}>
-                <FloppyDisk className="h-4 w-4 mr-2" />
+              <Button onClick={handleSave} size="sm" variant="default">
+                <FloppyDisk className="mr-2 h-4 w-4" />
                 Save
               </Button>
             </div>
+          ) : (
+            <Button
+              onClick={() => setIsEditing(true)}
+              size="sm"
+              variant="outline"
+            >
+              <PencilSimple className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
           )}
         </div>
       </CardHeader>
@@ -77,9 +96,11 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
           {isEditing ? (
             <Input
               id="serviceType"
-              value={formData.serviceType}
-              onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, serviceType: e.target.value })
+              }
               placeholder="e.g., Web Development, Design, Consulting"
+              value={formData.serviceType}
             />
           ) : (
             <p className="text-sm">{client.serviceType || "—"}</p>
@@ -91,15 +112,17 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
           {isEditing ? (
             <Textarea
               id="retainerDetails"
-              value={formData.retainerDetails}
               onChange={(e) =>
                 setFormData({ ...formData, retainerDetails: e.target.value })
               }
               placeholder="Retainer payment details and terms"
               rows={3}
+              value={formData.retainerDetails}
             />
           ) : (
-            <p className="text-sm whitespace-pre-wrap">{client.retainerDetails || "—"}</p>
+            <p className="whitespace-pre-wrap text-sm">
+              {client.retainerDetails || "—"}
+            </p>
           )}
         </div>
 
@@ -108,30 +131,32 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
           {isEditing ? (
             <Textarea
               id="initialRequests"
-              value={formData.initialRequests}
               onChange={(e) =>
                 setFormData({ ...formData, initialRequests: e.target.value })
               }
               placeholder="Initial project requirements and client requests"
               rows={4}
+              value={formData.initialRequests}
             />
           ) : (
-            <p className="text-sm whitespace-pre-wrap">{client.initialRequests || "—"}</p>
+            <p className="whitespace-pre-wrap text-sm">
+              {client.initialRequests || "—"}
+            </p>
           )}
         </div>
 
-        <div className="space-y-2 pt-4 border-t">
+        <div className="space-y-2 border-t pt-4">
           <Label>Payment Plan</Label>
-          <p className="text-sm font-medium">{paymentPlan?.name || "—"}</p>
+          <p className="font-medium text-sm">{paymentPlan?.name || "—"}</p>
         </div>
 
-        <div className="space-y-2 pt-4 border-t">
+        <div className="space-y-2 border-t pt-4">
           <Label>Notion Project Page</Label>
           <a
+            className="flex items-center gap-2 text-primary text-sm hover:underline"
             href={client.notionPageLink}
-            target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 text-sm text-primary hover:underline"
+            target="_blank"
           >
             {client.notionPageLink}
             <ArrowSquareOut className="h-4 w-4" />
@@ -139,6 +164,5 @@ export function ClientDealInfo({ client }: ClientDealInfoProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

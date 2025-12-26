@@ -1,18 +1,22 @@
-"use client"
+"use client";
 
-import { usePaymentStore } from "@/lib/store"
-import type { InvoiceTemplate, Invoice, InvoiceItem } from "@/lib/invoice-utils"
-import type { Client } from "@/lib/payment-utils"
-import { formatCurrency } from "@/lib/payment-utils"
-import { format } from "date-fns"
-import { Card, CardContent } from "@/components/ui/card"
+import { format } from "date-fns";
+import { Card, CardContent } from "@/components/ui/card";
+import type {
+  Invoice,
+  InvoiceItem,
+  InvoiceTemplate,
+} from "@/lib/invoice-utils";
+import type { Client } from "@/lib/payment-utils";
+import { formatCurrency } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface InvoicePreviewProps {
-  invoiceId?: string
-  template?: InvoiceTemplate
-  client?: Client
-  items?: InvoiceItem[]
-  dueDate?: Date
+  invoiceId?: string;
+  template?: InvoiceTemplate;
+  client?: Client;
+  items?: InvoiceItem[];
+  dueDate?: Date;
 }
 
 export function InvoicePreview({
@@ -22,36 +26,36 @@ export function InvoicePreview({
   items,
   dueDate,
 }: InvoicePreviewProps) {
-  const { getInvoice, getInvoiceTemplate, getClient } = usePaymentStore()
+  const { getInvoice, getInvoiceTemplate, getClient } = usePaymentStore();
 
-  let invoice: Invoice | null = null
-  let invoiceTemplate: InvoiceTemplate | null = null
-  let invoiceClient: Client | null = null
-  let invoiceItems: InvoiceItem[] = []
-  let invoiceDueDate: Date | null = null
+  let invoice: Invoice | null = null;
+  let invoiceTemplate: InvoiceTemplate | null = null;
+  let invoiceClient: Client | null = null;
+  let invoiceItems: InvoiceItem[] = [];
+  let invoiceDueDate: Date | null = null;
 
   if (invoiceId) {
-    invoice = getInvoice(invoiceId) || null
+    invoice = getInvoice(invoiceId) || null;
     if (invoice) {
-      invoiceTemplate = getInvoiceTemplate(invoice.templateId) || null
-      invoiceClient = getClient(invoice.clientId) || null
-      invoiceItems = invoice.items
-      invoiceDueDate = invoice.dueDate
+      invoiceTemplate = getInvoiceTemplate(invoice.templateId) || null;
+      invoiceClient = getClient(invoice.clientId) || null;
+      invoiceItems = invoice.items;
+      invoiceDueDate = invoice.dueDate;
     }
   } else if (template && client && items && dueDate) {
-    invoiceTemplate = template
-    invoiceClient = client
-    invoiceItems = items
-    invoiceDueDate = dueDate
+    invoiceTemplate = template;
+    invoiceClient = client;
+    invoiceItems = items;
+    invoiceDueDate = dueDate;
   }
 
-  if (!invoiceTemplate || !invoiceClient) {
-    return null
+  if (!(invoiceTemplate && invoiceClient)) {
+    return null;
   }
 
-  const subtotal = invoiceItems.reduce((sum, item) => sum + item.amount, 0)
-  const tax = invoice?.tax || 0
-  const total = invoice?.total || subtotal + tax
+  const subtotal = invoiceItems.reduce((sum, item) => sum + item.amount, 0);
+  const tax = invoice?.tax || 0;
+  const total = invoice?.total || subtotal + tax;
 
   return (
     <Card className="bg-card">
@@ -62,13 +66,15 @@ export function InvoicePreview({
             <div>
               {invoiceTemplate.logoUrl && (
                 <img
-                  src={invoiceTemplate.logoUrl}
                   alt={invoiceTemplate.companyName}
-                  className="h-12 mb-4"
+                  className="mb-4 h-12"
+                  src={invoiceTemplate.logoUrl}
                 />
               )}
-              <h2 className="text-2xl font-bold">{invoiceTemplate.companyName}</h2>
-              <div className="mt-2 text-sm text-muted-foreground space-y-1">
+              <h2 className="font-bold text-2xl">
+                {invoiceTemplate.companyName}
+              </h2>
+              <div className="mt-2 space-y-1 text-muted-foreground text-sm">
                 {invoiceTemplate.companyAddress && (
                   <p>{invoiceTemplate.companyAddress}</p>
                 )}
@@ -79,14 +85,14 @@ export function InvoicePreview({
               </div>
             </div>
             <div className="text-right">
-              <h1 className="text-3xl font-bold mb-2">INVOICE</h1>
+              <h1 className="mb-2 font-bold text-3xl">INVOICE</h1>
               {invoice && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Invoice #: {invoice.invoiceNumber}
                 </p>
               )}
               {invoice && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Issue Date: {format(invoice.issueDate, "MMM dd, yyyy")}
                 </p>
               )}
@@ -96,12 +102,16 @@ export function InvoicePreview({
           {/* Bill To */}
           <div className="grid grid-cols-2 gap-8">
             <div>
-              <h3 className="font-semibold mb-2">Bill To:</h3>
+              <h3 className="mb-2 font-semibold">Bill To:</h3>
               <p className="font-medium">{invoiceClient.name}</p>
             </div>
             <div className="text-right">
-              <h3 className="font-semibold mb-2">Due Date:</h3>
-              <p>{invoiceDueDate ? format(invoiceDueDate, "MMM dd, yyyy") : "N/A"}</p>
+              <h3 className="mb-2 font-semibold">Due Date:</h3>
+              <p>
+                {invoiceDueDate
+                  ? format(invoiceDueDate, "MMM dd, yyyy")
+                  : "N/A"}
+              </p>
             </div>
           </div>
 
@@ -110,21 +120,25 @@ export function InvoicePreview({
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-semibold">Description</th>
-                  <th className="text-right py-3 px-4 font-semibold">Quantity</th>
-                  <th className="text-right py-3 px-4 font-semibold">Rate</th>
-                  <th className="text-right py-3 px-4 font-semibold">Amount</th>
+                  <th className="px-4 py-3 text-left font-semibold">
+                    Description
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold">
+                    Quantity
+                  </th>
+                  <th className="px-4 py-3 text-right font-semibold">Rate</th>
+                  <th className="px-4 py-3 text-right font-semibold">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {invoiceItems.map((item, index) => (
-                  <tr key={index} className="border-b">
-                    <td className="py-3 px-4">{item.description}</td>
-                    <td className="text-right py-3 px-4">{item.quantity}</td>
-                    <td className="text-right py-3 px-4">
+                  <tr className="border-b" key={index}>
+                    <td className="px-4 py-3">{item.description}</td>
+                    <td className="px-4 py-3 text-right">{item.quantity}</td>
+                    <td className="px-4 py-3 text-right">
                       {formatCurrency(item.rate)}
                     </td>
-                    <td className="text-right py-3 px-4 font-medium">
+                    <td className="px-4 py-3 text-right font-medium">
                       {formatCurrency(item.amount)}
                     </td>
                   </tr>
@@ -146,7 +160,7 @@ export function InvoicePreview({
                   <span className="font-medium">{formatCurrency(tax)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-lg font-bold pt-2 border-t">
+              <div className="flex justify-between border-t pt-2 font-bold text-lg">
                 <span>Total:</span>
                 <span>{formatCurrency(total)}</span>
               </div>
@@ -155,8 +169,8 @@ export function InvoicePreview({
 
           {/* Footer Notes */}
           {invoiceTemplate.notes && (
-            <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground whitespace-pre-line">
+            <div className="border-t pt-4">
+              <p className="whitespace-pre-line text-muted-foreground text-sm">
                 {invoiceTemplate.notes}
               </p>
             </div>
@@ -164,6 +178,5 @@ export function InvoicePreview({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

@@ -1,14 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder"
-import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import type { ContractTemplate } from "@/lib/contract-utils"
+import { useState } from "react";
+import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder";
+import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import type { ContractTemplate } from "@/lib/contract-utils";
 
 export default function NewTemplatePage() {
-  const [previewTemplate, setPreviewTemplate] = useState<Partial<ContractTemplate>>({})
+  const [previewTemplate, setPreviewTemplate] = useState<
+    Partial<ContractTemplate>
+  >({});
 
   return (
     <div className="space-y-6">
@@ -16,7 +18,7 @@ export default function NewTemplatePage() {
         <SidebarTrigger className="-ml-1" />
         <h1 className="font-semibold">New Contract Template</h1>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -mt-2">
+      <div className="-mt-2 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Template Settings</CardTitle>
@@ -35,6 +37,5 @@ export default function NewTemplatePage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
-

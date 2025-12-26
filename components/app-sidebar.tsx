@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
 import {
-  SquaresFour,
-  Users,
-  FileText,
-  House,
   Calendar,
   CalendarBlank,
-  Receipt,
+  FileText,
+  House,
   LayoutIcon,
-} from "@phosphor-icons/react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+  Receipt,
+  Users,
+} from "@phosphor-icons/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import {
   Sidebar,
@@ -23,8 +22,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const menuGroups = [
   {
@@ -72,17 +70,19 @@ const menuGroups = [
       },
     ],
   },
-]
+];
 
 export function AppSidebar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   return (
-    <Sidebar variant="inset" collapsible="icon">
+    <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-4">
           <House className="size-5" />
-          <span className="font-semibold text-lg hidden group-data-[collapsible=icon]:hidden">Payments Tracker</span>
+          <span className="hidden font-semibold text-lg group-data-[collapsible=icon]:hidden">
+            Payments Tracker
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -92,25 +92,34 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu className="gap-2">
                 {group.items.map((item) => {
-                  const isActive = pathname === item.url || 
-                    (item.url === "/invoices" && pathname?.startsWith("/invoices")) ||
-                    (item.url === "/contracts" && pathname?.startsWith("/contracts")) ||
-                    (item.url === "/calendar" && pathname?.startsWith("/calendar"))
-                  
+                  const isActive =
+                    pathname === item.url ||
+                    (item.url === "/invoices" &&
+                      pathname?.startsWith("/invoices")) ||
+                    (item.url === "/contracts" &&
+                      pathname?.startsWith("/contracts")) ||
+                    (item.url === "/calendar" &&
+                      pathname?.startsWith("/calendar"));
+
                   return (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton
+                        isActive={isActive}
                         render={(props) => (
                           <Link href={item.url} {...props}>
-                            <item.icon weight="fill" className="size-4 text-muted-foreground group-data-[active=true]:text-primary" />
-                            <span className="text-sm text-muted-foreground group-data-[active=true]:text-primary">{item.title}</span>
+                            <item.icon
+                              className="size-4 text-muted-foreground group-data-[active=true]:text-primary"
+                              weight="fill"
+                            />
+                            <span className="text-muted-foreground text-sm group-data-[active=true]:text-primary">
+                              {item.title}
+                            </span>
                           </Link>
                         )}
                         tooltip={item.title}
-                        isActive={isActive}
                       />
                     </SidebarMenuItem>
-                  )
+                  );
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -118,6 +127,5 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
-

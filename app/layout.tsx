@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PaymentStoreProvider } from "@/lib/store";
 
 const geistSans = Geist({
@@ -28,16 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
+        className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}
       >
         <PaymentStoreProvider>
           <SidebarProvider>
             <AppSidebar />
-            <SidebarInset className="bg-background overflow-hidden h-[calc(100svh-1rem)] flex flex-col">
-              <div className="flex-1 overflow-y-auto min-h-0 custom-scrollbar">
-                <div className="flex flex-col gap-4 p-4">
-                  {children}
-                </div>
+            <SidebarInset className="flex h-[calc(100svh-1rem)] flex-col overflow-hidden bg-background">
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-4 p-4">{children}</div>
               </div>
             </SidebarInset>
           </SidebarProvider>

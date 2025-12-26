@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { usePaymentStore } from "@/lib/store"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Plus, FileText, PencilSimple, Trash } from "@phosphor-icons/react"
-import Link from "next/link"
+import { Plus, Trash } from "@phosphor-icons/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { ContractList } from "@/components/contracts/contract-list";
+import { ContractPreview } from "@/components/contracts/contract-preview";
+import { ContractTemplateCard } from "@/components/contracts/contract-template-card";
+import { ContractTemplatesEmpty } from "@/components/contracts/contract-templates-empty";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,39 +16,39 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { ContractPreview } from "@/components/contracts/contract-preview"
-import { format } from "date-fns"
+} from "@/components/ui/dialog";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { usePaymentStore } from "@/lib/store";
 
 export default function ContractsPage() {
-  const {
-    contractTemplates,
-    contracts,
-    deleteContractTemplate,
-  } = usePaymentStore()
+  const { contractTemplates, contracts, deleteContractTemplate } =
+    usePaymentStore();
 
-  const [mounted, setMounted] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null)
-  const [selectedContractId, setSelectedContractId] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<string | null>(null);
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Use empty arrays during SSR to prevent hydration mismatch
-  const templatesToUse = mounted ? contractTemplates : []
-  const contractsToUse = mounted ? contracts : []
+  const templatesToUse = mounted ? contractTemplates : [];
+  const contractsToUse = mounted ? contracts : [];
 
   const handleDelete = (id: string) => {
-    deleteContractTemplate(id)
-    setDeleteDialogOpen(null)
-  }
+    deleteContractTemplate(id);
+    setDeleteDialogOpen(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -59,7 +59,7 @@ export default function ContractsPage() {
         </div>
         <Link href="/contracts/templates/new">
           <Button>
-            <Plus weight="bold" className="size-3" />
+            <Plus className="size-3" weight="bold" />
             New Template
           </Button>
         </Link>
@@ -67,157 +67,49 @@ export default function ContractsPage() {
 
       <div className="grid gap-6">
         <div>
-          <h2 className="text-lg font-semibold mb-4">Contract Templates</h2>
+          <h2 className="mb-4 font-semibold text-lg">Contract Templates</h2>
           {templatesToUse.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <FileText weight="fill" className="size-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground mb-4">
-                  No contract templates yet. Create your first template to get started.
-                </p>
-                <Link href="/contracts/templates/new">
-                  <Button>
-                    <Plus weight="bold" className="size-3" />
-                    Create Template
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            <ContractTemplatesEmpty />
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {templatesToUse.map((template) => (
-                <Card 
+                <ContractTemplateCard
                   key={template.id}
-                  className="transition-all duration-200 p-3"
-                >
-                  <CardHeader className="p-0">
-                    <div className="flex items-start gap-3">
-                      <div className="shrink-0 mt-1">
-                        {template.logoUrl ? (
-                          <div className="size-12 rounded-md overflow-hidden border border-border/60 bg-muted/50 flex items-center justify-center">
-                            <img
-                              src={template.logoUrl}
-                              alt={template.companyName}
-                              className="size-full object-cover"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none"
-                                const parent = e.currentTarget.parentElement
-                                if (parent) {
-                                  parent.innerHTML = '<svg class="h-6 w-6 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>'
-                                }
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="size-12 rounded-md border border-border/60 bg-primary/10 flex items-center justify-center">
-                            <FileText weight="fill" className="size-6 text-primary/70" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors">
-                          {template.name}
-                        </CardTitle>
-                        <CardDescription className="mt-1.5 line-clamp-1">
-                          {template.companyName}
-                        </CardDescription>
-                        {template.companyEmail && (
-                          <p className="text-xs text-muted-foreground mt-1.5 line-clamp-1">
-                            {template.companyEmail}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    <div className="flex items-center gap-2 w-full">
-                      <Link href={`/contracts/templates/${template.id}`} className="w-1/2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="w-full border-primary/50 text-primary hover:text-primary transition-colors hover:bg-white/5 duration-200"
-                        >
-                          <PencilSimple weight="fill" className="mr-2 size-3" />
-                          Edit
-                        </Button>
-                      </Link>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setDeleteDialogOpen(template.id)}
-                        className="w-1/2 border-destructive/50 text-destructive hover:text-destructive transition-colors hover:bg-white/5 duration-200"
-                      >
-                        <Trash weight="fill" className="mr-2 size-3" />
-                        Delete
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                  onDelete={(id) => setDeleteDialogOpen(id)}
+                  template={template}
+                />
               ))}
             </div>
           )}
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold mb-4">Generated Contracts</h2>
-          {contractsToUse.length === 0 ? (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <FileText weight="fill" className="size-12 mx-auto mb-4 text-muted-foreground" />
-                <p className="text-muted-foreground">
-                  No contracts generated yet. Generate contracts from the Clients page.
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="py-2">
-              <CardContent className="p-0">
-                <div className="divide-y">
-                  {contractsToUse.map((contract) => (
-                    <div
-                      key={contract.id}
-                      className="p-4 flex items-center justify-between hover:bg-white/10 rounded-md mx-2 cursor-pointer transition-colors"
-                      onClick={() => setSelectedContractId(contract.id)}
-                    >
-                      <div>
-                        <p className="font-medium">{contract.contractNumber}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(contract.issueDate), "MMM dd, yyyy")}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground">
-                          {contract.status}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <h2 className="mb-4 font-semibold text-lg">Generated Contracts</h2>
+          <ContractList
+            contracts={contractsToUse}
+            onContractClick={setSelectedContractId}
+          />
         </div>
       </div>
 
       <AlertDialog
-        open={deleteDialogOpen !== null}
         onOpenChange={(open) => !open && setDeleteDialogOpen(null)}
+        open={deleteDialogOpen !== null}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Template</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this template? This action cannot be undone.
+              Are you sure you want to delete this template? This action cannot
+              be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() =>
-                deleteDialogOpen && handleDelete(deleteDialogOpen)
-              }
+              onClick={() => deleteDialogOpen && handleDelete(deleteDialogOpen)}
             >
-              <Trash weight="fill" className="size-3" />
+              <Trash className="size-3" weight="fill" />
               <span>Delete</span>
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -225,10 +117,10 @@ export default function ContractsPage() {
       </AlertDialog>
 
       <Dialog
-        open={selectedContractId !== null}
         onOpenChange={(open) => !open && setSelectedContractId(null)}
+        open={selectedContractId !== null}
       >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Contract Details</DialogTitle>
           </DialogHeader>
@@ -238,6 +130,5 @@ export default function ContractsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }
-

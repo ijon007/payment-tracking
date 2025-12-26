@@ -1,59 +1,64 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { usePaymentStore } from "@/lib/store"
-import { SidebarTrigger } from "@/components/ui/sidebar"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Envelope, FileText,   Signature } from "@phosphor-icons/react"
-import { ClientNavbar } from "@/components/clients/client-navbar"
-import { ClientGeneralInfo } from "@/components/clients/client-general-info"
-import { ClientCurrencySelector } from "@/components/clients/client-currency-selector"
-import { ClientContracts } from "@/components/clients/client-contracts"
-import { ClientInvoices } from "@/components/clients/client-invoices"
-import { ClientDealInfo } from "@/components/clients/client-deal-info"
-import { EmailDialog } from "@/components/email/email-dialog"
-import { InvoiceGenerator } from "@/components/invoice/invoice-generator"
-import { ContractGenerator } from "@/components/contracts/contract-generator"
+import {
+  ArrowLeft,
+  Envelope,
+  FileText,
+  Signature,
+} from "@phosphor-icons/react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { ClientContracts } from "@/components/clients/client-contracts";
+import { ClientCurrencySelector } from "@/components/clients/client-currency-selector";
+import { ClientDealInfo } from "@/components/clients/client-deal-info";
+import { ClientGeneralInfo } from "@/components/clients/client-general-info";
+import { ClientInvoices } from "@/components/clients/client-invoices";
+import { ClientNavbar } from "@/components/clients/client-navbar";
+import { ContractGenerator } from "@/components/contracts/contract-generator";
+import { EmailDialog } from "@/components/email/email-dialog";
+import { InvoiceGenerator } from "@/components/invoice/invoice-generator";
+import { Button } from "@/components/ui/button";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import type { Currency } from "@/lib/currency-utils"
+} from "@/components/ui/tooltip";
+import type { Currency } from "@/lib/currency-utils";
+import { usePaymentStore } from "@/lib/store";
 
 export default function ClientDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const { getClient } = usePaymentStore()
-  const [mounted, setMounted] = useState(false)
-  const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD")
-  const [emailDialogOpen, setEmailDialogOpen] = useState(false)
-  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false)
-  const [contractDialogOpen, setContractDialogOpen] = useState(false)
+  const params = useParams();
+  const router = useRouter();
+  const { getClient } = usePaymentStore();
+  const [mounted, setMounted] = useState(false);
+  const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
+  const [contractDialogOpen, setContractDialogOpen] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  const clientId = params.slug as string
-  const client = mounted ? getClient(clientId) : undefined
+  const clientId = params.slug as string;
+  const client = mounted ? getClient(clientId) : undefined;
 
   useEffect(() => {
     if (mounted && client) {
-      setDisplayCurrency((client.currency as Currency) || "USD")
+      setDisplayCurrency((client.currency as Currency) || "USD");
     }
-  }, [mounted, client])
+  }, [mounted, client]);
 
   if (!mounted) {
     return (
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <h1 className="text-xl font-bold">Loading...</h1>
+          <h1 className="font-bold text-xl">Loading...</h1>
         </div>
       </div>
-    )
+    );
   }
 
   if (!client) {
@@ -61,20 +66,20 @@ export default function ClientDetailPage() {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <Button variant="ghost" size="sm" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button onClick={() => router.back()} size="sm" variant="ghost">
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
         </div>
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-2">Client Not Found</h2>
-          <p className="text-muted-foreground mb-4">
+        <div className="py-12 text-center">
+          <h2 className="mb-2 font-bold text-2xl">Client Not Found</h2>
+          <p className="mb-4 text-muted-foreground">
             The client you're looking for doesn't exist or has been removed.
           </p>
           <Button onClick={() => router.push("/clients")}>Go to Clients</Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -85,45 +90,56 @@ export default function ClientDetailPage() {
             <SidebarTrigger className="-ml-1" />
             <h1 className="font-semibold">{client.name}</h1>
           </div>
-          
         </div>
 
-        <div className="flex flex-row justify-between items-center border-b">
+        <div className="flex flex-row items-center justify-between border-b">
           <ClientNavbar />
           <div className="flex items-center gap-2">
             <Tooltip>
-              <TooltipTrigger render={<Button
-                  variant="default"
-                  size="icon"
-                  onClick={() => setEmailDialogOpen(true)}
-                >
-                  <Envelope weight="fill" className="h-4 w-4" />
-                </Button>} />
+              <TooltipTrigger
+                render={
+                  <Button
+                    onClick={() => setEmailDialogOpen(true)}
+                    size="icon"
+                    variant="default"
+                  >
+                    <Envelope className="h-4 w-4" weight="fill" />
+                  </Button>
+                }
+              />
               <TooltipContent side="bottom">
                 <p>Email</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger render={<Button
-                  variant="secondary"
-                  className="bg-green-900 text-white hover:bg-green-900/90"
-                  size="icon"
-                  onClick={() => setInvoiceDialogOpen(true)}
-                >
-                  <FileText weight="fill" className="h-4 w-4" />
-                </Button>} />
+              <TooltipTrigger
+                render={
+                  <Button
+                    className="bg-green-900 text-white hover:bg-green-900/90"
+                    onClick={() => setInvoiceDialogOpen(true)}
+                    size="icon"
+                    variant="secondary"
+                  >
+                    <FileText className="h-4 w-4" weight="fill" />
+                  </Button>
+                }
+              />
               <TooltipContent side="bottom">
                 <p>Send Invoice</p>
               </TooltipContent>
             </Tooltip>
             <Tooltip>
-              <TooltipTrigger render={<Button
-                  variant="secondary"
-                  size="icon"
-                  onClick={() => setContractDialogOpen(true)}
-                >
-                  <Signature weight="fill" className="h-4 w-4" />
-                </Button>} />
+              <TooltipTrigger
+                render={
+                  <Button
+                    onClick={() => setContractDialogOpen(true)}
+                    size="icon"
+                    variant="secondary"
+                  >
+                    <Signature className="h-4 w-4" weight="fill" />
+                  </Button>
+                }
+              />
               <TooltipContent side="bottom">
                 <p>Generate Contract</p>
               </TooltipContent>
@@ -151,27 +167,26 @@ export default function ClientDetailPage() {
       {emailDialogOpen && (
         <EmailDialog
           clientId={clientId}
-          open={emailDialogOpen}
           onOpenChange={setEmailDialogOpen}
+          open={emailDialogOpen}
         />
       )}
 
       {invoiceDialogOpen && (
         <InvoiceGenerator
           clientId={clientId}
-          open={invoiceDialogOpen}
           onOpenChange={setInvoiceDialogOpen}
+          open={invoiceDialogOpen}
         />
       )}
 
       {contractDialogOpen && (
         <ContractGenerator
           clientId={clientId}
-          open={contractDialogOpen}
           onOpenChange={setContractDialogOpen}
+          open={contractDialogOpen}
         />
       )}
     </div>
-  )
+  );
 }
-

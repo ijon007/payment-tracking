@@ -1,27 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { usePaymentStore } from "@/lib/store"
-import type { Client } from "@/lib/payment-utils"
-import { PencilSimple, FloppyDisk, X } from "@phosphor-icons/react"
+import { FloppyDisk, PencilSimple, X } from "@phosphor-icons/react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import type { Client } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface ClientGeneralInfoProps {
-  client: Client
+  client: Client;
 }
 
 export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
-  const { updateClient } = usePaymentStore()
-  const [isEditing, setIsEditing] = useState(false)
+  const { updateClient } = usePaymentStore();
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: client.name,
     email: client.email || "",
     phone: client.phone || "",
     address: client.address || "",
-  })
+  });
 
   const handleSave = () => {
     updateClient(client.id, {
@@ -29,9 +35,9 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
       email: formData.email || undefined,
       phone: formData.phone || undefined,
       address: formData.address || undefined,
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
     setFormData({
@@ -39,9 +45,9 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
       email: client.email || "",
       phone: client.phone || "",
       address: client.address || "",
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   return (
     <Card id="general-info">
@@ -49,24 +55,30 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle>General Information</CardTitle>
-            <CardDescription>Client contact and address details</CardDescription>
+            <CardDescription>
+              Client contact and address details
+            </CardDescription>
           </div>
-          {!isEditing ? (
-            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
-              <PencilSimple className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-          ) : (
+          {isEditing ? (
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />
+              <Button onClick={handleCancel} size="sm" variant="outline">
+                <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
-              <Button variant="default" size="sm" onClick={handleSave}>
-                <FloppyDisk className="h-4 w-4 mr-2" />
+              <Button onClick={handleSave} size="sm" variant="default">
+                <FloppyDisk className="mr-2 h-4 w-4" />
                 Save
               </Button>
             </div>
+          ) : (
+            <Button
+              onClick={() => setIsEditing(true)}
+              size="sm"
+              variant="outline"
+            >
+              <PencilSimple className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
           )}
         </div>
       </CardHeader>
@@ -77,12 +89,14 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
             {isEditing ? (
               <Input
                 id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 placeholder="Client name"
+                value={formData.name}
               />
             ) : (
-              <p className="text-sm font-medium">{client.name}</p>
+              <p className="font-medium text-sm">{client.name}</p>
             )}
           </div>
           <div className="space-y-2">
@@ -90,10 +104,12 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
             {isEditing ? (
               <Input
                 id="email"
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
+                placeholder="client@example.com"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="client@example.com"
               />
             ) : (
               <p className="text-sm">{client.email || "—"}</p>
@@ -104,10 +120,12 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
             {isEditing ? (
               <Input
                 id="phone"
+                onChange={(e) =>
+                  setFormData({ ...formData, phone: e.target.value })
+                }
+                placeholder="+1 (555) 000-0000"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                placeholder="+1 (555) 000-0000"
               />
             ) : (
               <p className="text-sm">{client.phone || "—"}</p>
@@ -118,9 +136,11 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
             {isEditing ? (
               <Input
                 id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
                 placeholder="Street address, City, Country"
+                value={formData.address}
               />
             ) : (
               <p className="text-sm">{client.address || "—"}</p>
@@ -129,6 +149,5 @@ export function ClientGeneralInfo({ client }: ClientGeneralInfoProps) {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

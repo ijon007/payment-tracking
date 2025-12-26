@@ -1,7 +1,18 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowSquareOut } from "@phosphor-icons/react";
+import { format } from "date-fns";
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,34 +20,38 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { usePaymentStore } from "@/lib/store"
-import { formatCurrency as formatCurrencyUtil, convertCurrency, type Currency } from "@/lib/currency-utils"
-import type { Client } from "@/lib/payment-utils"
-import { format } from "date-fns"
-import { ArrowSquareOut } from "@phosphor-icons/react"
-import Link from "next/link"
+} from "@/components/ui/table";
+import {
+  type Currency,
+  convertCurrency,
+  formatCurrency as formatCurrencyUtil,
+} from "@/lib/currency-utils";
+import type { Client } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface ClientContractsProps {
-  client: Client
-  displayCurrency: Currency
+  client: Client;
+  displayCurrency: Currency;
 }
 
-export function ClientContracts({ client, displayCurrency }: ClientContractsProps) {
-  const { contracts, getContractTemplate } = usePaymentStore()
+export function ClientContracts({
+  client,
+  displayCurrency,
+}: ClientContractsProps) {
+  const { contracts, getContractTemplate } = usePaymentStore();
   const clientContracts = useMemo(
     () => contracts.filter((c) => c.clientId === client.id),
     [contracts, client.id]
-  )
-  const [convertedCosts, setConvertedCosts] = useState<Record<string, number>>({})
+  );
+  const [convertedCosts, setConvertedCosts] = useState<Record<string, number>>(
+    {}
+  );
 
   useEffect(() => {
     const convertCosts = async () => {
       // All amounts are stored in USD (base currency)
       // Convert from USD to display currency
-      const converted: Record<string, number> = {}
+      const converted: Record<string, number> = {};
       for (const contract of clientContracts) {
         if (contract.projectCost) {
           if (displayCurrency !== "USD") {
@@ -44,16 +59,16 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
               contract.projectCost,
               "USD",
               displayCurrency
-            )
+            );
           } else {
-            converted[contract.id] = contract.projectCost
+            converted[contract.id] = contract.projectCost;
           }
         }
       }
-      setConvertedCosts(converted)
-    }
-    convertCosts()
-  }, [clientContracts, displayCurrency])
+      setConvertedCosts(converted);
+    };
+    convertCosts();
+  }, [clientContracts, displayCurrency]);
 
   const getStatusBadgeVariant = (
     status: "draft" | "sent" | "signed" | "active" | "expired"
@@ -61,38 +76,41 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
     switch (status) {
       case "active":
       case "signed":
-        return "default"
+        return "default";
       case "sent":
-        return "secondary"
+        return "secondary";
       case "expired":
-        return "destructive"
-      case "draft":
+        return "destructive";
       default:
-        return "outline"
+        return "outline";
     }
-  }
+  };
 
   if (clientContracts.length === 0) {
     return (
       <Card id="contracts">
         <CardHeader>
           <CardTitle>Contracts</CardTitle>
-          <CardDescription>All contracts generated for this client</CardDescription>
+          <CardDescription>
+            All contracts generated for this client
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground text-center py-8">
+          <p className="py-8 text-center text-muted-foreground text-sm">
             No contracts found for this client.
           </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card id="contracts">
       <CardHeader>
         <CardTitle>Contracts</CardTitle>
-        <CardDescription>All contracts generated for this client</CardDescription>
+        <CardDescription>
+          All contracts generated for this client
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -109,15 +127,21 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
           </TableHeader>
           <TableBody>
             {clientContracts.map((contract) => {
-              const template = getContractTemplate(contract.templateId)
+              const _template = getContractTemplate(contract.templateId);
               return (
                 <TableRow key={contract.id}>
                   <TableCell className="font-medium">
                     {contract.contractNumber}
                   </TableCell>
-                  <TableCell>{format(contract.issueDate, "MMM dd, yyyy")}</TableCell>
-                  <TableCell>{format(contract.startDate, "MMM dd, yyyy")}</TableCell>
-                  <TableCell>{format(contract.endDate, "MMM dd, yyyy")}</TableCell>
+                  <TableCell>
+                    {format(contract.issueDate, "MMM dd, yyyy")}
+                  </TableCell>
+                  <TableCell>
+                    {format(contract.startDate, "MMM dd, yyyy")}
+                  </TableCell>
+                  <TableCell>
+                    {format(contract.endDate, "MMM dd, yyyy")}
+                  </TableCell>
                   <TableCell>
                     {contract.projectCost
                       ? formatCurrencyUtil(
@@ -128,24 +152,24 @@ export function ClientContracts({ client, displayCurrency }: ClientContractsProp
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusBadgeVariant(contract.status)}>
-                      {contract.status.charAt(0).toUpperCase() + contract.status.slice(1)}
+                      {contract.status.charAt(0).toUpperCase() +
+                        contract.status.slice(1)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
                     <Link href={`/contracts?contract=${contract.id}`}>
-                      <Button variant="ghost" size="sm">
-                        <ArrowSquareOut className="h-4 w-4 mr-2" />
+                      <Button size="sm" variant="ghost">
+                        <ArrowSquareOut className="mr-2 h-4 w-4" />
                         View
                       </Button>
                     </Link>
                   </TableCell>
                 </TableRow>
-              )
+              );
             })}
           </TableBody>
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }
-

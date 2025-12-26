@@ -1,7 +1,11 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
+import { Calendar as CalendarIcon, Download } from "@phosphor-icons/react";
+import { pdf } from "@react-pdf/renderer";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -9,35 +13,31 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Calendar } from "@/components/ui/calendar"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { usePaymentStore } from "@/lib/store"
-import { ContractPreview } from "./contract-preview"
-import { ContractPDF } from "./contract-pdf"
-import { format } from "date-fns"
-import { pdf } from "@react-pdf/renderer"
-import { Download, Calendar as CalendarIcon } from "@phosphor-icons/react"
-import { cn } from "@/lib/utils"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { usePaymentStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
+import { ContractPDF } from "./contract-pdf";
+import { ContractPreview } from "./contract-preview";
 
 interface ContractGeneratorProps {
-  clientId: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  clientId: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function ContractGenerator({
@@ -51,62 +51,67 @@ export function ContractGenerator({
     generateContract,
     getContractTemplate,
     getContract,
-  } = usePaymentStore()
+  } = usePaymentStore();
 
-  const client = getClient(clientId)
+  const client = getClient(clientId);
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("")
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
-  const [projectCost, setProjectCost] = useState<string>("")
-  const [paymentMethod, setPaymentMethod] = useState<string>("")
-  const [projectDuration, setProjectDuration] = useState<string>("")
-  const [maintenanceCost, setMaintenanceCost] = useState<string>("")
-  const [clientAddress, setClientAddress] = useState<string>("")
-  const [clientEmail, setClientEmail] = useState<string>("")
-  const [clientPhone, setClientPhone] = useState<string>("")
-  const [companyRepresentatives, setCompanyRepresentatives] = useState<string>("Johan Gjinko dhe Ijon Kushta")
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [projectCost, setProjectCost] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [projectDuration, setProjectDuration] = useState<string>("");
+  const [maintenanceCost, setMaintenanceCost] = useState<string>("");
+  const [clientAddress, setClientAddress] = useState<string>("");
+  const [clientEmail, setClientEmail] = useState<string>("");
+  const [clientPhone, setClientPhone] = useState<string>("");
+  const [companyRepresentatives, setCompanyRepresentatives] = useState<string>(
+    "Johan Gjinko dhe Ijon Kushta"
+  );
   const [generatedContractId, setGeneratedContractId] = useState<string | null>(
     null
-  )
+  );
 
   useEffect(() => {
     if (open && contractTemplates.length > 0 && !selectedTemplateId) {
-      setSelectedTemplateId(contractTemplates[0].id)
+      setSelectedTemplateId(contractTemplates[0].id);
     }
-  }, [open, contractTemplates, selectedTemplateId])
+  }, [open, contractTemplates, selectedTemplateId]);
 
   useEffect(() => {
     if (!startDate) {
-      setStartDate(new Date())
+      setStartDate(new Date());
     }
-  }, [startDate])
+  }, [startDate]);
 
   useEffect(() => {
     if (!endDate && startDate) {
-      const defaultEndDate = new Date(startDate)
-      defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1)
-      setEndDate(defaultEndDate)
+      const defaultEndDate = new Date(startDate);
+      defaultEndDate.setFullYear(defaultEndDate.getFullYear() + 1);
+      setEndDate(defaultEndDate);
     }
-  }, [endDate, startDate])
+  }, [endDate, startDate]);
 
   const handleGenerate = () => {
-    if (!selectedTemplateId || !startDate || !endDate || !client) {
-      return
+    if (!(selectedTemplateId && startDate && endDate && client)) {
+      return;
     }
 
-    const template = getContractTemplate(selectedTemplateId)
+    const template = getContractTemplate(selectedTemplateId);
     if (!template) {
-      return
+      return;
     }
 
     // Calculate project duration in days
-    const durationDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
-    const durationText = durationDays < 30 
-      ? `${durationDays} ditë` 
-      : durationDays < 365 
-        ? `${Math.round(durationDays / 30)} muaj`
-        : `${Math.round(durationDays / 365)} vite`
+    const durationDays = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    const durationText =
+      durationDays < 30
+        ? `${durationDays} ditë`
+        : durationDays < 365
+          ? `${Math.round(durationDays / 30)} muaj`
+          : `${Math.round(durationDays / 365)} vite`;
 
     const contract = generateContract({
       templateId: selectedTemplateId,
@@ -114,77 +119,81 @@ export function ContractGenerator({
       startDate,
       endDate,
       terms: template.terms,
-      projectCost: projectCost ? parseFloat(projectCost.replace(/,/g, "")) : undefined,
+      projectCost: projectCost
+        ? Number.parseFloat(projectCost.replace(/,/g, ""))
+        : undefined,
       paymentMethod: paymentMethod || undefined,
       projectDuration: projectDuration || durationText,
-      maintenanceCost: maintenanceCost ? parseFloat(maintenanceCost.replace(/,/g, "")) : undefined,
+      maintenanceCost: maintenanceCost
+        ? Number.parseFloat(maintenanceCost.replace(/,/g, ""))
+        : undefined,
       clientAddress: clientAddress || undefined,
       clientEmail: clientEmail || undefined,
       clientPhone: clientPhone || undefined,
       companyRepresentatives: companyRepresentatives || undefined,
-    })
+    });
 
-    setGeneratedContractId(contract.id)
-  }
+    setGeneratedContractId(contract.id);
+  };
 
   const handleClose = () => {
-    setStartDate(undefined)
-    setEndDate(undefined)
-    setProjectCost("")
-    setPaymentMethod("")
-    setProjectDuration("")
-    setMaintenanceCost("")
-    setClientAddress("")
-    setClientEmail("")
-    setClientPhone("")
-    setCompanyRepresentatives("Johan Gjinko dhe Ijon Kushta")
-    setGeneratedContractId(null)
-    onOpenChange(false)
-  }
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setProjectCost("");
+    setPaymentMethod("");
+    setProjectDuration("");
+    setMaintenanceCost("");
+    setClientAddress("");
+    setClientEmail("");
+    setClientPhone("");
+    setCompanyRepresentatives("Johan Gjinko dhe Ijon Kushta");
+    setGeneratedContractId(null);
+    onOpenChange(false);
+  };
 
   const handleDownloadPDF = async () => {
-    if (!generatedContractId || !client) {
-      return
+    if (!(generatedContractId && client)) {
+      return;
     }
 
-    const contract = getContract(generatedContractId)
+    const contract = getContract(generatedContractId);
     if (!contract) {
-      return
+      return;
     }
 
-    const template = getContractTemplate(contract.templateId)
+    const template = getContractTemplate(contract.templateId);
     if (!template) {
-      return
+      return;
     }
 
     try {
       const blob = await pdf(
-        <ContractPDF contract={contract} template={template} client={client} />
-      ).toBlob()
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement("a")
-      link.href = url
-      link.download = `${contract.contractNumber}.pdf`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
+        <ContractPDF client={client} contract={contract} template={template} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${contract.contractNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Failed to generate PDF:", error)
+      console.error("Failed to generate PDF:", error);
     }
-  }
+  };
 
   if (!client) {
-    return null
+    return null;
   }
 
   const selectedTemplate = selectedTemplateId
     ? getContractTemplate(selectedTemplateId)
-    : null
+    : null;
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="w-2/5 max-h-[90vh] overflow-y-auto gap-5 scrollbar-hide">
+    <Dialog onOpenChange={handleClose} open={open}>
+      <DialogContent className="scrollbar-hide max-h-[90vh] w-2/5 gap-5 overflow-y-auto">
         <DialogHeader className="mb-3">
           <DialogTitle>Generate Contract for {client.name}</DialogTitle>
           <DialogDescription className="sr-only">
@@ -196,7 +205,7 @@ export function ContractGenerator({
           <div className="space-y-4">
             <ContractPreview contractId={generatedContractId} />
             <DialogFooter>
-              <Button variant="outline" onClick={handleDownloadPDF}>
+              <Button onClick={handleDownloadPDF} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Download PDF
               </Button>
@@ -208,12 +217,17 @@ export function ContractGenerator({
             <div className="grid gap-10">
               <div className="grid gap-5">
                 <div className="grid gap-2">
-                  <Label htmlFor="template" className="text-xs">Contract Template</Label>
+                  <Label className="text-xs" htmlFor="template">
+                    Contract Template
+                  </Label>
                   <Select
-                    value={selectedTemplateId}
                     onValueChange={setSelectedTemplateId}
+                    value={selectedTemplateId}
                   >
-                    <SelectTrigger id="template" className="border-border w-full">
+                    <SelectTrigger
+                      className="w-full border-border"
+                      id="template"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent align="start">
@@ -225,7 +239,7 @@ export function ContractGenerator({
                     </SelectContent>
                   </Select>
                   {contractTemplates.length === 0 && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-muted-foreground text-xs">
                       No templates available. Create one in the Contracts page.
                     </p>
                   )}
@@ -234,23 +248,31 @@ export function ContractGenerator({
                 <div className="grid gap-2">
                   <Label className="text-xs">Start Date</Label>
                   <Popover>
-                    <PopoverTrigger render={<Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
-                          !startDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                      </Button>} />
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          className={cn(
+                            "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
+                            !startDate && "text-muted-foreground"
+                          )}
+                          variant="outline"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {startDate ? (
+                            format(startDate, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      }
+                    />
                     <PopoverContent align="start" className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={startDate}
-                        onSelect={setStartDate}
+                        className="p-2 [--cell-size:2.5rem]"
                         initialFocus
-                        className="[--cell-size:2.5rem] p-2"
+                        mode="single"
+                        onSelect={setStartDate}
+                        selected={startDate}
                       />
                     </PopoverContent>
                   </Popover>
@@ -259,130 +281,158 @@ export function ContractGenerator({
                 <div className="grid gap-2">
                   <Label className="text-xs">End Date</Label>
                   <Popover>
-                    <PopoverTrigger render={<Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
-                          !endDate && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                      </Button>} />
+                    <PopoverTrigger
+                      render={
+                        <Button
+                          className={cn(
+                            "w-full justify-start text-left font-normal hover:bg-white/10 hover:text-white",
+                            !endDate && "text-muted-foreground"
+                          )}
+                          variant="outline"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {endDate ? (
+                            format(endDate, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      }
+                    />
                     <PopoverContent align="start" className="w-auto p-0">
                       <Calendar
-                        mode="single"
-                        selected={endDate}
-                        onSelect={setEndDate}
+                        className="p-2 [--cell-size:2.5rem]"
+                        disabled={(date) =>
+                          startDate ? date < startDate : false
+                        }
                         initialFocus
-                        className="[--cell-size:2.5rem] p-2"
-                        disabled={(date) => startDate ? date < startDate : false}
+                        mode="single"
+                        onSelect={setEndDate}
+                        selected={endDate}
                       />
                     </PopoverContent>
                   </Popover>
                 </div>
               </div>
 
-              <div className="border-t border-white pt-4 space-y-6">
+              <div className="space-y-6 border-white border-t pt-4">
                 <h3 className="font-semibold text-sm">Contract Details</h3>
-                
+
                 <div className="grid gap-2">
-                  <Label htmlFor="projectCost" className="text-xs">Project Cost (lekë)</Label>
+                  <Label className="text-xs" htmlFor="projectCost">
+                    Project Cost (lekë)
+                  </Label>
                   <Input
                     id="projectCost"
-                    type="text"
-                    value={projectCost}
                     onChange={(e) => setProjectCost(e.target.value)}
                     placeholder="e.g., 500000"
+                    type="text"
+                    value={projectCost}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="paymentMethod" className="text-xs">Payment Method</Label>
+                  <Label className="text-xs" htmlFor="paymentMethod">
+                    Payment Method
+                  </Label>
                   <Input
                     id="paymentMethod"
-                    value={paymentMethod}
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     placeholder="e.g., Transfer bankar, Cash, etj."
+                    value={paymentMethod}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="projectDuration" className="text-xs">Project Duration</Label>
+                  <Label className="text-xs" htmlFor="projectDuration">
+                    Project Duration
+                  </Label>
                   <Input
                     id="projectDuration"
-                    value={projectDuration}
                     onChange={(e) => setProjectDuration(e.target.value)}
                     placeholder="e.g., 30 ditë, 2 muaj (leave empty for auto-calculation)"
+                    value={projectDuration}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="maintenanceCost" className="text-xs">Maintenance Cost (lekë/muaj)</Label>
+                  <Label className="text-xs" htmlFor="maintenanceCost">
+                    Maintenance Cost (lekë/muaj)
+                  </Label>
                   <Input
                     id="maintenanceCost"
-                    type="text"
-                    value={maintenanceCost}
                     onChange={(e) => setMaintenanceCost(e.target.value)}
                     placeholder="e.g., 50000"
+                    type="text"
+                    value={maintenanceCost}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="companyRepresentatives" className="text-xs">Company Representatives</Label>
+                  <Label className="text-xs" htmlFor="companyRepresentatives">
+                    Company Representatives
+                  </Label>
                   <Input
                     id="companyRepresentatives"
-                    value={companyRepresentatives}
                     onChange={(e) => setCompanyRepresentatives(e.target.value)}
                     placeholder="e.g., Johan Gjinko dhe Ijon Kushta"
+                    value={companyRepresentatives}
                   />
                 </div>
               </div>
 
-              <div className="border-t border-white pt-4 space-y-4">
-                <h3 className="font-semibold text-sm">Client Contact Information</h3>
-                
+              <div className="space-y-4 border-white border-t pt-4">
+                <h3 className="font-semibold text-sm">
+                  Client Contact Information
+                </h3>
+
                 <div className="grid gap-2">
-                  <Label htmlFor="clientAddress" className="text-xs">Client Address</Label>
+                  <Label className="text-xs" htmlFor="clientAddress">
+                    Client Address
+                  </Label>
                   <Textarea
                     id="clientAddress"
-                    value={clientAddress}
                     onChange={(e) => setClientAddress(e.target.value)}
                     placeholder="Client's address"
                     rows={2}
+                    value={clientAddress}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="clientEmail" className="text-xs">Client Email</Label>
+                  <Label className="text-xs" htmlFor="clientEmail">
+                    Client Email
+                  </Label>
                   <Input
                     id="clientEmail"
-                    type="email"
-                    value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
                     placeholder="client@example.com"
+                    type="email"
+                    value={clientEmail}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="clientPhone" className="text-xs">Client Phone</Label>
+                  <Label className="text-xs" htmlFor="clientPhone">
+                    Client Phone
+                  </Label>
                   <Input
                     id="clientPhone"
-                    type="tel"
-                    value={clientPhone}
                     onChange={(e) => setClientPhone(e.target.value)}
                     placeholder="+355..."
+                    type="tel"
+                    value={clientPhone}
                   />
                 </div>
               </div>
 
               {selectedTemplate && startDate && endDate && (
-                <div className="border-t border-white pt-4">
+                <div className="border-white border-t pt-4">
                   <ContractPreview
-                    template={selectedTemplate}
                     client={client}
-                    startDate={startDate}
                     endDate={endDate}
+                    startDate={startDate}
+                    template={selectedTemplate}
                     terms={selectedTemplate.terms}
                   />
                 </div>
@@ -390,16 +440,12 @@ export function ContractGenerator({
             </div>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button onClick={handleClose} type="button" variant="outline">
                 Cancel
               </Button>
               <Button
+                disabled={!(selectedTemplateId && startDate && endDate)}
                 onClick={handleGenerate}
-                disabled={
-                  !selectedTemplateId ||
-                  !startDate ||
-                  !endDate
-                }
               >
                 Generate Contract
               </Button>
@@ -408,6 +454,5 @@ export function ContractGenerator({
         )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

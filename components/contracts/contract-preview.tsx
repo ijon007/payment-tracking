@@ -1,18 +1,18 @@
-"use client"
+"use client";
 
-import { usePaymentStore } from "@/lib/store"
-import type { ContractTemplate, Contract } from "@/lib/contract-utils"
-import type { Client } from "@/lib/payment-utils"
-import { format } from "date-fns"
-import { Card, CardContent } from "@/components/ui/card"
+import { format } from "date-fns";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Contract, ContractTemplate } from "@/lib/contract-utils";
+import type { Client } from "@/lib/payment-utils";
+import { usePaymentStore } from "@/lib/store";
 
 interface ContractPreviewProps {
-  contractId?: string
-  template?: ContractTemplate
-  client?: Client
-  startDate?: Date
-  endDate?: Date
-  terms?: string
+  contractId?: string;
+  template?: ContractTemplate;
+  client?: Client;
+  startDate?: Date;
+  endDate?: Date;
+  terms?: string;
 }
 
 export function ContractPreview({
@@ -23,34 +23,34 @@ export function ContractPreview({
   endDate,
   terms,
 }: ContractPreviewProps) {
-  const { getContract, getContractTemplate, getClient } = usePaymentStore()
+  const { getContract, getContractTemplate, getClient } = usePaymentStore();
 
-  let contract: Contract | null = null
-  let contractTemplate: ContractTemplate | null = null
-  let contractClient: Client | null = null
-  let contractStartDate: Date | null = null
-  let contractEndDate: Date | null = null
-  let contractTerms: string = ""
+  let contract: Contract | null = null;
+  let contractTemplate: ContractTemplate | null = null;
+  let contractClient: Client | null = null;
+  let contractStartDate: Date | null = null;
+  let contractEndDate: Date | null = null;
+  let contractTerms = "";
 
   if (contractId) {
-    contract = getContract(contractId) || null
+    contract = getContract(contractId) || null;
     if (contract) {
-      contractTemplate = getContractTemplate(contract.templateId) || null
-      contractClient = getClient(contract.clientId) || null
-      contractStartDate = contract.startDate
-      contractEndDate = contract.endDate
-      contractTerms = contract.terms
+      contractTemplate = getContractTemplate(contract.templateId) || null;
+      contractClient = getClient(contract.clientId) || null;
+      contractStartDate = contract.startDate;
+      contractEndDate = contract.endDate;
+      contractTerms = contract.terms;
     }
   } else if (template && client && startDate && endDate && terms) {
-    contractTemplate = template
-    contractClient = client
-    contractStartDate = startDate
-    contractEndDate = endDate
-    contractTerms = terms
+    contractTemplate = template;
+    contractClient = client;
+    contractStartDate = startDate;
+    contractEndDate = endDate;
+    contractTerms = terms;
   }
 
-  if (!contractTemplate || !contractClient) {
-    return null
+  if (!(contractTemplate && contractClient)) {
+    return null;
   }
 
   return (
@@ -62,13 +62,15 @@ export function ContractPreview({
             <div>
               {contractTemplate.logoUrl && (
                 <img
-                  src={contractTemplate.logoUrl}
                   alt={contractTemplate.companyName}
-                  className="h-12 mb-4"
+                  className="mb-4 h-12"
+                  src={contractTemplate.logoUrl}
                 />
               )}
-              <h2 className="text-2xl font-bold">{contractTemplate.companyName}</h2>
-              <div className="mt-2 text-sm text-muted-foreground space-y-1">
+              <h2 className="font-bold text-2xl">
+                {contractTemplate.companyName}
+              </h2>
+              <div className="mt-2 space-y-1 text-muted-foreground text-sm">
                 {contractTemplate.companyAddress && (
                   <p>{contractTemplate.companyAddress}</p>
                 )}
@@ -79,14 +81,14 @@ export function ContractPreview({
               </div>
             </div>
             <div className="text-right">
-              <h1 className="text-3xl font-bold mb-2">CONTRACT</h1>
+              <h1 className="mb-2 font-bold text-3xl">CONTRACT</h1>
               {contract && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Contract #: {contract.contractNumber}
                 </p>
               )}
               {contract && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-muted-foreground text-sm">
                   Issue Date: {format(contract.issueDate, "MMM dd, yyyy")}
                 </p>
               )}
@@ -96,11 +98,11 @@ export function ContractPreview({
           {/* Contract Parties */}
           <div className="grid grid-cols-2 gap-8">
             <div>
-              <h3 className="font-semibold mb-2">Client:</h3>
+              <h3 className="mb-2 font-semibold">Client:</h3>
               <p className="font-medium">{contractClient.name}</p>
             </div>
             <div className="text-right">
-              <h3 className="font-semibold mb-2">Contract Period:</h3>
+              <h3 className="mb-2 font-semibold">Contract Period:</h3>
               {contractStartDate && (
                 <p>Start: {format(contractStartDate, "MMM dd, yyyy")}</p>
               )}
@@ -112,8 +114,8 @@ export function ContractPreview({
 
           {/* Terms & Conditions */}
           <div className="border-t border-b pt-4 pb-4">
-            <h3 className="font-semibold mb-4">Terms & Conditions</h3>
-            <div className="text-sm text-muted-foreground whitespace-pre-line">
+            <h3 className="mb-4 font-semibold">Terms & Conditions</h3>
+            <div className="whitespace-pre-line text-muted-foreground text-sm">
               {contractTerms || contractTemplate.terms}
             </div>
           </div>
@@ -121,22 +123,22 @@ export function ContractPreview({
           {/* Signature Sections */}
           <div className="grid grid-cols-2 gap-8 pt-4">
             <div>
-              <h3 className="font-semibold mb-2">Client Signature</h3>
-              <div className="border-t border-dashed pt-8 mt-2">
+              <h3 className="mb-2 font-semibold">Client Signature</h3>
+              <div className="mt-2 border-t border-dashed pt-8">
                 {contract?.clientSignature ? (
                   <p className="text-sm">{contract.clientSignature}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Signature</p>
+                  <p className="text-muted-foreground text-sm">Signature</p>
                 )}
               </div>
             </div>
             <div>
-              <h3 className="font-semibold mb-2">Company Signature</h3>
-              <div className="border-t border-dashed pt-8 mt-2">
+              <h3 className="mb-2 font-semibold">Company Signature</h3>
+              <div className="mt-2 border-t border-dashed pt-8">
                 {contract?.companySignature ? (
                   <p className="text-sm">{contract.companySignature}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground">Signature</p>
+                  <p className="text-muted-foreground text-sm">Signature</p>
                 )}
               </div>
             </div>
@@ -144,6 +146,5 @@ export function ContractPreview({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-

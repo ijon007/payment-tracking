@@ -1,46 +1,46 @@
-export type InvoiceTemplate = {
-  id: string
-  name: string
-  companyName: string
-  companyAddress: string
-  companyEmail: string
-  companyPhone: string
-  logoUrl?: string
-  notes: string
-  createdAt: Date
-  updatedAt: Date
+export interface InvoiceTemplate {
+  id: string;
+  name: string;
+  companyName: string;
+  companyAddress: string;
+  companyEmail: string;
+  companyPhone: string;
+  logoUrl?: string;
+  notes: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type InvoiceItem = {
-  description: string
-  quantity: number
-  rate: number
-  amount: number
+export interface InvoiceItem {
+  description: string;
+  quantity: number;
+  rate: number;
+  amount: number;
 }
 
-export type Invoice = {
-  id: string
-  templateId: string
-  clientId: string
-  invoiceNumber: string
-  issueDate: Date
-  dueDate: Date
-  items: InvoiceItem[]
-  subtotal: number
-  tax?: number
-  total: number
-  status: "draft" | "sent" | "paid"
+export interface Invoice {
+  id: string;
+  templateId: string;
+  clientId: string;
+  invoiceNumber: string;
+  issueDate: Date;
+  dueDate: Date;
+  items: InvoiceItem[];
+  subtotal: number;
+  tax?: number;
+  total: number;
+  status: "draft" | "sent" | "paid";
 }
 
 /**
  * Generate invoice number (e.g., INV-2024-001)
  */
 export function generateInvoiceNumber(): string {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
   const random = Math.floor(Math.random() * 1000)
     .toString()
-    .padStart(3, "0")
-  return `INV-${year}-${random}`
+    .padStart(3, "0");
+  return `INV-${year}-${random}`;
 }
 
 /**
@@ -53,14 +53,14 @@ export function paymentToInvoiceItem(
   const defaultDescription =
     payment.type === "retainer"
       ? "Retainer Payment"
-      : `Installment ${payment.installmentNumber || ""}`
+      : `Installment ${payment.installmentNumber || ""}`;
 
   return {
     description: description || defaultDescription,
     quantity: 1,
     rate: payment.amount,
     amount: payment.amount,
-  }
+  };
 }
 
 /**
@@ -70,10 +70,9 @@ export function calculateInvoiceTotals(
   items: InvoiceItem[],
   taxPercent?: number
 ): { subtotal: number; tax: number; total: number } {
-  const subtotal = items.reduce((sum, item) => sum + item.amount, 0)
-  const tax = taxPercent ? (subtotal * taxPercent) / 100 : 0
-  const total = subtotal + tax
+  const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
+  const tax = taxPercent ? (subtotal * taxPercent) / 100 : 0;
+  const total = subtotal + tax;
 
-  return { subtotal, tax, total }
+  return { subtotal, tax, total };
 }
-
