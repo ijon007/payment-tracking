@@ -178,7 +178,7 @@ export function MonthCalendar({ year, month, events, className }: MonthCalendarP
                             getEventColor(event.type)
                           )}
                         >
-                          <Icon className="size-4 shrink-0" />
+                          <Icon weight="fill" className="size-4 shrink-0" />
                           <span className="truncate">{getEventLabel(event)}</span>
                         </div>} />
                       <TooltipContent side="top" hideArrow className="w-64 bg-zinc-900 text-foreground border border-white/6  0">

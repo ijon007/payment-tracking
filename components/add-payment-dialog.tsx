@@ -55,16 +55,12 @@ export function AddPaymentDialog({
     return null
   }
 
-  const defaultTrigger = (
+  const triggerElement = (
     <Button variant="ghost" size="sm" className="w-full justify-start">
       <CurrencyDollar className="mr-2 h-4 w-4" />
       Add Payment
     </Button>
   )
-
-  const triggerElement = trigger && typeof trigger === 'object' && 'type' in trigger 
-    ? trigger 
-    : defaultTrigger
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

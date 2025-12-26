@@ -90,7 +90,7 @@ export default function ClientsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <h1 className="text-xl font-bold">Clients</h1>
+          <h1 className="font-semibold">Clients</h1>
         </div>
         <ClientDialog />
       </div>
@@ -210,7 +210,7 @@ export default function ClientsPage() {
                               size="icon"
                               onClick={() => handleEmail(client)}
                             >
-                              <Envelope className="h-4 w-4" />
+                              <Envelope weight="fill" className="h-4 w-4" />
                             </Button>} />
                           <TooltipContent side="bottom" className="">
                             <p>Email</p>
@@ -223,7 +223,7 @@ export default function ClientsPage() {
                               size="icon"
                               onClick={() => handleSendInvoice(client)}
                             >
-                              <FileText className="h-4 w-4" />
+                              <FileText weight="fill" className="h-4 w-4" />
                             </Button>} />
                           <TooltipContent side="bottom">
                             <p>Send Invoice</p>
@@ -235,7 +235,7 @@ export default function ClientsPage() {
                               size="icon"
                               onClick={() => handleGenerateContract(client)}
                             >
-                              <Signature className="h-4 w-4" />
+                              <Signature weight="fill" className="h-4 w-4" />
                             </Button>} />
                           <TooltipContent side="bottom">
                             <p>Generate Contract</p>

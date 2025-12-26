@@ -83,7 +83,7 @@ export default function ClientDetailPage() {
         <div className="flex items-center justify-between gap-4 pb-2">
           <div className="flex items-center justify-center gap-2">
             <SidebarTrigger className="-ml-1" />
-            <h1 className="text-xl font-bold">{client.name}</h1>
+            <h1 className="font-semibold">{client.name}</h1>
           </div>
           
         </div>
@@ -97,7 +97,7 @@ export default function ClientDetailPage() {
                   size="icon"
                   onClick={() => setEmailDialogOpen(true)}
                 >
-                  <Envelope className="h-4 w-4" />
+                  <Envelope weight="fill" className="h-4 w-4" />
                 </Button>} />
               <TooltipContent side="bottom">
                 <p>Email</p>
@@ -110,7 +110,7 @@ export default function ClientDetailPage() {
                   size="icon"
                   onClick={() => setInvoiceDialogOpen(true)}
                 >
-                  <FileText className="h-4 w-4" />
+                  <FileText weight="fill" className="h-4 w-4" />
                 </Button>} />
               <TooltipContent side="bottom">
                 <p>Send Invoice</p>
@@ -122,7 +122,7 @@ export default function ClientDetailPage() {
                   size="icon"
                   onClick={() => setContractDialogOpen(true)}
                 >
-                  <Signature className="h-4 w-4" />
+                  <Signature weight="fill" className="h-4 w-4" />
                 </Button>} />
               <TooltipContent side="bottom">
                 <p>Generate Contract</p>

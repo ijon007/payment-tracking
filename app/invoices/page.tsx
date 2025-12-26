@@ -24,12 +24,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { InvoicePreview } from "@/components/invoice/invoice-preview"
-import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { formatCurrency } from "@/lib/payment-utils"
 
 export default function InvoicesPage() {
-  const router = useRouter()
   const {
     invoiceTemplates,
     invoices,
@@ -49,11 +47,11 @@ export default function InvoicesPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <h1 className="text-xl font-bold">Invoices</h1>
+          <h1 className="font-semibold">Invoices</h1>
         </div>
         <Link href="/invoices/templates/new">
           <Button>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus weight="bold" className="mr-2 size-3" />
             New Template
           </Button>
         </Link>
@@ -65,13 +63,13 @@ export default function InvoicesPage() {
           {invoiceTemplates.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <FileText weight="fill" className="size-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground mb-4">
                   No invoice templates yet. Create your first template to get started.
                 </p>
                 <Link href="/invoices/templates/new">
                   <Button>
-                    <Plus className="mr-2 h-4 w-4" />
+                    <Plus weight="bold" className="mr-2 size-3" />
                     Create Template
                   </Button>
                 </Link>
@@ -104,7 +102,7 @@ export default function InvoicesPage() {
                           </div>
                         ) : (
                           <div className="size-12 rounded-md border border-border/60 bg-primary/10 flex items-center justify-center">
-                            <FileText className="h-6 w-6 text-primary/70" />
+                            <FileText weight="fill" className="size-6 text-primary/70" />
                           </div>
                         )}
                       </div>
@@ -131,7 +129,7 @@ export default function InvoicesPage() {
                           size="sm" 
                           className="w-full border-primary/50 text-primary hover:text-primary transition-colors hover:bg-white/5 duration-200"
                         >
-                          <PencilSimple className="mr-2 h-4 w-4" />
+                          <PencilSimple weight="fill" className="mr-2 size-3" />
                           Edit
                         </Button>
                       </Link>
@@ -141,7 +139,7 @@ export default function InvoicesPage() {
                         onClick={() => setDeleteDialogOpen(template.id)}
                         className="w-1/2 border-destructive/50 text-destructive hover:text-destructive transition-colors hover:bg-white/5 duration-200"
                       >
-                        <Trash className="mr-2 h-4 w-4" />
+                        <Trash weight="fill" className="mr-2 size-3" />
                         Delete
                       </Button>
                     </div>
@@ -157,7 +155,7 @@ export default function InvoicesPage() {
           {invoices.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
-                <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <FileText weight="fill" className="size-12 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-muted-foreground">
                   No invoices generated yet. Generate invoices from the Clients page.
                 </p>
@@ -213,8 +211,10 @@ export default function InvoicesPage() {
               onClick={() =>
                 deleteDialogOpen && handleDelete(deleteDialogOpen)
               }
+              variant="destructive"
             >
-              Delete
+              <Trash weight="fill" className="size-3" />
+              <span>Delete</span>
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

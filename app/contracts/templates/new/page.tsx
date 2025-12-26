@@ -14,7 +14,7 @@ export default function NewTemplatePage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
-        <h1 className="text-xl font-bold">New Contract Template</h1>
+        <h1 className="font-semibold">New Contract Template</h1>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -mt-2">
         <Card>

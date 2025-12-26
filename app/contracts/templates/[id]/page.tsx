@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ContractTemplateBuilder } from "@/components/contracts/contract-template-builder"
 import { ContractTemplatePreview } from "@/components/contracts/contract-template-preview"
@@ -45,7 +45,7 @@ export default function EditTemplatePage() {
       <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <h1 className="text-xl font-bold">Template Not Found</h1>
+          <h1 className="font-semibold">Template Not Found</h1>
         </div>
         <Card>
           <CardContent className="py-12 text-center">
@@ -62,7 +62,7 @@ export default function EditTemplatePage() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
-        <h1 className="text-xl font-bold">Edit Template</h1>
+        <h1 className="font-semibold">Edit Template</h1>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 -mt-2">
         <Card>

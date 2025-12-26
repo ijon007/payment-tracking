@@ -102,8 +102,8 @@ export function AppSidebar() {
                       <SidebarMenuButton
                         render={(props) => (
                           <Link href={item.url} {...props}>
-                            <item.icon weight="fill" />
-                            <span>{item.title}</span>
+                            <item.icon weight="fill" className="size-4 text-muted-foreground group-data-[active=true]:text-primary" />
+                            <span className="text-sm text-muted-foreground group-data-[active=true]:text-primary">{item.title}</span>
                           </Link>
                         )}
                         tooltip={item.title}

@@ -135,19 +135,12 @@ export default function CalendarPage() {
     })
   }
 
-  // Navigate to selected date
-  const handleDateSelect = (date: Date | undefined) => {
-    if (date) {
-      setCurrentDate(date)
-    }
-  }
-
   return (
     <div className="absolute inset-0 flex flex-col -m-4">
       <div className="flex items-center justify-between gap-2 px-7 py-2 pt-6 border-b border-border shrink-0">
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
-          <h1 className="text-xl font-bold">Calendar</h1>
+          <h1 className="font-semibold">Calendar</h1>
         </div>
 
         {/* Navigation Controls */}

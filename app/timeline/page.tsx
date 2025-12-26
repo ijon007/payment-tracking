@@ -203,7 +203,7 @@ export default function TimelinePage() {
       {/* Fixed Header */}
       <div className="flex items-center gap-2 px-4 py-4 border-b border-border shrink-0">
         <SidebarTrigger className="-ml-1" />
-        <h1 className="text-xl font-bold">Payment Timeline</h1>
+        <h1 className="font-semibold">Payment Timeline</h1>
       </div>
 
       {/* Scrollable Gantt Area */}
