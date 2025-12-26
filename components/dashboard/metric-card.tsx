@@ -10,7 +10,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { formatCurrency } from "@/lib/payment-utils";
+import { formatCurrency } from "@/lib/currency-utils";
+import { useSettings } from "@/lib/settings-store";
 
 type ChartData = Array<{ month: string; value: number }>;
 
@@ -78,6 +79,7 @@ export function MetricCard({
   icon,
   onOpenDialog,
 }: MetricCardProps) {
+  const { settings } = useSettings();
   return (
     <Card>
       <CardHeader>
@@ -97,7 +99,9 @@ export function MetricCard({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 font-bold text-2xl">{formatCurrency(value)}</div>
+        <div className="mb-4 font-bold text-2xl">
+          {formatCurrency(value, settings.baseCurrency)}
+        </div>
         {renderSmallChart(chartData, gradientId)}
       </CardContent>
     </Card>

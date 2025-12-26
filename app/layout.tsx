@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { PaymentStoreProvider } from "@/lib/store";
+import { Toaster } from "@/components/ui/sonner";
+import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +27,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} dark antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PaymentStoreProvider>
+        <Providers>
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset className="flex h-[calc(100svh-1rem)] flex-col overflow-hidden bg-background">
@@ -39,7 +40,8 @@ export default function RootLayout({
               </div>
             </SidebarInset>
           </SidebarProvider>
-        </PaymentStoreProvider>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

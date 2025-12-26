@@ -1,8 +1,9 @@
 "use client";
 
 import {
+  AlignLeft,
   Calendar,
-  CalendarBlank,
+  CalendarDots,
   FileText,
   House,
   LayoutIcon,
@@ -15,6 +16,7 @@ import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -23,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { NavUser } from "./nav-user";
 
 const menuGroups = [
   {
@@ -46,12 +49,12 @@ const menuGroups = [
       {
         title: "Timeline",
         url: "/timeline",
-        icon: Calendar,
+        icon: AlignLeft,
       },
       {
         title: "Calendar",
         url: "/calendar",
-        icon: CalendarBlank,
+        icon: CalendarDots,
       },
     ],
   },
@@ -126,6 +129,13 @@ export function AppSidebar() {
           </SidebarGroup>
         ))}
       </SidebarContent>
+      <SidebarFooter>
+        <NavUser user={{
+          name: "John Doe",
+          email: "john.doe@example.com",
+          avatar: "https://github.com/shadcn.png",
+        }} />
+      </SidebarFooter>  
     </Sidebar>
   );
 }

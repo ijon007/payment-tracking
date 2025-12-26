@@ -1,8 +1,8 @@
 "use client";
 
-import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Contract } from "@/lib/contract-utils";
+import { useFormattedDate } from "@/lib/date-utils";
 import { Badge } from "../ui/badge";
 
 interface ContractListProps {
@@ -14,6 +14,8 @@ export function ContractList({
   contracts,
   onContractClick,
 }: ContractListProps) {
+  const formatDate = useFormattedDate();
+
   if (contracts.length === 0) {
     return (
       <Card>
@@ -40,7 +42,7 @@ export function ContractList({
               <div>
                 <p className="font-medium">{contract.contractNumber}</p>
                 <p className="text-muted-foreground text-sm">
-                  {format(new Date(contract.issueDate), "MMM dd, yyyy")}
+                  {formatDate(new Date(contract.issueDate))}
                 </p>
               </div>
               <div className="flex items-center gap-2">

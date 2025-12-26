@@ -7,6 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatCurrency } from "@/lib/payment-utils";
+import { useFormattedDate } from "@/lib/date-utils";
 import type { PaymentWithStatus } from "./timeline-calculations";
 import type { TimelineConfig } from "./timeline-config";
 
@@ -25,6 +26,7 @@ export function TimelinePaymentBar({
   config,
   clientColor,
 }: TimelinePaymentBarProps) {
+  const formatDate = useFormattedDate();
   const position = config.dateToPixel(payment.dueDate);
   const barHeight = 24;
 
@@ -117,11 +119,7 @@ export function TimelinePaymentBar({
             <div className="flex items-center justify-between">
               <span className="text-zinc-400">Due:</span>
               <span className="text-white">
-                {payment.dueDate.toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
+                {formatDate(payment.dueDate)}
               </span>
             </div>
             <div className="flex items-center justify-between">
