@@ -9,7 +9,6 @@ import {
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ClientContracts } from "@/components/clients/client-contracts";
-import { ClientCurrencySelector } from "@/components/clients/client-currency-selector";
 import { ClientDealInfo } from "@/components/clients/client-deal-info";
 import { ClientGeneralInfo } from "@/components/clients/client-general-info";
 import { ClientInvoices } from "@/components/clients/client-invoices";
@@ -19,6 +18,7 @@ import { EmailDialog } from "@/components/email/email-dialog";
 import { InvoiceGenerator } from "@/components/invoice/invoice-generator";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
   Tooltip,
   TooltipContent,
@@ -36,6 +36,7 @@ export default function ClientDetailPage() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [contractDialogOpen, setContractDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("general-info");
 
   useEffect(() => {
     setMounted(true);
@@ -67,7 +68,7 @@ export default function ClientDetailPage() {
         <div className="flex items-center gap-2">
           <SidebarTrigger className="-ml-1" />
           <Button onClick={() => router.back()} size="sm" variant="ghost">
-            <ArrowLeft className="mr-2 h-4 w-4" />
+            <ArrowLeft weight="bold" className="size-3" />
             Back
           </Button>
         </div>
@@ -83,85 +84,91 @@ export default function ClientDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="sticky top-0 z-50 w-full bg-background">
-        <div className="flex items-center justify-between gap-4 pb-2">
-          <div className="flex items-center justify-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <h1 className="font-semibold">{client.name}</h1>
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <div className="space-y-6">
+        <div className="sticky top-0 z-50 w-full bg-background">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center justify-center gap-2">
+              <SidebarTrigger className="-ml-1" />
+              <h1 className="font-semibold">{client.name}</h1>
+            </div>
+          </div>
+
+          <div className="flex flex-row items-center justify-between border-b">
+            <ClientNavbar />
+            <div className="flex items-center gap-2">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      onClick={() => setEmailDialogOpen(true)}
+                      size="icon"
+                      variant="default"
+                    >
+                      <Envelope weight="fill" className="size-4" />
+                    </Button>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  <p>Email</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      className="bg-green-900 text-white hover:bg-green-900/90"
+                      onClick={() => setInvoiceDialogOpen(true)}
+                      size="icon"
+                      variant="secondary"
+                    >
+                      <FileText weight="fill" className="size-4" />
+                    </Button>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  <p>Send Invoice</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      onClick={() => setContractDialogOpen(true)}
+                      size="icon"
+                      variant="secondary"
+                    >
+                      <Signature weight="fill" className="size-4" />
+                    </Button>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  <p>Generate Contract</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-row items-center justify-between border-b">
-          <ClientNavbar />
-          <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    onClick={() => setEmailDialogOpen(true)}
-                    size="icon"
-                    variant="default"
-                  >
-                    <Envelope className="h-4 w-4" weight="fill" />
-                  </Button>
-                }
+        <div className="space-y-6 pb-8">
+          <TabsContent value="general-info" className="mt-6 space-y-6">
+            <div className="grid gap-6 md:grid-cols-">
+              <ClientGeneralInfo client={client} />
+              <ClientDealInfo
+                client={client}
+                onCurrencyChange={(currency) => setDisplayCurrency(currency)}
               />
-              <TooltipContent side="bottom">
-                <p>Email</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    className="bg-green-900 text-white hover:bg-green-900/90"
-                    onClick={() => setInvoiceDialogOpen(true)}
-                    size="icon"
-                    variant="secondary"
-                  >
-                    <FileText className="h-4 w-4" weight="fill" />
-                  </Button>
-                }
-              />
-              <TooltipContent side="bottom">
-                <p>Send Invoice</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    onClick={() => setContractDialogOpen(true)}
-                    size="icon"
-                    variant="secondary"
-                  >
-                    <Signature className="h-4 w-4" weight="fill" />
-                  </Button>
-                }
-              />
-              <TooltipContent side="bottom">
-                <p>Generate Contract</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="contracts" className="mt-6">
+            <ClientContracts client={client} displayCurrency={displayCurrency} />
+          </TabsContent>
+
+          <TabsContent value="invoices" className="mt-6">
+            <ClientInvoices client={client} displayCurrency={displayCurrency} />
+          </TabsContent>
         </div>
-      </div>
-
-      <div className="space-y-6 pb-8">
-        <div className="grid gap-6 md:grid-cols-2">
-          <ClientGeneralInfo client={client} />
-          <ClientCurrencySelector
-            client={client}
-            onCurrencyChange={(currency) => setDisplayCurrency(currency)}
-          />
-        </div>
-
-        <ClientContracts client={client} displayCurrency={displayCurrency} />
-
-        <ClientInvoices client={client} displayCurrency={displayCurrency} />
-
-        <ClientDealInfo client={client} />
       </div>
 
       {emailDialogOpen && (
@@ -187,6 +194,6 @@ export default function ClientDetailPage() {
           open={contractDialogOpen}
         />
       )}
-    </div>
+    </Tabs>
   );
 }

@@ -1,12 +1,13 @@
 "use client";
 
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { CaretDown, MagnifyingGlass } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { ClientDialog } from "@/components/client-dialog";
 import { ClientTableRow } from "@/components/clients/client-table-row";
 import { ContractGenerator } from "@/components/contracts/contract-generator";
 import { EmailDialog } from "@/components/email/email-dialog";
 import { InvoiceGenerator } from "@/components/invoice/invoice-generator";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,20 +17,21 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Table,
   TableBody,
   TableHead,
   TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import { usePaymentStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 export default function ClientsPage() {
   const { clients } = usePaymentStore();
@@ -106,42 +108,58 @@ export default function ClientsPage() {
                   value={searchQuery}
                 />
               </div>
-              <Select
-                onValueChange={(value) =>
-                  setStatusFilter(value || "All Status")
-                }
-                value={statusFilter}
-              >
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="All Status">
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button className="w-[180px] justify-between" variant="outline">
+                      <div className="flex items-center gap-2">
+                        <div
+                          className={cn(
+                            "size-3 rounded-full",
+                            statusFilter === "All Status"
+                              ? "bg-muted-foreground"
+                              : statusFilter === "Paid"
+                                ? "bg-primary"
+                                : statusFilter === "Pending"
+                                  ? "bg-secondary"
+                                  : "bg-destructive"
+                          )}
+                        />
+                        <span>{statusFilter}</span>
+                      </div>
+                      <CaretDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent >
+                  <DropdownMenuItem
+                    onClick={() => setStatusFilter("All Status")}
+                  >
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-muted-foreground" />
                       <span>All Status</span>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="Paid">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("Paid")}>
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-primary" />
                       <span>Paid</span>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="Pending">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("Pending")}>
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-secondary" />
                       <span>Pending</span>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="Overdue">
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setStatusFilter("Overdue")}>
                     <div className="flex items-center gap-2">
                       <div className="size-3 rounded-full bg-destructive" />
                       <span>Overdue</span>
                     </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </CardHeader>

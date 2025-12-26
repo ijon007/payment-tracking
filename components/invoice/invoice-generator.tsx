@@ -1,12 +1,23 @@
 "use client";
 
-import { Calendar as CalendarIcon, Download } from "@phosphor-icons/react";
+import { Calendar as CalendarIcon, CaretDown, Download } from "@phosphor-icons/react";
 import { pdf } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Combobox } from "@/components/ui/combobox";
+import {
+  Combobox,
+  ComboboxChip,
+  ComboboxChips,
+  ComboboxChipsInput,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxValue,
+  useComboboxAnchor,
+} from "@/components/ui/combobox";
 import {
   Dialog,
   DialogContent,
@@ -22,12 +33,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { type InvoiceItem, paymentToInvoiceItem } from "@/lib/invoice-utils";
 import { formatCurrency } from "@/lib/payment-utils";
 import { usePaymentStore } from "@/lib/store";
@@ -64,6 +74,7 @@ export function InvoiceGenerator({
   const [generatedInvoiceId, setGeneratedInvoiceId] = useState<string | null>(
     null
   );
+  const paymentComboboxAnchor = useComboboxAnchor();
 
   useEffect(() => {
     if (open && invoiceTemplates.length > 0 && !selectedTemplateId) {
@@ -184,21 +195,34 @@ export function InvoiceGenerator({
                 <Label className="text-xs" htmlFor="template">
                   Invoice Template
                 </Label>
-                <Select
-                  onValueChange={setSelectedTemplateId}
-                  value={selectedTemplateId}
-                >
-                  <SelectTrigger className="w-full border-border" id="template">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent align="start">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    id="template"
+                    render={
+                      <Button
+                        className="w-full justify-between border-border"
+                        variant="outline"
+                      >
+                        {selectedTemplateId
+                          ? invoiceTemplates.find(
+                              (t) => t.id === selectedTemplateId
+                            )?.name || "Select template"
+                          : "Select template"}
+                        <CaretDown className="h-4 w-4 opacity-50" />
+                      </Button>
+                    }
+                  />
+                  <DropdownMenuContent align="start" className="w-full">
                     {invoiceTemplates.map((template) => (
-                      <SelectItem key={template.id} value={template.id}>
+                      <DropdownMenuItem
+                        key={template.id}
+                        onClick={() => setSelectedTemplateId(template.id)}
+                      >
                         {template.name}
-                      </SelectItem>
+                      </DropdownMenuItem>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 {invoiceTemplates.length === 0 && (
                   <p className="text-muted-foreground text-xs">
                     No templates available. Create one in the Invoices page.
@@ -247,21 +271,63 @@ export function InvoiceGenerator({
                   </p>
                 ) : (
                   <Combobox
-                    emptyMessage="No payments found."
-                    multiple={true}
-                    onValueChange={setSelectedPaymentIds}
-                    options={unpaidPayments.map((payment) => ({
-                      value: payment.id,
-                      label:
-                        payment.type === "retainer"
-                          ? "Retainer Payment"
-                          : `Installment ${payment.installmentNumber}`,
-                      description: `${formatCurrency(payment.amount)} • Due: ${format(payment.dueDate, "MMM dd, yyyy")}`,
-                    }))}
-                    placeholder="Select payments..."
-                    searchPlaceholder="Search payments..."
+                    items={unpaidPayments}
+                    multiple
+                    onValueChange={(value) =>
+                      setSelectedPaymentIds(value as string[])
+                    }
                     value={selectedPaymentIds}
-                  />
+                  >
+                    <ComboboxChips
+                      className="w-full"
+                      ref={paymentComboboxAnchor}
+                    >
+                      <ComboboxValue>
+                        {(value: string[]) => (
+                          <>
+                            {value.map((paymentId) => {
+                              const payment = unpaidPayments.find(
+                                (p) => p.id === paymentId
+                              );
+                              if (!payment) return null;
+                              const label =
+                                payment.type === "retainer"
+                                  ? "Retainer Payment"
+                                  : `Installment ${payment.installmentNumber}`;
+                              return (
+                                <ComboboxChip key={paymentId}>
+                                  {label}
+                                </ComboboxChip>
+                              );
+                            })}
+                            <ComboboxChipsInput placeholder="Select payments..." />
+                          </>
+                        )}
+                      </ComboboxValue>
+                    </ComboboxChips>
+                    <ComboboxContent anchor={paymentComboboxAnchor}>
+                      <ComboboxList>
+                        {(payment) => {
+                          const label =
+                            payment.type === "retainer"
+                              ? "Retainer Payment"
+                              : `Installment ${payment.installmentNumber}`;
+                          const description = `${formatCurrency(payment.amount)} • Due: ${format(payment.dueDate, "MMM dd, yyyy")}`;
+                          return (
+                            <ComboboxItem key={payment.id} value={payment.id}>
+                              <div className="flex flex-col gap-0.5">
+                                <span>{label}</span>
+                                <span className="text-muted-foreground text-xs">
+                                  {description}
+                                </span>
+                              </div>
+                            </ComboboxItem>
+                          );
+                        }}
+                      </ComboboxList>
+                      <ComboboxEmpty>No payments found</ComboboxEmpty>
+                    </ComboboxContent>
+                  </Combobox>
                 )}
               </div>
 

@@ -99,7 +99,7 @@ export function TimelinePaymentBar({
         }
       />
       <TooltipContent
-        className="w-80 border border-zinc-700 bg-zinc-900 text-foreground shadow-lg"
+        className="w-80 bg-card border border-border text-foreground shadow-lg"
         hideArrow
         side="bottom"
       >

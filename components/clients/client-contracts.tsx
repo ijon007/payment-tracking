@@ -88,7 +88,7 @@ export function ClientContracts({
 
   if (clientContracts.length === 0) {
     return (
-      <Card id="contracts">
+      <Card>
         <CardHeader>
           <CardTitle>Contracts</CardTitle>
           <CardDescription>

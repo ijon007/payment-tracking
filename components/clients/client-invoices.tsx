@@ -83,7 +83,7 @@ export function ClientInvoices({
 
   if (clientInvoices.length === 0) {
     return (
-      <Card id="invoices">
+      <Card>
         <CardHeader>
           <CardTitle>Invoices</CardTitle>
           <CardDescription>

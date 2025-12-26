@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar as CalendarIcon, Download } from "@phosphor-icons/react";
+import { Calendar as CalendarIcon, CaretDown, Download } from "@phosphor-icons/react";
 import { pdf } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
@@ -22,12 +22,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { usePaymentStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -193,18 +192,20 @@ export function ContractGenerator({
 
   return (
     <Dialog onOpenChange={handleClose} open={open}>
-      <DialogContent className="scrollbar-hide max-h-[90vh] w-2/5 gap-5 overflow-y-auto">
-        <DialogHeader className="mb-3">
-          <DialogTitle>Generate Contract for {client.name}</DialogTitle>
+      <DialogContent className="flex max-h-[70vh] w-2/5 flex-col gap-5 p-0">
+        <DialogHeader className="p-3 pb-0">
+          <DialogTitle className="p-0">Generate Contract for {client.name}</DialogTitle>
           <DialogDescription className="sr-only">
             Select a template and set contract dates.
           </DialogDescription>
         </DialogHeader>
 
         {generatedContractId ? (
-          <div className="space-y-4">
-            <ContractPreview contractId={generatedContractId} />
-            <DialogFooter>
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="scrollbar-hide flex-1 overflow-y-auto p-3">
+              <ContractPreview contractId={generatedContractId} />
+            </div>
+            <DialogFooter className="sticky bottom-0 border-t bg-background p-2">
               <Button onClick={handleDownloadPDF} variant="outline">
                 <Download className="mr-2 h-4 w-4" />
                 Download PDF
@@ -213,31 +214,42 @@ export function ContractGenerator({
             </DialogFooter>
           </div>
         ) : (
-          <div className="space-y-10">
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="scrollbar-hide flex-1 space-y-10 overflow-y-auto p-3">
             <div className="grid gap-10">
               <div className="grid gap-5">
                 <div className="grid gap-2">
                   <Label className="text-xs" htmlFor="template">
                     Contract Template
                   </Label>
-                  <Select
-                    onValueChange={setSelectedTemplateId}
-                    value={selectedTemplateId}
-                  >
-                    <SelectTrigger
-                      className="w-full border-border"
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
                       id="template"
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent align="start">
+                      render={
+                        <Button
+                          className="w-full justify-between border-border"
+                          variant="outline"
+                        >
+                          {selectedTemplateId
+                            ? contractTemplates.find(
+                                (t) => t.id === selectedTemplateId
+                              )?.name || "Select template"
+                            : "Select template"}
+                          <CaretDown className="h-4 w-4 opacity-50" />
+                        </Button>
+                      }
+                    />
+                    <DropdownMenuContent align="start" className="w-full">
                       {contractTemplates.map((template) => (
-                        <SelectItem key={template.id} value={template.id}>
+                        <DropdownMenuItem
+                          key={template.id}
+                          onClick={() => setSelectedTemplateId(template.id)}
+                        >
                           {template.name}
-                        </SelectItem>
+                        </DropdownMenuItem>
                       ))}
-                    </SelectContent>
-                  </Select>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                   {contractTemplates.length === 0 && (
                     <p className="text-muted-foreground text-xs">
                       No templates available. Create one in the Contracts page.
@@ -315,8 +327,8 @@ export function ContractGenerator({
                 </div>
               </div>
 
-              <div className="space-y-6 border-white border-t pt-4">
-                <h3 className="font-semibold text-sm">Contract Details</h3>
+              <div className="space-y-6 border-border border-t pt-4">
+                <h3 className="font-semibold text-sm">Details</h3>
 
                 <div className="grid gap-2">
                   <Label className="text-xs" htmlFor="projectCost">
@@ -381,9 +393,9 @@ export function ContractGenerator({
                 </div>
               </div>
 
-              <div className="space-y-4 border-white border-t pt-4">
+              <div className="space-y-4 border-border border-t pt-4">
                 <h3 className="font-semibold text-sm">
-                  Client Contact Information
+                  Client Information
                 </h3>
 
                 <div className="grid gap-2">
@@ -438,8 +450,9 @@ export function ContractGenerator({
                 </div>
               )}
             </div>
+            </div>
 
-            <DialogFooter>
+            <DialogFooter className="sticky bottom-0 border-t bg-background p-2">
               <Button onClick={handleClose} type="button" variant="outline">
                 Cancel
               </Button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { CaretDown } from "@phosphor-icons/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,12 +21,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
 import { CURRENCIES, type Currency } from "@/lib/currency-utils";
 import { PAYMENT_PLAN_TEMPLATES } from "@/lib/payment-utils";
@@ -91,15 +91,15 @@ export function ClientDialog() {
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger render={<Button>Add Client</Button>} />
-      <DialogContent className="scrollbar-hide max-h-[90vh] w-1/2 gap-5 overflow-y-auto">
-        <form onSubmit={handleSubmit}>
+      <DialogContent className="flex max-h-[70vh] w-2/5 flex-col gap-5 p-0">
+        <form className="flex flex-1 flex-col overflow-hidden" onSubmit={handleSubmit}>
           <DialogHeader className="sr-only">
             <DialogTitle>Add New Client</DialogTitle>
             <DialogDescription>
               Create a new client and assign a payment plan.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-5 py-4">
+          <div className="scrollbar-hide grid flex-1 gap-5 overflow-y-auto p-3">
             <div className="grid gap-2">
               <Label htmlFor="name">Client Name</Label>
               <Input
@@ -193,16 +193,35 @@ export function ClientDialog() {
             </div>
             <div className="grid gap-2">
               <Label htmlFor="currency">Currency</Label>
-              <Select
-                onValueChange={(value) => setCurrency(value as Currency)}
-                value={currency}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  id="currency"
+                  render={
+                    <Button className="w-full justify-between" variant="outline">
+                      {(() => {
+                        const selected = CURRENCIES.find((c) => c.code === currency);
+                        return selected ? (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{selected.symbol}</span>
+                            <span>{selected.name}</span>
+                            <span className="text-muted-foreground">
+                              ({selected.code})
+                            </span>
+                          </div>
+                        ) : (
+                          "Select currency"
+                        );
+                      })()}
+                      <CaretDown className="h-4 w-4 opacity-50" />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent className="w-full">
                   {CURRENCIES.map((curr) => (
-                    <SelectItem key={curr.code} value={curr.code}>
+                    <DropdownMenuItem
+                      key={curr.code}
+                      onClick={() => setCurrency(curr.code as Currency)}
+                    >
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{curr.symbol}</span>
                         <span>{curr.name}</span>
@@ -210,10 +229,10 @@ export function ClientDialog() {
                           ({curr.code})
                         </span>
                       </div>
-                    </SelectItem>
+                    </DropdownMenuItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
             <div className="grid gap-2">
               <Label>Payment Plan</Label>
@@ -253,7 +272,7 @@ export function ClientDialog() {
               )}
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="sticky bottom-0 border-t bg-background p-2">
             <Button
               onClick={() => setOpen(false)}
               type="button"
