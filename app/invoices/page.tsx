@@ -31,6 +31,15 @@ export default function InvoicesPage() {
     setFilteredInvoices(invoices);
   }, [invoices]);
 
+  const handleInvoiceCreated = (invoiceId: string) => {
+    setInvoiceSheetOpen(false);
+    
+    // Small delay to allow create sheet to close smoothly, then open preview
+    setTimeout(() => {
+      setSelectedInvoiceId(invoiceId);
+    }, 200);
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex items-center justify-between gap-2">
@@ -83,6 +92,7 @@ export default function InvoicesPage() {
       <InvoiceSheet
         onOpenChange={setInvoiceSheetOpen}
         open={invoiceSheetOpen}
+        onInvoiceCreated={handleInvoiceCreated}
       />
     </div>
   );

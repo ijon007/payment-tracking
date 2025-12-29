@@ -43,7 +43,7 @@ export function PublicInvoiceView({ token }: PublicInvoiceViewProps) {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-3xl">
         <InvoicePreview invoiceId={invoiceId} showShareButton={false} />
       </div>
     </div>

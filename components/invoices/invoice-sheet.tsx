@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { EditableInvoicePreview } from "@/components/invoice/editable-invoice-preview";
 import { InvoiceSettingsDropdown, type InvoiceSettings } from "@/components/invoices/invoice-settings-dropdown";
@@ -20,14 +19,15 @@ interface InvoiceSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   clientId?: string;
+  onInvoiceCreated?: (invoiceId: string) => void;
 }
 
 export function InvoiceSheet({
   open,
   onOpenChange,
   clientId,
+  onInvoiceCreated,
 }: InvoiceSheetProps) {
-  const router = useRouter();
   const { clients, generateInvoice } = usePaymentStore();
 
   const [companyName, setCompanyName] = useState<string>("");
@@ -89,7 +89,7 @@ export function InvoiceSheet({
       return;
     }
 
-    generateInvoice({
+    const invoice = generateInvoice({
       clientId: selectedClientId,
       items,
       dueDate,
@@ -113,7 +113,7 @@ export function InvoiceSheet({
     });
 
     handleClose();
-    router.push("/invoices");
+    onInvoiceCreated?.(invoice.id);
   };
 
   const handleClose = () => {
@@ -148,7 +148,7 @@ export function InvoiceSheet({
   return (
     <Sheet onOpenChange={handleClose} open={open}>
       <SheetContent
-        className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-4xl p-0"
+        className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded sm:max-w-4xl p-0"
         side="right"
         showCloseButton={false}
       >

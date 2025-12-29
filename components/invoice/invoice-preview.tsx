@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Link, Check } from "@phosphor-icons/react";
+import { Download, Link, Check, QrCode } from "@phosphor-icons/react";
 import { pdf } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { useState } from "react";
@@ -9,10 +9,10 @@ import type {
   Invoice,
   InvoiceItem,
 } from "@/lib/invoice-utils";
-import { generateShareToken } from "@/lib/invoice-utils";
+import { generateShareToken, calculateInvoiceTotals } from "@/lib/invoice-utils";
 import { InvoicePDF } from "@/components/invoice/invoice-pdf";
 import type { Client } from "@/lib/payment-utils";
-import { formatCurrency } from "@/lib/payment-utils";
+import { formatCurrency } from "@/lib/currency-utils";
 import { usePaymentStore } from "@/lib/store";
 import { toast } from "sonner";
 
@@ -94,10 +94,18 @@ export function InvoicePreview({
     );
   }
 
-  const subtotal = invoice?.subtotal || invoiceItems.reduce((sum, item) => sum + (item.amount || 0), 0);
-  const tax = invoice?.tax || 0;
-  const total = invoice?.total || subtotal + tax;
-  const taxPercent = tax > 0 && subtotal > 0 ? (tax / subtotal) * 100 : 0;
+  // Calculate totals using invoice settings
+  const invoiceCurrency = invoice?.currency || "USD";
+  // Note: Discount amount is not stored in invoice, so we can't display it for existing invoices
+  // For new invoices, discount would need to be stored in the invoice object
+  const { subtotal, salesTax, vat, discount, total } = calculateInvoiceTotals(
+    invoiceItems,
+    {
+      salesTaxPercent: invoice?.salesTaxEnabled ? invoice.salesTaxPercent : undefined,
+      vatPercent: invoice?.vatEnabled ? invoice.vatPercent : undefined,
+      discountAmount: undefined, // Discount amount not stored in invoice
+    }
+  );
 
   const handleDownloadPDF = async () => {
     if (!invoice || !invoiceClient) return;
@@ -147,7 +155,7 @@ export function InvoicePreview({
 
   return (
     <div className="mt-6">
-      <div className="space-y-6 rounded-lg border bg-card p-6">
+      <div className="space-y-6 rounded border bg-card p-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-4">
@@ -254,26 +262,50 @@ export function InvoicePreview({
           <div className="w-64 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">{formatCurrency(subtotal)}</span>
+              <span className="font-medium">{formatCurrency(subtotal, invoiceCurrency)}</span>
             </div>
-            {tax > 0 && (
-              <div className="flex justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Tax</span>
-                  {taxPercent > 0 && (
-                    <>
-                      <span className="text-muted-foreground">
-                        {taxPercent.toFixed(1)}%
-                      </span>
-                    </>
-                  )}
-                </div>
-                <span className="font-medium">{formatCurrency(tax)}</span>
+            
+            {/* Discount */}
+            {invoice?.discountEnabled && discount > 0 && (
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <span className="text-muted-foreground">Discount</span>
+                <span className="font-medium">{formatCurrency(discount, invoiceCurrency)}</span>
               </div>
             )}
+
+            {/* Sales Tax */}
+            {invoice?.salesTaxEnabled && salesTax > 0 && (
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Sales Tax</span>
+                  {invoice.salesTaxPercent !== undefined && (
+                    <span className="text-muted-foreground">
+                      ({invoice.salesTaxPercent.toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
+                <span className="font-medium">{formatCurrency(salesTax, invoiceCurrency)}</span>
+              </div>
+            )}
+
+            {/* VAT */}
+            {invoice?.vatEnabled && vat > 0 && (
+              <div className="flex items-center justify-between gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">VAT</span>
+                  {invoice.vatPercent !== undefined && (
+                    <span className="text-muted-foreground">
+                      ({invoice.vatPercent.toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
+                <span className="font-medium">{formatCurrency(vat, invoiceCurrency)}</span>
+              </div>
+            )}
+
             <div className="flex justify-between border-t pt-2 text-lg font-bold">
               <span>Total</span>
-              <span>{formatCurrency(total)}</span>
+              <span>{formatCurrency(total, invoiceCurrency)}</span>
             </div>
           </div>
         </div>
@@ -297,6 +329,18 @@ export function InvoicePreview({
                 </p>
               </div>
             )}
+          </div>
+        )}
+
+        {/* QR Code */}
+        {invoice?.showQrCode && (
+          <div className="flex justify-center border-t pt-4">
+            <div className="flex flex-col items-center gap-2">
+              <div className="flex h-32 w-32 items-center justify-center rounded border bg-muted">
+                <QrCode className="size-24 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground text-xs">QR Code</p>
+            </div>
           </div>
         )}
       </div>
