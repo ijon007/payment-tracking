@@ -23,6 +23,7 @@ export interface Invoice {
   logoUrl?: string;
   notes?: string;
   paymentDetails?: string;
+  shareToken?: string;
 }
 
 /**
@@ -33,6 +34,18 @@ export function generateInvoiceNumber(): string {
     .toString()
     .padStart(4, "0");
   return `INV-${random}`;
+}
+
+/**
+ * Generate a secure share token for invoices
+ */
+export function generateShareToken(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 32; i++) {
+    token += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return token;
 }
 
 /**

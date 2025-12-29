@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppLayoutWrapper } from "@/components/app-layout-wrapper";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
 
@@ -32,14 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <SidebarProvider>
-            <AppSidebar />
-            <SidebarInset className="flex h-[calc(100svh-1rem)] flex-col overflow-hidden bg-background">
-              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto">
-                <div className="flex flex-col gap-4 p-4">{children}</div>
-              </div>
-            </SidebarInset>
-          </SidebarProvider>
+          <AppLayoutWrapper>{children}</AppLayoutWrapper>
           <Toaster />
         </Providers>
       </body>

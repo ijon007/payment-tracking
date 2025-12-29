@@ -1,16 +1,9 @@
 "use client";
 
-import { CaretDown } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { EditableInvoicePreview } from "@/components/invoice/editable-invoice-preview";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -110,15 +103,16 @@ export function InvoiceSheet({
   return (
     <Sheet onOpenChange={handleClose} open={open}>
       <SheetContent
-        className="!right-4 !top-4 !bottom-4 !h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-lg shadow-2xl sm:max-w-4xl p-0"
+        className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-4xl p-0"
         side="right"
+        showCloseButton={false}
       >
         <div className="flex h-full flex-col">
-          <SheetHeader className="border-b p-6">
+          <SheetHeader className="sr-only">
             <SheetTitle>Create Invoice</SheetTitle>
           </SheetHeader>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-6">
             <EditableInvoicePreview
               clients={clients}
               dueDate={dueDate}
@@ -150,14 +144,15 @@ export function InvoiceSheet({
             />
           </div>
 
-          <div className="border-t p-6">
-            <div className="flex items-center justify-end gap-2">
-              <Button onClick={handleClose} variant="outline">
+          <div className="border-t p-3 sm:p-6">
+            <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
+              <Button onClick={handleClose} variant="outline" className="w-full sm:w-auto">
                 Cancel
               </Button>
               <Button
                 disabled={!selectedClientId || items.length === 0 || !dueDate || !companyName || !companyEmail}
                 onClick={handleCreateInvoice}
+                className="w-full sm:w-auto"
               >
                 Create Invoice
               </Button>

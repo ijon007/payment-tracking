@@ -11,7 +11,7 @@ import {
 import type { Contract, ContractTemplate } from "./contract-utils";
 import { generateContractNumber } from "./contract-utils";
 import type { Invoice } from "./invoice-utils";
-import { calculateInvoiceTotals, generateInvoiceNumber } from "./invoice-utils";
+import { calculateInvoiceTotals, generateInvoiceNumber, generateShareToken } from "./invoice-utils";
 import type { Client, Payment } from "./payment-utils";
 import {
   calculateClientStatus,
@@ -135,6 +135,8 @@ interface PaymentStoreContextType {
     paymentDetails?: string;
   }) => Invoice;
   getInvoice: (id: string) => Invoice | undefined;
+  getInvoiceByToken: (token: string) => Invoice | undefined;
+  updateInvoice: (id: string, updates: Partial<Invoice>) => void;
   contractTemplates: ContractTemplate[];
   contracts: Contract[];
   addContractTemplate: (
@@ -461,6 +463,7 @@ export function PaymentStoreProvider({
         logoUrl: data.logoUrl,
         notes: data.notes,
         paymentDetails: data.paymentDetails,
+        shareToken: generateShareToken(),
       };
       setInvoices((prev) => [...prev, invoice]);
       return invoice;
@@ -474,6 +477,21 @@ export function PaymentStoreProvider({
     },
     [invoices]
   );
+
+  const getInvoiceByToken = useCallback(
+    (token: string) => {
+      return invoices.find((i) => i.shareToken === token);
+    },
+    [invoices]
+  );
+
+  const updateInvoice = useCallback((id: string, updates: Partial<Invoice>) => {
+    setInvoices((prev) =>
+      prev.map((invoice) =>
+        invoice.id === id ? { ...invoice, ...updates } : invoice
+      )
+    );
+  }, []);
 
   const addContractTemplate = useCallback(
     (
@@ -578,6 +596,8 @@ export function PaymentStoreProvider({
         invoices,
         generateInvoice,
         getInvoice,
+        getInvoiceByToken,
+        updateInvoice,
         contractTemplates,
         contracts,
         addContractTemplate,
