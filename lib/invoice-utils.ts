@@ -1,26 +1,12 @@
-export interface InvoiceTemplate {
-  id: string;
-  name: string;
-  companyName: string;
-  companyAddress: string;
-  companyEmail: string;
-  companyPhone: string;
-  logoUrl?: string;
-  notes: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
 export interface InvoiceItem {
   description: string;
   quantity: number;
-  rate: number;
+  price: number;
   amount: number;
 }
 
 export interface Invoice {
   id: string;
-  templateId: string;
   clientId: string;
   invoiceNumber: string;
   issueDate: Date;
@@ -30,17 +16,23 @@ export interface Invoice {
   tax?: number;
   total: number;
   status: "draft" | "sent" | "paid";
+  companyName: string;
+  companyAddress?: string;
+  companyEmail: string;
+  companyPhone?: string;
+  logoUrl?: string;
+  notes?: string;
+  paymentDetails?: string;
 }
 
 /**
- * Generate invoice number (e.g., INV-2024-001)
+ * Generate invoice number (e.g., INV-0001)
  */
 export function generateInvoiceNumber(): string {
-  const year = new Date().getFullYear();
-  const random = Math.floor(Math.random() * 1000)
+  const random = Math.floor(Math.random() * 10000)
     .toString()
-    .padStart(3, "0");
-  return `INV-${year}-${random}`;
+    .padStart(4, "0");
+  return `INV-${random}`;
 }
 
 /**
@@ -58,7 +50,7 @@ export function paymentToInvoiceItem(
   return {
     description: description || defaultDescription,
     quantity: 1,
-    rate: payment.amount,
+    price: payment.amount,
     amount: payment.amount,
   };
 }

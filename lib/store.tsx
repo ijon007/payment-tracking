@@ -10,7 +10,7 @@ import {
 } from "react";
 import type { Contract, ContractTemplate } from "./contract-utils";
 import { generateContractNumber } from "./contract-utils";
-import type { Invoice, InvoiceTemplate } from "./invoice-utils";
+import type { Invoice } from "./invoice-utils";
 import { calculateInvoiceTotals, generateInvoiceNumber } from "./invoice-utils";
 import type { Client, Payment } from "./payment-utils";
 import {
@@ -20,7 +20,6 @@ import {
 } from "./payment-utils";
 
 const STORAGE_KEY = "payment-tracker-clients";
-const INVOICE_TEMPLATES_STORAGE_KEY = "payment-tracker-invoice-templates";
 const INVOICES_STORAGE_KEY = "payment-tracker-invoices";
 const CONTRACT_TEMPLATES_STORAGE_KEY = "payment-tracker-contract-templates";
 const CONTRACTS_STORAGE_KEY = "payment-tracker-contracts";
@@ -44,25 +43,6 @@ function deserializeClients(json: string): Client[] {
       dueDate: new Date(payment.dueDate),
       paidDate: payment.paidDate ? new Date(payment.paidDate) : null,
     })),
-  }));
-}
-
-// Helper to serialize/deserialize invoice templates
-function serializeInvoiceTemplates(templates: InvoiceTemplate[]): string {
-  return JSON.stringify(templates, (_key, value) => {
-    if (value instanceof Date) {
-      return { __type: "Date", value: value.toISOString() };
-    }
-    return value;
-  });
-}
-
-function deserializeInvoiceTemplates(json: string): InvoiceTemplate[] {
-  const parsed = JSON.parse(json);
-  return parsed.map((template: any) => ({
-    ...template,
-    createdAt: new Date(template.createdAt),
-    updatedAt: new Date(template.updatedAt),
   }));
 }
 
@@ -140,23 +120,19 @@ interface PaymentStoreContextType {
   getClient: (id: string) => Client | undefined;
   getClientContracts: (clientId: string) => Contract[];
   getClientInvoices: (clientId: string) => Invoice[];
-  invoiceTemplates: InvoiceTemplate[];
   invoices: Invoice[];
-  addInvoiceTemplate: (
-    template: Omit<InvoiceTemplate, "id" | "createdAt" | "updatedAt">
-  ) => void;
-  updateInvoiceTemplate: (
-    id: string,
-    updates: Partial<InvoiceTemplate>
-  ) => void;
-  deleteInvoiceTemplate: (id: string) => void;
-  getInvoiceTemplate: (id: string) => InvoiceTemplate | undefined;
   generateInvoice: (data: {
-    templateId: string;
     clientId: string;
     items: Invoice["items"];
     dueDate: Date;
     tax?: number;
+    companyName: string;
+    companyAddress?: string;
+    companyEmail: string;
+    companyPhone?: string;
+    logoUrl?: string;
+    notes?: string;
+    paymentDetails?: string;
   }) => Invoice;
   getInvoice: (id: string) => Invoice | undefined;
   contractTemplates: ContractTemplate[];
@@ -212,27 +188,6 @@ export function PaymentStoreProvider({
     }
     return [];
   });
-
-  // Load invoice templates from localStorage on mount
-  const [invoiceTemplates, setInvoiceTemplates] = useState<InvoiceTemplate[]>(
-    () => {
-      if (typeof window === "undefined") {
-        return [];
-      }
-      try {
-        const stored = localStorage.getItem(INVOICE_TEMPLATES_STORAGE_KEY);
-        if (stored) {
-          return deserializeInvoiceTemplates(stored);
-        }
-      } catch (error) {
-        console.error(
-          "Failed to load invoice templates from localStorage:",
-          error
-        );
-      }
-      return [];
-    }
-  );
 
   // Load invoices from localStorage on mount
   const [invoices, setInvoices] = useState<Invoice[]>(() => {
@@ -297,23 +252,6 @@ export function PaymentStoreProvider({
       }
     }
   }, [clients]);
-
-  // Save invoice templates to localStorage whenever they change
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      try {
-        localStorage.setItem(
-          INVOICE_TEMPLATES_STORAGE_KEY,
-          serializeInvoiceTemplates(invoiceTemplates)
-        );
-      } catch (error) {
-        console.error(
-          "Failed to save invoice templates to localStorage:",
-          error
-        );
-      }
-    }
-  }, [invoiceTemplates]);
 
   // Save invoices to localStorage whenever they change
   useEffect(() => {
@@ -487,53 +425,19 @@ export function PaymentStoreProvider({
     [invoices]
   );
 
-  const addInvoiceTemplate = useCallback(
-    (templateData: Omit<InvoiceTemplate, "id" | "createdAt" | "updatedAt">) => {
-      const now = new Date();
-      const template: InvoiceTemplate = {
-        ...templateData,
-        id: `template-${Date.now()}`,
-        createdAt: now,
-        updatedAt: now,
-      };
-      setInvoiceTemplates((prev) => [...prev, template]);
-    },
-    []
-  );
-
-  const updateInvoiceTemplate = useCallback(
-    (id: string, updates: Partial<InvoiceTemplate>) => {
-      setInvoiceTemplates((prev) =>
-        prev.map((template) =>
-          template.id === id
-            ? { ...template, ...updates, updatedAt: new Date() }
-            : template
-        )
-      );
-    },
-    []
-  );
-
-  const deleteInvoiceTemplate = useCallback((id: string) => {
-    setInvoiceTemplates((prev) =>
-      prev.filter((template) => template.id !== id)
-    );
-  }, []);
-
-  const getInvoiceTemplate = useCallback(
-    (id: string) => {
-      return invoiceTemplates.find((t) => t.id === id);
-    },
-    [invoiceTemplates]
-  );
-
   const generateInvoice = useCallback(
     (data: {
-      templateId: string;
       clientId: string;
       items: Invoice["items"];
       dueDate: Date;
       tax?: number;
+      companyName: string;
+      companyAddress?: string;
+      companyEmail: string;
+      companyPhone?: string;
+      logoUrl?: string;
+      notes?: string;
+      paymentDetails?: string;
     }): Invoice => {
       const { subtotal, tax, total } = calculateInvoiceTotals(
         data.items,
@@ -541,7 +445,6 @@ export function PaymentStoreProvider({
       );
       const invoice: Invoice = {
         id: `invoice-${Date.now()}`,
-        templateId: data.templateId,
         clientId: data.clientId,
         invoiceNumber: generateInvoiceNumber(),
         issueDate: new Date(),
@@ -551,6 +454,13 @@ export function PaymentStoreProvider({
         tax: data.tax ? tax : undefined,
         total,
         status: "draft",
+        companyName: data.companyName,
+        companyAddress: data.companyAddress,
+        companyEmail: data.companyEmail,
+        companyPhone: data.companyPhone,
+        logoUrl: data.logoUrl,
+        notes: data.notes,
+        paymentDetails: data.paymentDetails,
       };
       setInvoices((prev) => [...prev, invoice]);
       return invoice;
@@ -665,12 +575,7 @@ export function PaymentStoreProvider({
         getClient,
         getClientContracts,
         getClientInvoices,
-        invoiceTemplates,
         invoices,
-        addInvoiceTemplate,
-        updateInvoiceTemplate,
-        deleteInvoiceTemplate,
-        getInvoiceTemplate,
         generateInvoice,
         getInvoice,
         contractTemplates,

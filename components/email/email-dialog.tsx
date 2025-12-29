@@ -35,7 +35,6 @@ export function EmailDialog({
     getClient,
     invoices,
     contracts,
-    getInvoiceTemplate,
     getContractTemplate,
   } = usePaymentStore();
 
@@ -89,14 +88,9 @@ export function EmailDialog({
         continue;
       }
 
-      const template = getInvoiceTemplate(invoice.templateId);
-      if (!template) {
-        continue;
-      }
-
       try {
         const blob = await pdf(
-          <InvoicePDF client={client} invoice={invoice} template={template} />
+          <InvoicePDF client={client} invoice={invoice} />
         ).toBlob();
         attachments.push({
           name: `${invoice.invoiceNumber}.pdf`,

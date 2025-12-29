@@ -9,7 +9,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
-import type { Invoice, InvoiceTemplate } from "@/lib/invoice-utils";
+import type { Invoice } from "@/lib/invoice-utils";
 import type { Client } from "@/lib/payment-utils";
 import { formatCurrency } from "@/lib/payment-utils";
 
@@ -137,11 +137,10 @@ const styles = StyleSheet.create({
 
 interface InvoicePDFProps {
   invoice: Invoice;
-  template: InvoiceTemplate;
   client: Client;
 }
 
-export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
+export function InvoicePDF({ invoice, client }: InvoicePDFProps) {
   const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
   const tax = invoice.tax || 0;
   const total = invoice.total;
@@ -153,16 +152,16 @@ export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
         <View style={styles.header}>
           <View style={styles.row}>
             <View style={styles.companyInfo}>
-              {template.logoUrl && (
-                <Image src={template.logoUrl} style={styles.logo} />
+              {invoice.logoUrl && (
+                <Image src={invoice.logoUrl} style={styles.logo} />
               )}
-              <Text style={styles.companyName}>{template.companyName}</Text>
+              <Text style={styles.companyName}>{invoice.companyName}</Text>
               <View style={styles.companyDetails}>
-                {template.companyAddress && (
-                  <Text>{template.companyAddress}</Text>
+                {invoice.companyAddress && (
+                  <Text>{invoice.companyAddress}</Text>
                 )}
-                <Text>{template.companyEmail}</Text>
-                {template.companyPhone && <Text>{template.companyPhone}</Text>}
+                <Text>{invoice.companyEmail}</Text>
+                {invoice.companyPhone && <Text>{invoice.companyPhone}</Text>}
               </View>
             </View>
             <View>
@@ -201,7 +200,7 @@ export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
             <View key={index} style={styles.tableRow}>
               <Text style={styles.colDescription}>{item.description}</Text>
               <Text style={styles.colQuantity}>{item.quantity}</Text>
-              <Text style={styles.colRate}>{formatCurrency(item.rate)}</Text>
+              <Text style={styles.colRate}>{formatCurrency(item.price)}</Text>
               <Text style={styles.colAmount}>
                 {formatCurrency(item.amount)}
               </Text>
@@ -228,9 +227,9 @@ export function InvoicePDF({ invoice, template, client }: InvoicePDFProps) {
         </View>
 
         {/* Footer Notes */}
-        {template.notes && (
+        {invoice.notes && (
           <View style={styles.footer}>
-            <Text>{template.notes}</Text>
+            <Text>{invoice.notes}</Text>
           </View>
         )}
       </Page>

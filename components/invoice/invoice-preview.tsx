@@ -1,11 +1,9 @@
 "use client";
 
 import { format } from "date-fns";
-import { Card, CardContent } from "@/components/ui/card";
 import type {
   Invoice,
   InvoiceItem,
-  InvoiceTemplate,
 } from "@/lib/invoice-utils";
 import type { Client } from "@/lib/payment-utils";
 import { formatCurrency } from "@/lib/payment-utils";
@@ -13,43 +11,62 @@ import { usePaymentStore } from "@/lib/store";
 
 interface InvoicePreviewProps {
   invoiceId?: string;
-  template?: InvoiceTemplate;
   client?: Client;
   items?: InvoiceItem[];
   dueDate?: Date;
+  companyName?: string;
+  companyAddress?: string;
+  companyEmail?: string;
+  companyPhone?: string;
+  logoUrl?: string;
+  notes?: string;
 }
 
 export function InvoicePreview({
   invoiceId,
-  template,
   client,
   items,
   dueDate,
+  companyName,
+  companyAddress,
+  companyEmail,
+  companyPhone,
+  logoUrl,
+  notes,
 }: InvoicePreviewProps) {
-  const { getInvoice, getInvoiceTemplate, getClient } = usePaymentStore();
+  const { getInvoice, getClient } = usePaymentStore();
 
   let invoice: Invoice | null = null;
-  let invoiceTemplate: InvoiceTemplate | null = null;
   let invoiceClient: Client | null = null;
   let invoiceItems: InvoiceItem[] = [];
   let invoiceDueDate: Date | null = null;
+  let displayCompanyName = companyName || "";
+  let displayCompanyAddress = companyAddress;
+  let displayCompanyEmail = companyEmail || "";
+  let displayCompanyPhone = companyPhone;
+  let displayLogoUrl = logoUrl;
+  let displayNotes = notes;
 
   if (invoiceId) {
     invoice = getInvoice(invoiceId) || null;
     if (invoice) {
-      invoiceTemplate = getInvoiceTemplate(invoice.templateId) || null;
       invoiceClient = getClient(invoice.clientId) || null;
       invoiceItems = invoice.items;
       invoiceDueDate = invoice.dueDate;
+      displayCompanyName = invoice.companyName;
+      displayCompanyAddress = invoice.companyAddress;
+      displayCompanyEmail = invoice.companyEmail;
+      displayCompanyPhone = invoice.companyPhone;
+      displayLogoUrl = invoice.logoUrl;
+      displayNotes = invoice.notes;
     }
-  } else if (template && client && items && dueDate) {
-    invoiceTemplate = template;
+  } else if (client && items && dueDate && companyName && companyEmail) {
     invoiceClient = client;
     invoiceItems = items;
     invoiceDueDate = dueDate;
   }
 
-  if (!(invoiceTemplate && invoiceClient)) {
+  if (!(displayCompanyName && displayCompanyEmail && invoiceClient)) {
     return null;
   }
 
@@ -58,29 +75,28 @@ export function InvoicePreview({
   const total = invoice?.total || subtotal + tax;
 
   return (
-    <Card className="bg-card">
-      <CardContent className="p-8">
-        <div className="space-y-8">
+    <div className="mt-6">
+      <div className="space-y-8">
           {/* Header */}
           <div className="flex items-start justify-between">
             <div>
-              {invoiceTemplate.logoUrl && (
+              {displayLogoUrl && (
                 <img
-                  alt={invoiceTemplate.companyName}
+                  alt={displayCompanyName}
                   className="mb-4 h-12"
-                  src={invoiceTemplate.logoUrl}
+                  src={displayLogoUrl}
                 />
               )}
               <h2 className="font-bold text-2xl">
-                {invoiceTemplate.companyName}
+                {displayCompanyName}
               </h2>
               <div className="mt-2 space-y-1 text-muted-foreground text-sm">
-                {invoiceTemplate.companyAddress && (
-                  <p>{invoiceTemplate.companyAddress}</p>
+                {displayCompanyAddress && (
+                  <p>{displayCompanyAddress}</p>
                 )}
-                <p>{invoiceTemplate.companyEmail}</p>
-                {invoiceTemplate.companyPhone && (
-                  <p>{invoiceTemplate.companyPhone}</p>
+                <p>{displayCompanyEmail}</p>
+                {displayCompanyPhone && (
+                  <p>{displayCompanyPhone}</p>
                 )}
               </div>
             </div>
@@ -136,7 +152,7 @@ export function InvoicePreview({
                     <td className="px-4 py-3">{item.description}</td>
                     <td className="px-4 py-3 text-right">{item.quantity}</td>
                     <td className="px-4 py-3 text-right">
-                      {formatCurrency(item.rate)}
+                      {formatCurrency(item.price)}
                     </td>
                     <td className="px-4 py-3 text-right font-medium">
                       {formatCurrency(item.amount)}
@@ -168,15 +184,14 @@ export function InvoicePreview({
           </div>
 
           {/* Footer Notes */}
-          {invoiceTemplate.notes && (
+          {displayNotes && (
             <div className="border-t pt-4">
               <p className="whitespace-pre-line text-muted-foreground text-sm">
-                {invoiceTemplate.notes}
+                {displayNotes}
               </p>
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+    </div>
   );
 }

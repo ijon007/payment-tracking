@@ -1,0 +1,5 @@
+---
+alwaysApply: true
+---
+
+always use **render** prop for triggers instead of the prop **asChild** because that doesnt exist in Base UI

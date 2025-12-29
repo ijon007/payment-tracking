@@ -1,17 +1,42 @@
 "use client";
 
-import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Invoice } from "@/lib/invoice-utils";
 import { formatCurrency } from "@/lib/payment-utils";
 import { Badge } from "../ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { usePaymentStore } from "@/lib/store";
+import { useFormattedDate } from "@/lib/date-utils";
 
 interface InvoiceListProps {
   invoices: Invoice[];
   onInvoiceClick: (invoiceId: string) => void;
 }
 
+function getStatusBadge(
+  status: Invoice["status"]
+): { label: string; variant: "default" | "destructive"; className?: string } {
+  if (status === "paid") {
+    return { 
+      label: "Paid", 
+      variant: "default",
+      className: "bg-green-500/10 text-green-600 dark:text-green-400"
+    };
+  }
+  return { label: "Unpaid", variant: "destructive" };
+}
+
 export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
+  const { getClient } = usePaymentStore();
+  const formatDate = useFormattedDate();
+
   if (invoices.length === 0) {
     return (
       <Card>
@@ -25,33 +50,74 @@ export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
   }
 
   return (
-    <Card className="py-2">
+    <Card className="py-0">
       <CardContent className="p-0">
-        <div className="space-y-1">
-          {invoices.map((invoice) => (
-            <div
-              className="mx-2 flex cursor-pointer items-center justify-between rounded-md p-2 transition-colors hover:bg-white/10"
-              key={invoice.id}
-              onClick={() => onInvoiceClick(invoice.id)}
-            >
-              <div>
-                <p className="font-medium">{invoice.invoiceNumber}</p>
-                <p className="text-muted-foreground text-sm">
-                  {format(new Date(invoice.issueDate), "MMM dd, yyyy")}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">
-                  {formatCurrency(invoice.total)}
-                </span>
-                <Badge variant="secondary">
-                  {invoice.status.charAt(0).toUpperCase() +
-                    invoice.status.slice(1)}
-                </Badge>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Table>
+          <TableHeader>
+            <TableRow className="text-sm hover:bg-card">
+              <TableHead className="w-[100px] border-r">Due Date</TableHead>
+              <TableHead className="w-[120px] border-r">Client</TableHead>
+              <TableHead className="w-[110px] border-r">Amount</TableHead>
+              <TableHead className="w-[100px] border-r">Status</TableHead>
+              <TableHead className="w-[140px] border-r">Invoice</TableHead>
+              <TableHead className="w-[100px]">Created</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {invoices.map((invoice) => {
+              const client = getClient(invoice.clientId);
+              const clientName = client?.name || "Unknown Client";
+              const statusBadge = getStatusBadge(invoice.status);
+
+              return (
+                <TableRow
+                  key={invoice.id}
+                  className="cursor-pointer transition-colors"
+                  onClick={() => onInvoiceClick(invoice.id)}
+                >
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatDate(invoice.dueDate)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <span className="text-sm">{clientName}</span>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatCurrency(invoice.total)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <Badge 
+                      variant={statusBadge.variant} 
+                      className={`text-xs ${statusBadge.className || ""}`}
+                    >
+                      {statusBadge.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <div className="flex flex-col">
+                      <span className="text-sm">
+                        {invoice.invoiceNumber}
+                      </span>
+                      {invoice.companyName && (
+                        <span className="text-muted-foreground text-xs">
+                          {invoice.companyName}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">
+                      {formatDate(invoice.issueDate)}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </CardContent>
     </Card>
   );

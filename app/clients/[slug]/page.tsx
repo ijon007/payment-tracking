@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   Envelope,
-  FileText,
   Signature,
 } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
@@ -15,7 +14,6 @@ import { ClientInvoices } from "@/components/clients/client-invoices";
 import { ClientNavbar } from "@/components/clients/client-navbar";
 import { ContractGenerator } from "@/components/contracts/contract-generator";
 import { EmailDialog } from "@/components/email/email-dialog";
-import { InvoiceGenerator } from "@/components/invoice/invoice-generator";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -34,7 +32,6 @@ export default function ClientDetailPage() {
   const [mounted, setMounted] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
   const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("general-info");
   const [isScrolled, setIsScrolled] = useState(false);
@@ -133,23 +130,6 @@ export default function ClientDetailPage() {
                 <TooltipTrigger
                   render={
                     <Button
-                      className="bg-green-900 text-white hover:bg-green-900/90"
-                      onClick={() => setInvoiceDialogOpen(true)}
-                      size="icon"
-                      variant="secondary"
-                    >
-                      <FileText weight="fill" className="size-4" />
-                    </Button>
-                  }
-                />
-                <TooltipContent side="bottom">
-                  <p>Send Invoice</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
                       onClick={() => setContractDialogOpen(true)}
                       size="icon"
                       variant="secondary"
@@ -192,14 +172,6 @@ export default function ClientDetailPage() {
           clientId={clientId}
           onOpenChange={setEmailDialogOpen}
           open={emailDialogOpen}
-        />
-      )}
-
-      {invoiceDialogOpen && (
-        <InvoiceGenerator
-          clientId={clientId}
-          onOpenChange={setInvoiceDialogOpen}
-          open={invoiceDialogOpen}
         />
       )}
 

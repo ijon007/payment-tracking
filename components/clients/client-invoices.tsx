@@ -1,8 +1,7 @@
 "use client";
 
 import { ArrowSquareOut } from "@phosphor-icons/react";
-import { format } from "date-fns";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import {
   convertCurrency,
   formatCurrency as formatCurrencyUtil,
 } from "@/lib/currency-utils";
+import { useFormattedDate } from "@/lib/date-utils";
 import type { Client } from "@/lib/payment-utils";
 import { usePaymentStore } from "@/lib/store";
 
@@ -38,7 +38,9 @@ export function ClientInvoices({
   client,
   displayCurrency,
 }: ClientInvoicesProps) {
+  const router = useRouter();
   const { invoices } = usePaymentStore();
+  const formatDate = useFormattedDate();
   const clientInvoices = useMemo(
     () => invoices.filter((i) => i.clientId === client.id),
     [invoices, client.id]
@@ -68,17 +70,21 @@ export function ClientInvoices({
     convertTotals();
   }, [clientInvoices, displayCurrency]);
 
-  const getStatusBadgeVariant = (
+  const getStatusBadge = (
     status: "draft" | "sent" | "paid"
-  ): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-      case "paid":
-        return "default";
-      case "sent":
-        return "secondary";
-      default:
-        return "outline";
+  ): { label: string; variant: "default" | "destructive"; className?: string } => {
+    if (status === "paid") {
+      return { 
+        label: "Paid", 
+        variant: "default",
+        className: "bg-green-500/10 text-green-600 dark:text-green-400"
+      };
     }
+    return { label: "Unpaid", variant: "destructive" };
+  };
+
+  const handleInvoiceClick = (invoiceId: string) => {
+    router.push(`/invoices?invoice=${invoiceId}`);
   };
 
   if (clientInvoices.length === 0) {
@@ -100,57 +106,88 @@ export function ClientInvoices({
   }
 
   return (
-    <Card id="invoices">
+    <Card id="invoices" className="py-0">
       <CardHeader>
         <CardTitle>Invoices</CardTitle>
         <CardDescription>
           All invoices generated for this client
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Invoice Number</TableHead>
-              <TableHead>Issue Date</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Total Amount</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="text-sm hover:bg-card">
+              <TableHead className="w-[100px] border-r">Due Date</TableHead>
+              <TableHead className="w-[110px] border-r">Amount</TableHead>
+              <TableHead className="w-[100px] border-r">Status</TableHead>
+              <TableHead className="w-[140px] border-r">Invoice</TableHead>
+              <TableHead className="w-[100px]">Created</TableHead>
+              <TableHead className="w-[100px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clientInvoices.map((invoice) => (
-              <TableRow key={invoice.id}>
-                <TableCell className="font-medium">
-                  {invoice.invoiceNumber}
-                </TableCell>
-                <TableCell>
-                  {format(invoice.issueDate, "MMM dd, yyyy")}
-                </TableCell>
-                <TableCell>{format(invoice.dueDate, "MMM dd, yyyy")}</TableCell>
-                <TableCell>
-                  {formatCurrencyUtil(
-                    convertedTotals[invoice.id] ?? invoice.total,
-                    displayCurrency
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Badge variant={getStatusBadgeVariant(invoice.status)}>
-                    {invoice.status.charAt(0).toUpperCase() +
-                      invoice.status.slice(1)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <Link href={`/invoices?invoice=${invoice.id}`}>
-                    <Button size="sm" variant="ghost">
+            {clientInvoices.map((invoice) => {
+              const statusBadge = getStatusBadge(invoice.status);
+              return (
+                <TableRow
+                  key={invoice.id}
+                  className="cursor-pointer transition-colors"
+                  onClick={() => handleInvoiceClick(invoice.id)}
+                >
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatDate(invoice.dueDate)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatCurrencyUtil(
+                        convertedTotals[invoice.id] ?? invoice.total,
+                        displayCurrency
+                      )}
+                    </span>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <Badge 
+                      variant={statusBadge.variant} 
+                      className={`text-xs ${statusBadge.className || ""}`}
+                    >
+                      {statusBadge.label}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <div className="flex flex-col">
+                      <span className="text-sm">
+                        {invoice.invoiceNumber}
+                      </span>
+                      {invoice.companyName && (
+                        <span className="text-muted-foreground text-xs">
+                          {invoice.companyName}
+                        </span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="text-sm">
+                      {formatDate(invoice.issueDate)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleInvoiceClick(invoice.id);
+                      }}
+                    >
                       <ArrowSquareOut className="mr-2 h-4 w-4" />
                       View
                     </Button>
-                  </Link>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>

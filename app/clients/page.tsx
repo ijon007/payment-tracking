@@ -6,7 +6,6 @@ import { ClientDialog } from "@/components/client-dialog";
 import { ClientTableRow } from "@/components/clients/client-table-row";
 import { ContractGenerator } from "@/components/contracts/contract-generator";
 import { EmailDialog } from "@/components/email/email-dialog";
-import { InvoiceGenerator } from "@/components/invoice/invoice-generator";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,9 +36,6 @@ export default function ClientsPage() {
   const { clients } = usePaymentStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All Status");
-  const [invoiceDialogClientId, setInvoiceDialogClientId] = useState<
-    string | null
-  >(null);
   const [contractDialogClientId, setContractDialogClientId] = useState<
     string | null
   >(null);
@@ -66,10 +62,6 @@ export default function ClientsPage() {
 
   const handleEmail = (client: (typeof clients)[0]) => {
     setEmailDialogClientId(client.id);
-  };
-
-  const handleSendInvoice = (client: (typeof clients)[0]) => {
-    setInvoiceDialogClientId(client.id);
   };
 
   const handleGenerateContract = (client: (typeof clients)[0]) => {
@@ -191,7 +183,6 @@ export default function ClientsPage() {
                       key={client.id}
                       onEmail={handleEmail}
                       onGenerateContract={handleGenerateContract}
-                      onSendInvoice={handleSendInvoice}
                     />
                   ))}
                 </TableBody>
@@ -204,14 +195,6 @@ export default function ClientsPage() {
           )}
         </CardContent>
       </Card>
-
-      {invoiceDialogClientId && (
-        <InvoiceGenerator
-          clientId={invoiceDialogClientId}
-          onOpenChange={(open) => !open && setInvoiceDialogClientId(null)}
-          open={invoiceDialogClientId !== null}
-        />
-      )}
 
       {contractDialogClientId && (
         <ContractGenerator

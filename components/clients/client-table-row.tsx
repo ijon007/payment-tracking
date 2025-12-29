@@ -1,6 +1,6 @@
 "use client";
 
-import { Envelope, FileText, Signature } from "@phosphor-icons/react";
+import { Envelope, Signature } from "@phosphor-icons/react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import { type Client, formatCurrency } from "@/lib/payment-utils";
 interface ClientTableRowProps {
   client: Client;
   onEmail: (client: Client) => void;
-  onSendInvoice: (client: Client) => void;
   onGenerateContract: (client: Client) => void;
 }
 
@@ -35,7 +34,6 @@ function getStatusBadgeVariant(
 export function ClientTableRow({
   client,
   onEmail,
-  onSendInvoice,
   onGenerateContract,
 }: ClientTableRowProps) {
   return (
@@ -82,23 +80,6 @@ export function ClientTableRow({
             />
             <TooltipContent side="bottom">
               <p>Email</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  className="bg-green-900 text-white hover:bg-green-900/90"
-                  onClick={() => onSendInvoice(client)}
-                  size="icon"
-                  variant="secondary"
-                >
-                  <FileText className="h-4 w-4" weight="fill" />
-                </Button>
-              }
-            />
-            <TooltipContent side="bottom">
-              <p>Send Invoice</p>
             </TooltipContent>
           </Tooltip>
           <Tooltip>
