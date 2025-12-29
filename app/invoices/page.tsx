@@ -1,11 +1,13 @@
 "use client";
 
 import { Plus } from "@phosphor-icons/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { InvoicePreview } from "@/components/invoice/invoice-preview";
 import { InvoiceList } from "@/components/invoices/invoice-list";
 import { InvoiceStats } from "@/components/invoices/invoice-stats";
 import { InvoiceSheet } from "@/components/invoices/invoice-sheet";
+import { InvoiceFilters } from "@/components/invoices/invoice-filters";
+import type { Invoice } from "@/lib/invoice-utils";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -23,6 +25,11 @@ export default function InvoicesPage() {
     null
   );
   const [invoiceSheetOpen, setInvoiceSheetOpen] = useState(false);
+  const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>(invoices);
+
+  useEffect(() => {
+    setFilteredInvoices(invoices);
+  }, [invoices]);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -43,8 +50,14 @@ export default function InvoicesPage() {
         
         <div>
           <h2 className="mb-3 sm:mb-4 font-semibold text-base sm:text-lg">Generated Invoices</h2>
+          <div className="mb-4">
+            <InvoiceFilters
+              invoices={invoices}
+              onFilterChange={setFilteredInvoices}
+            />
+          </div>
           <InvoiceList
-            invoices={invoices}
+            invoices={filteredInvoices}
             onInvoiceClick={setSelectedInvoiceId}
           />
         </div>

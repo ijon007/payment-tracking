@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Invoice } from "@/lib/invoice-utils";
 import { formatCurrency } from "@/lib/payment-utils";
@@ -36,10 +37,29 @@ function getStatusBadge(
 export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
   const { getClient } = usePaymentStore();
   const formatDate = useFormattedDate();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration errors by only rendering dates after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render until mounted to prevent hydration errors
+  if (!mounted) {
+    return (
+      <Card size="default">
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">
+            Loading...
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (invoices.length === 0) {
     return (
-      <Card>
+      <Card size="default">
         <CardContent className="py-12 text-center">
           <p className="text-muted-foreground">
             No invoices generated yet. Generate invoices from the Clients page.
@@ -61,6 +81,7 @@ export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
           return (
             <Card
               key={invoice.id}
+              size="default"
               className="cursor-pointer transition-colors hover:bg-accent"
               onClick={() => onInvoiceClick(invoice.id)}
             >
@@ -108,7 +129,7 @@ export function InvoiceList({ invoices, onInvoiceClick }: InvoiceListProps) {
       </div>
 
       {/* Desktop Table View */}
-      <Card className="hidden sm:block py-0">
+      <Card size="default" className="hidden sm:block py-0">
         <CardContent className="p-0">
           <Table>
             <TableHeader>
