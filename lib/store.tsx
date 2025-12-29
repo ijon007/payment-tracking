@@ -125,7 +125,6 @@ interface PaymentStoreContextType {
     clientId: string;
     items: Invoice["items"];
     dueDate: Date;
-    tax?: number;
     companyName: string;
     companyAddress?: string;
     companyEmail: string;
@@ -133,6 +132,15 @@ interface PaymentStoreContextType {
     logoUrl?: string;
     notes?: string;
     paymentDetails?: string;
+    dateFormat?: Invoice["dateFormat"];
+    invoiceSize?: Invoice["invoiceSize"];
+    salesTaxEnabled?: boolean;
+    salesTaxPercent?: number;
+    vatEnabled?: boolean;
+    vatPercent?: number;
+    currency?: Invoice["currency"];
+    discountEnabled?: boolean;
+    showQrCode?: boolean;
   }) => Invoice;
   getInvoice: (id: string) => Invoice | undefined;
   getInvoiceByToken: (token: string) => Invoice | undefined;
@@ -432,7 +440,6 @@ export function PaymentStoreProvider({
       clientId: string;
       items: Invoice["items"];
       dueDate: Date;
-      tax?: number;
       companyName: string;
       companyAddress?: string;
       companyEmail: string;
@@ -440,10 +447,22 @@ export function PaymentStoreProvider({
       logoUrl?: string;
       notes?: string;
       paymentDetails?: string;
+      dateFormat?: Invoice["dateFormat"];
+      invoiceSize?: Invoice["invoiceSize"];
+      salesTaxEnabled?: boolean;
+      salesTaxPercent?: number;
+      vatEnabled?: boolean;
+      vatPercent?: number;
+      currency?: Invoice["currency"];
+      discountEnabled?: boolean;
+      showQrCode?: boolean;
     }): Invoice => {
-      const { subtotal, tax, total } = calculateInvoiceTotals(
+      const { subtotal, salesTax, vat, total } = calculateInvoiceTotals(
         data.items,
-        data.tax
+        {
+          salesTaxPercent: data.salesTaxEnabled ? data.salesTaxPercent : undefined,
+          vatPercent: data.vatEnabled ? data.vatPercent : undefined,
+        }
       );
       const invoice: Invoice = {
         id: `invoice-${Date.now()}`,
@@ -453,7 +472,6 @@ export function PaymentStoreProvider({
         dueDate: data.dueDate,
         items: data.items,
         subtotal,
-        tax: data.tax ? tax : undefined,
         total,
         status: "draft",
         companyName: data.companyName,
@@ -464,6 +482,16 @@ export function PaymentStoreProvider({
         notes: data.notes,
         paymentDetails: data.paymentDetails,
         shareToken: generateShareToken(),
+        // Invoice settings
+        dateFormat: data.dateFormat,
+        invoiceSize: data.invoiceSize,
+        salesTaxEnabled: data.salesTaxEnabled,
+        salesTaxPercent: data.salesTaxEnabled ? data.salesTaxPercent : undefined,
+        vatEnabled: data.vatEnabled,
+        vatPercent: data.vatEnabled ? data.vatPercent : undefined,
+        currency: data.currency,
+        discountEnabled: data.discountEnabled,
+        showQrCode: data.showQrCode,
       };
       setInvoices((prev) => [...prev, invoice]);
       return invoice;

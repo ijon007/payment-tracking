@@ -1,3 +1,6 @@
+import type { Currency } from "./currency-utils";
+import type { DateFormat } from "./settings-store";
+
 export interface InvoiceItem {
   description: string;
   quantity: number;
@@ -24,6 +27,16 @@ export interface Invoice {
   notes?: string;
   paymentDetails?: string;
   shareToken?: string;
+  // Invoice customization settings
+  dateFormat?: DateFormat;
+  invoiceSize?: "A4" | "Letter" | "Legal";
+  salesTaxEnabled?: boolean;
+  salesTaxPercent?: number;
+  vatEnabled?: boolean;
+  vatPercent?: number;
+  currency?: Currency;
+  discountEnabled?: boolean;
+  showQrCode?: boolean;
 }
 
 /**
@@ -73,11 +86,28 @@ export function paymentToInvoiceItem(
  */
 export function calculateInvoiceTotals(
   items: InvoiceItem[],
-  taxPercent?: number
-): { subtotal: number; tax: number; total: number } {
+  options?: {
+    salesTaxPercent?: number;
+    vatPercent?: number;
+    discountAmount?: number;
+  }
+): { 
+  subtotal: number; 
+  salesTax: number; 
+  vat: number;
+  discount: number;
+  total: number;
+} {
   const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
-  const tax = taxPercent ? (subtotal * taxPercent) / 100 : 0;
-  const total = subtotal + tax;
+  const discount = options?.discountAmount || 0;
+  const subtotalAfterDiscount = subtotal - discount;
+  const salesTax = options?.salesTaxPercent 
+    ? (subtotalAfterDiscount * options.salesTaxPercent) / 100 
+    : 0;
+  const vat = options?.vatPercent 
+    ? (subtotalAfterDiscount * options.vatPercent) / 100 
+    : 0;
+  const total = subtotalAfterDiscount + salesTax + vat;
 
-  return { subtotal, tax, total };
+  return { subtotal, salesTax, vat, discount, total };
 }

@@ -29,6 +29,7 @@ export function formatDateWithFormat(
     "yyyy-MM-dd": "yyyy-MM-dd",
     "MMM dd, yyyy": "MMM dd, yyyy",
     "dd MMM yyyy": "dd MMM yyyy",
+    "dd.MM.yyyy": "dd.MM.yyyy",
   };
 
   const formatPattern = formatMap[dateFormat] || "MMM dd, yyyy";

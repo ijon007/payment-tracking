@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { EditableInvoicePreview } from "@/components/invoice/editable-invoice-preview";
+import { InvoiceSettingsDropdown, type InvoiceSettings } from "@/components/invoices/invoice-settings-dropdown";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -13,6 +14,7 @@ import {
 import type { InvoiceItem } from "@/lib/invoice-utils";
 import { generateInvoiceNumber } from "@/lib/invoice-utils";
 import { usePaymentStore } from "@/lib/store";
+import type { Currency } from "@/lib/currency-utils";
 
 interface InvoiceSheetProps {
   open: boolean;
@@ -40,13 +42,35 @@ export function InvoiceSheet({
   const [issueDate, setIssueDate] = useState<Date>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [items, setItems] = useState<InvoiceItem[]>([]);
-  const [taxPercent, setTaxPercent] = useState(0);
+  
+  // Invoice settings state
+  const [invoiceSettings, setInvoiceSettings] = useState<InvoiceSettings>(() => {
+    const selectedClient = clientId ? clients.find((c) => c.id === clientId) : undefined;
+    return {
+      dateFormat: "dd/MM/yyyy",
+      invoiceSize: "A4",
+      salesTaxEnabled: false,
+      salesTaxPercent: 0,
+      vatEnabled: false,
+      vatPercent: 0,
+      currency: (selectedClient?.currency as Currency) || "USD",
+      discountEnabled: false,
+      showQrCode: false,
+    };
+  });
 
   useEffect(() => {
     if (clientId) {
       setSelectedClientId(clientId);
+      const selectedClient = clients.find((c) => c.id === clientId);
+      if (selectedClient?.currency) {
+        setInvoiceSettings((prev) => ({
+          ...prev,
+          currency: selectedClient.currency as Currency,
+        }));
+      }
     }
-  }, [clientId]);
+  }, [clientId, clients]);
 
   useEffect(() => {
     if (!dueDate) {
@@ -69,7 +93,6 @@ export function InvoiceSheet({
       clientId: selectedClientId,
       items,
       dueDate,
-      tax: taxPercent > 0 ? taxPercent : undefined,
       companyName,
       companyAddress: companyAddress || undefined,
       companyEmail,
@@ -77,6 +100,16 @@ export function InvoiceSheet({
       logoUrl,
       notes: notes || undefined,
       paymentDetails,
+      // Invoice settings
+      dateFormat: invoiceSettings.dateFormat,
+      invoiceSize: invoiceSettings.invoiceSize,
+      salesTaxEnabled: invoiceSettings.salesTaxEnabled,
+      salesTaxPercent: invoiceSettings.salesTaxEnabled ? invoiceSettings.salesTaxPercent : undefined,
+      vatEnabled: invoiceSettings.vatEnabled,
+      vatPercent: invoiceSettings.vatEnabled ? invoiceSettings.vatPercent : undefined,
+      currency: invoiceSettings.currency,
+      discountEnabled: invoiceSettings.discountEnabled,
+      showQrCode: invoiceSettings.showQrCode,
     });
 
     handleClose();
@@ -96,7 +129,19 @@ export function InvoiceSheet({
     setIssueDate(new Date());
     setDueDate(undefined);
     setItems([]);
-    setTaxPercent(0);
+    // Reset settings to defaults
+    const selectedClient = clientId ? clients.find((c) => c.id === clientId) : undefined;
+    setInvoiceSettings({
+      dateFormat: "dd/MM/yyyy",
+      invoiceSize: "A4",
+      salesTaxEnabled: false,
+      salesTaxPercent: 0,
+      vatEnabled: false,
+      vatPercent: 0,
+      currency: (selectedClient?.currency as Currency) || "USD",
+      discountEnabled: false,
+      showQrCode: false,
+    });
     onOpenChange(false);
   };
 
@@ -113,35 +158,45 @@ export function InvoiceSheet({
           </SheetHeader>
 
           <div className="flex-1 overflow-y-auto p-3 sm:p-6">
+            <div className="mb-4 flex justify-end">
+              <InvoiceSettingsDropdown
+                settings={invoiceSettings}
+                onSettingsChange={(updates) =>
+                  setInvoiceSettings((prev) => ({ ...prev, ...updates }))
+                }
+              />
+            </div>
             <EditableInvoicePreview
-              clients={clients}
-              dueDate={dueDate}
-              invoiceNumber={invoiceNumber}
-              issueDate={issueDate}
-              items={items}
-              selectedClientId={selectedClientId}
-              taxPercent={taxPercent}
-              companyName={companyName}
-              companyAddress={companyAddress}
-              companyEmail={companyEmail}
-              companyPhone={companyPhone}
-              logoUrl={logoUrl}
-              notes={notes}
-              paymentDetails={paymentDetails}
-              onClientChange={setSelectedClientId}
-              onDueDateChange={setDueDate}
-              onInvoiceNumberChange={setInvoiceNumber}
-              onIssueDateChange={(date) => setIssueDate(date || new Date())}
-              onItemsChange={setItems}
-              onTaxPercentChange={setTaxPercent}
-              onCompanyNameChange={setCompanyName}
-              onCompanyAddressChange={setCompanyAddress}
-              onCompanyEmailChange={setCompanyEmail}
-              onCompanyPhoneChange={setCompanyPhone}
-              onLogoUrlChange={setLogoUrl}
-              onNotesChange={setNotes}
-              onPaymentDetailsChange={setPaymentDetails}
-            />
+                clients={clients}
+                dueDate={dueDate}
+                invoiceNumber={invoiceNumber}
+                issueDate={issueDate}
+                items={items}
+                selectedClientId={selectedClientId}
+                companyName={companyName}
+                companyAddress={companyAddress}
+                companyEmail={companyEmail}
+                companyPhone={companyPhone}
+                logoUrl={logoUrl}
+                notes={notes}
+                paymentDetails={paymentDetails}
+                invoiceSettings={invoiceSettings}
+                onClientChange={setSelectedClientId}
+                onDueDateChange={setDueDate}
+                onInvoiceNumberChange={setInvoiceNumber}
+                onIssueDateChange={(date) => setIssueDate(date || new Date())}
+                onItemsChange={setItems}
+                onCompanyNameChange={setCompanyName}
+                onCompanyAddressChange={setCompanyAddress}
+                onCompanyEmailChange={setCompanyEmail}
+                onCompanyPhoneChange={setCompanyPhone}
+                onLogoUrlChange={setLogoUrl}
+                onNotesChange={setNotes}
+                onPaymentDetailsChange={setPaymentDetails}
+                onSettingsChange={(updates) =>
+                  setInvoiceSettings((prev) => ({ ...prev, ...updates }))
+                }
+              />
           </div>
 
           <div className="border-t p-3 sm:p-6">

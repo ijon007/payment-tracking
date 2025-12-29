@@ -1,8 +1,7 @@
 "use client";
 
-import { CaretDown, Plus, Trash, X } from "@phosphor-icons/react";
-import { format } from "date-fns";
-import { useRef, useState } from "react";
+import { CaretDown, Plus, QrCode, Trash, X } from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -21,8 +20,9 @@ import { Textarea } from "@/components/ui/textarea";
 import type { InvoiceItem } from "@/lib/invoice-utils";
 import { calculateInvoiceTotals } from "@/lib/invoice-utils";
 import type { Client } from "@/lib/payment-utils";
-import { formatCurrency } from "@/lib/payment-utils";
-import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/currency-utils";
+import { formatDateWithFormat } from "@/lib/date-utils";
+import type { InvoiceSettings } from "@/components/invoices/invoice-settings-dropdown";
 
 interface EditableInvoicePreviewProps {
   clients: Client[];
@@ -31,7 +31,6 @@ interface EditableInvoicePreviewProps {
   issueDate?: Date;
   dueDate?: Date;
   items?: InvoiceItem[];
-  taxPercent?: number;
   companyName?: string;
   companyAddress?: string;
   companyEmail?: string;
@@ -39,12 +38,12 @@ interface EditableInvoicePreviewProps {
   logoUrl?: string;
   notes?: string;
   paymentDetails?: string;
+  invoiceSettings: InvoiceSettings;
   onClientChange?: (clientId: string | undefined) => void;
   onInvoiceNumberChange?: (invoiceNumber: string) => void;
   onIssueDateChange?: (date: Date | undefined) => void;
   onDueDateChange?: (date: Date | undefined) => void;
   onItemsChange?: (items: InvoiceItem[]) => void;
-  onTaxPercentChange?: (tax: number) => void;
   onCompanyNameChange?: (value: string) => void;
   onCompanyAddressChange?: (value: string) => void;
   onCompanyEmailChange?: (value: string) => void;
@@ -52,6 +51,7 @@ interface EditableInvoicePreviewProps {
   onLogoUrlChange?: (value: string | undefined) => void;
   onNotesChange?: (value: string) => void;
   onPaymentDetailsChange?: (value: string | undefined) => void;
+  onSettingsChange?: (settings: Partial<InvoiceSettings>) => void;
 }
 
 export function EditableInvoicePreview({
@@ -61,7 +61,6 @@ export function EditableInvoicePreview({
   issueDate = new Date(),
   dueDate,
   items = [],
-  taxPercent = 0,
   companyName = "",
   companyAddress = "",
   companyEmail = "",
@@ -69,12 +68,12 @@ export function EditableInvoicePreview({
   logoUrl,
   notes = "",
   paymentDetails,
+  invoiceSettings,
   onClientChange,
   onInvoiceNumberChange,
   onIssueDateChange,
   onDueDateChange,
   onItemsChange,
-  onTaxPercentChange,
   onCompanyNameChange,
   onCompanyAddressChange,
   onCompanyEmailChange,
@@ -82,12 +81,46 @@ export function EditableInvoicePreview({
   onLogoUrlChange,
   onNotesChange,
   onPaymentDetailsChange,
+  onSettingsChange,
 }: EditableInvoicePreviewProps) {
   const selectedClient = selectedClientId
     ? clients.find((c) => c.id === selectedClientId)
     : undefined;
 
-  const { subtotal, tax, total } = calculateInvoiceTotals(items, taxPercent);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountInput, setDiscountInput] = useState<string>("");
+  const [salesTaxInput, setSalesTaxInput] = useState<string>("");
+  const [vatInput, setVatInput] = useState<string>("");
+
+  // Sync local input state with props
+  useEffect(() => {
+    setDiscountInput(discountAmount.toString());
+  }, [discountAmount]);
+
+  useEffect(() => {
+    if (invoiceSettings.salesTaxEnabled) {
+      setSalesTaxInput(invoiceSettings.salesTaxPercent?.toString() || "");
+    }
+  }, [invoiceSettings.salesTaxPercent, invoiceSettings.salesTaxEnabled]);
+
+  useEffect(() => {
+    if (invoiceSettings.vatEnabled) {
+      setVatInput(invoiceSettings.vatPercent?.toString() || "");
+    }
+  }, [invoiceSettings.vatPercent, invoiceSettings.vatEnabled]);
+
+  const { subtotal, salesTax, vat, discount, total } = calculateInvoiceTotals(
+    items,
+    {
+      salesTaxPercent: invoiceSettings.salesTaxEnabled
+        ? invoiceSettings.salesTaxPercent
+        : undefined,
+      vatPercent: invoiceSettings.vatEnabled
+        ? invoiceSettings.vatPercent
+        : undefined,
+      discountAmount: invoiceSettings.discountEnabled ? discountAmount : undefined,
+    }
+  );
 
   const handleItemChange = (
     index: number,
@@ -177,7 +210,7 @@ export function EditableInvoicePreview({
                       className="h-6 border-none bg-transparent p-0 font-normal shadow-none hover:bg-transparent"
                       variant="ghost"
                     >
-                      {format(issueDate, "dd/MM/yyyy")}
+                      {formatDateWithFormat(issueDate, invoiceSettings.dateFormat)}
                     </Button>
                   }
                 />
@@ -200,7 +233,7 @@ export function EditableInvoicePreview({
                       className="h-6 border-none bg-transparent p-0 font-normal shadow-none hover:bg-transparent"
                       variant="ghost"
                     >
-                      {format(defaultDueDate, "dd/MM/yyyy")}
+                      {formatDateWithFormat(defaultDueDate, invoiceSettings.dateFormat)}
                     </Button>
                   }
                 />
@@ -361,7 +394,7 @@ export function EditableInvoicePreview({
             />
             <div className="flex items-center justify-end gap-2">
               <span className="font-medium">
-                {formatCurrency(item.amount || 0)}
+                {formatCurrency(item.amount || 0, invoiceSettings.currency)}
               </span>
               <Button
                 className="h-6 w-6"
@@ -390,27 +423,161 @@ export function EditableInvoicePreview({
         <div className="w-64 space-y-2">
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">Subtotal</span>
-            <span className="font-medium">{formatCurrency(subtotal)}</span>
+            <span className="font-medium">
+              {formatCurrency(subtotal, invoiceSettings.currency)}
+            </span>
           </div>
-          <div className="flex items-center justify-between gap-2 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-muted-foreground">Tax</span>
-              <Input
-                className="h-6 w-16 border-none bg-transparent p-0 text-right focus-visible:ring-0"
-                onChange={(e) =>
-                  onTaxPercentChange?.(Number(e.target.value) || 0)
-                }
-                placeholder="0"
-                type="number"
-                value={taxPercent}
-              />
-              <span className="text-muted-foreground">%</span>
+          
+          {/* Discount */}
+          {invoiceSettings.discountEnabled && (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Discount</span>
+                <Input
+                  className="h-6 w-7 border-none bg-transparent p-0 text-right text-muted-foreground focus-visible:ring-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&input[type=number]]:appearance-none"
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setDiscountInput(val);
+                    const numVal = val === "" ? 0 : Number(val);
+                    if (!isNaN(numVal)) {
+                      setDiscountAmount(numVal);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    const val = e.target.value;
+                    const numVal = val === "" ? 0 : Number(val) || 0;
+                    setDiscountInput(numVal.toString());
+                    setDiscountAmount(numVal);
+                  }}
+                  placeholder="0"
+                  type="number"
+                  value={discountInput}
+                  style={{
+                    MozAppearance: "textfield",
+                  }}
+                />
+              </div>
+              <span className="font-medium">
+                {formatCurrency(discount, invoiceSettings.currency)}
+              </span>
             </div>
-            <span className="font-medium">{formatCurrency(tax)}</span>
-          </div>
+          )}
+
+          {/* Sales Tax */}
+          {invoiceSettings.salesTaxEnabled && (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Sales Tax</span>
+                <div className="flex items-center">
+                  <span className="text-muted-foreground">(</span>
+                  <Input
+                    className="h-6 border-none bg-transparent p-0 text-right text-muted-foreground focus-visible:ring-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&input[type=number]]:appearance-none"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Allow empty string for clearing
+                      if (val === "") {
+                        setSalesTaxInput("");
+                        return;
+                      }
+                      // Only allow digits
+                      if (!/^\d+$/.test(val)) {
+                        return;
+                      }
+                      const numVal = Number(val);
+                      // Clamp between 0 and 100
+                      const clampedVal = Math.min(Math.max(numVal, 0), 100);
+                      setSalesTaxInput(clampedVal.toString());
+                      onSettingsChange?.({
+                        salesTaxPercent: clampedVal,
+                      });
+                    }}
+                    onBlur={(e) => {
+                      const val = e.target.value;
+                      const numVal = val === "" ? 0 : Math.min(Math.max(Number(val) || 0, 0), 100);
+                      setSalesTaxInput(numVal.toString());
+                      onSettingsChange?.({
+                        salesTaxPercent: numVal,
+                      });
+                    }}
+                    placeholder="0"
+                    type="number"
+                    max={100}
+                    min={0}
+                    value={salesTaxInput}
+                    style={{
+                      MozAppearance: "textfield",
+                      width: `${Math.max((vatInput.length || 1) * 0.3 + 0.5, 0.75)}rem`,
+                      margin: 0,
+                    }}
+                  />
+                  <span className="text-muted-foreground">%)</span>
+                </div>
+              </div>
+              <span className="font-medium">
+                {formatCurrency(salesTax, invoiceSettings.currency)}
+              </span>
+            </div>
+          )}
+
+          {/* VAT */}
+          {invoiceSettings.vatEnabled && (
+            <div className="flex items-center justify-between gap-2 text-sm">
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">VAT</span>
+                <div className="flex items-center">
+                  <span className="text-muted-foreground">(</span>
+                  <Input
+                    className="h-6 border-none bg-transparent p-0 text-right text-muted-foreground focus-visible:ring-0 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&input[type=number]]:appearance-none"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      // Allow empty string for clearing
+                      if (val === "") {
+                        setVatInput("");
+                        return;
+                      }
+                      // Only allow digits
+                      if (!/^\d+$/.test(val)) {
+                        return;
+                      }
+                      const numVal = Number(val);
+                      // Clamp between 0 and 100
+                      const clampedVal = Math.min(Math.max(numVal, 0), 100);
+                      setVatInput(clampedVal.toString());
+                      onSettingsChange?.({
+                        vatPercent: clampedVal,
+                      });
+                    }}
+                    onBlur={(e) => {
+                      const val = e.target.value;
+                      const numVal = val === "" ? 0 : Math.min(Math.max(Number(val) || 0, 0), 100);
+                      setVatInput(numVal.toString());
+                      onSettingsChange?.({
+                        vatPercent: numVal,
+                      });
+                    }}
+                    placeholder="0"
+                    type="number"
+                    value={vatInput}
+                    max={100}
+                    min={0}
+                    style={{
+                      MozAppearance: "textfield",
+                      width: `${Math.max((vatInput.length || 1) * 0.3 + 0.5, 0.75)}rem`,
+                      margin: 0,
+                    }}
+                  />
+                  <span className="text-muted-foreground">%)</span>
+                </div>
+              </div>
+              <span className="font-medium">
+                {formatCurrency(vat, invoiceSettings.currency)}
+              </span>
+            </div>
+          )}
+
           <div className="flex justify-between border-t pt-2 text-lg font-bold">
             <span>Total</span>
-            <span>{formatCurrency(total)}</span>
+            <span>{formatCurrency(total, invoiceSettings.currency)}</span>
           </div>
         </div>
       </div>
@@ -436,6 +603,18 @@ export function EditableInvoicePreview({
           />
         </div>
       </div>
+
+      {/* QR Code */}
+      {invoiceSettings.showQrCode && (
+        <div className="flex justify-center border-t pt-4">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex h-32 w-32 items-center justify-center rounded border bg-muted">
+              <QrCode className="size-24 text-muted-foreground" />
+            </div>
+            <p className="text-muted-foreground text-xs">QR Code</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

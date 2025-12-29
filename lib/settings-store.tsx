@@ -15,7 +15,8 @@ export type DateFormat =
   | "dd/MM/yyyy"
   | "yyyy-MM-dd"
   | "MMM dd, yyyy"
-  | "dd MMM yyyy";
+  | "dd MMM yyyy"
+  | "dd.MM.yyyy";
 
 export type Theme = "light" | "dark" | "system";
 
