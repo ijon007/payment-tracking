@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowSquareOut } from "@phosphor-icons/react";
-import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -28,6 +33,7 @@ import {
 import { useFormattedDate } from "@/lib/date-utils";
 import type { Client } from "@/lib/payment-utils";
 import { usePaymentStore } from "@/lib/store";
+import { InvoicePreview } from "@/components/invoice/invoice-preview";
 
 interface ClientInvoicesProps {
   client: Client;
@@ -38,7 +44,6 @@ export function ClientInvoices({
   client,
   displayCurrency,
 }: ClientInvoicesProps) {
-  const router = useRouter();
   const { invoices } = usePaymentStore();
   const formatDate = useFormattedDate();
   const clientInvoices = useMemo(
@@ -48,6 +53,9 @@ export function ClientInvoices({
   const [convertedTotals, setConvertedTotals] = useState<
     Record<string, number>
   >({});
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const convertTotals = async () => {
@@ -84,7 +92,7 @@ export function ClientInvoices({
   };
 
   const handleInvoiceClick = (invoiceId: string) => {
-    router.push(`/invoices?invoice=${invoiceId}`);
+    setSelectedInvoiceId(invoiceId);
   };
 
   if (clientInvoices.length === 0) {
@@ -107,11 +115,8 @@ export function ClientInvoices({
 
   return (
     <Card id="invoices" className="py-0">
-      <CardHeader>
+      <CardHeader className="sr-only">
         <CardTitle>Invoices</CardTitle>
-        <CardDescription>
-          All invoices generated for this client
-        </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
         <Table>
@@ -122,7 +127,6 @@ export function ClientInvoices({
               <TableHead className="w-[100px] border-r">Status</TableHead>
               <TableHead className="w-[140px] border-r">Invoice</TableHead>
               <TableHead className="w-[100px]">Created</TableHead>
-              <TableHead className="w-[100px] text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -172,25 +176,29 @@ export function ClientInvoices({
                       {formatDate(invoice.issueDate)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleInvoiceClick(invoice.id);
-                      }}
-                    >
-                      <ArrowSquareOut className="mr-2 h-4 w-4" />
-                      View
-                    </Button>
-                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
       </CardContent>
+
+      <Sheet
+        onOpenChange={(open) => !open && setSelectedInvoiceId(null)}
+        open={selectedInvoiceId !== null}
+      >
+        <SheetContent
+          side="right"
+          className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-2xl p-3 sm:p-4"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Invoice Details</SheetTitle>
+          </SheetHeader>
+          {selectedInvoiceId && (
+            <InvoicePreview invoiceId={selectedInvoiceId} />
+          )}
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 }
