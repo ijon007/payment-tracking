@@ -1,8 +1,8 @@
 "use client";
 
-import { CalendarIcon, CaretDown, DotsThreeVertical, Plus, Trash } from "@phosphor-icons/react";
+import { CaretDown, Plus, Trash, X } from "@phosphor-icons/react";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -125,6 +125,32 @@ export function EditableInvoicePreview({
     onItemsChange?.(newItems);
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onLogoUrlChange?.(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input so same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleRemoveLogo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onLogoUrlChange?.(undefined);
+  };
+
   const defaultDueDate = dueDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
   return (
@@ -190,11 +216,47 @@ export function EditableInvoicePreview({
             </div>
           </div>
         </div>
-        <div className="flex items-start gap-2">
-          <div className="h-16 w-16 rounded border bg-muted" />
-          <Button className="h-6 w-6" size="icon" variant="ghost">
-            <DotsThreeVertical className="size-4" />
-          </Button>
+        <div className="relative">
+          <input
+            ref={fileInputRef}
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+            type="file"
+          />
+          <div
+            className="relative h-16 w-16 rounded border bg-muted overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleLogoClick}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleLogoClick();
+              }
+            }}
+          >
+            {logoUrl ? (
+              <>
+                <img
+                  alt="Company logo"
+                  className="h-full w-full object-cover"
+                  src={logoUrl}
+                />
+                <button
+                  className="absolute right-1 top-1 h-5 w-5 flex items-center justify-center rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                  onClick={handleRemoveLogo}
+                  type="button"
+                >
+                  <X className="size-3" weight="bold" />
+                </button>
+              </>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-muted-foreground text-xs">
+                Click to add logo
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
