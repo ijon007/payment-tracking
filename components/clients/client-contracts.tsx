@@ -1,11 +1,7 @@
 "use client";
 
-import { ArrowSquareOut } from "@phosphor-icons/react";
-import { format } from "date-fns";
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,6 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -26,8 +28,10 @@ import {
   convertCurrency,
   formatCurrency as formatCurrencyUtil,
 } from "@/lib/currency-utils";
+import { useFormattedDate } from "@/lib/date-utils";
 import type { Client } from "@/lib/payment-utils";
 import { usePaymentStore } from "@/lib/store";
+import { ContractPreview } from "@/components/contracts/contract-preview";
 
 interface ClientContractsProps {
   client: Client;
@@ -38,13 +42,17 @@ export function ClientContracts({
   client,
   displayCurrency,
 }: ClientContractsProps) {
-  const { contracts, getContractTemplate } = usePaymentStore();
+  const { contracts } = usePaymentStore();
+  const formatDate = useFormattedDate();
   const clientContracts = useMemo(
     () => contracts.filter((c) => c.clientId === client.id),
     [contracts, client.id]
   );
   const [convertedCosts, setConvertedCosts] = useState<Record<string, number>>(
     {}
+  );
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(
+    null
   );
 
   useEffect(() => {
@@ -86,6 +94,10 @@ export function ClientContracts({
     }
   };
 
+  const handleContractClick = (contractId: string) => {
+    setSelectedContractId(contractId);
+  };
+
   if (clientContracts.length === 0) {
     return (
       <Card>
@@ -105,50 +117,59 @@ export function ClientContracts({
   }
 
   return (
-    <Card id="contracts">
-      <CardHeader>
+    <Card id="contracts" className="py-0">
+      <CardHeader className="sr-only">
         <CardTitle>Contracts</CardTitle>
-        <CardDescription>
-          All contracts generated for this client
-        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Contract Number</TableHead>
-              <TableHead>Issue Date</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
-              <TableHead>Project Cost</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+            <TableRow className="text-sm hover:bg-card">
+              <TableHead className="w-[140px] border-r">Contract Number</TableHead>
+              <TableHead className="w-[100px] border-r">Issue Date</TableHead>
+              <TableHead className="w-[100px] border-r">Start Date</TableHead>
+              <TableHead className="w-[100px] border-r">End Date</TableHead>
+              <TableHead className="w-[110px] border-r">Project Cost</TableHead>
+              <TableHead className="w-[100px]">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {clientContracts.map((contract) => {
-              const _template = getContractTemplate(contract.templateId);
               return (
-                <TableRow key={contract.id}>
-                  <TableCell className="font-medium">
-                    {contract.contractNumber}
+                <TableRow
+                  key={contract.id}
+                  className="cursor-pointer transition-colors"
+                  onClick={() => handleContractClick(contract.id)}
+                >
+                  <TableCell className="border-r">
+                    <span className="text-sm font-medium">
+                      {contract.contractNumber}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    {format(contract.issueDate, "MMM dd, yyyy")}
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatDate(contract.issueDate)}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    {format(contract.startDate, "MMM dd, yyyy")}
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatDate(contract.startDate)}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    {format(contract.endDate, "MMM dd, yyyy")}
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {formatDate(contract.endDate)}
+                    </span>
                   </TableCell>
-                  <TableCell>
-                    {contract.projectCost
-                      ? formatCurrencyUtil(
-                          convertedCosts[contract.id] ?? contract.projectCost,
-                          displayCurrency
-                        )
-                      : "—"}
+                  <TableCell className="border-r">
+                    <span className="text-sm">
+                      {contract.projectCost
+                        ? formatCurrencyUtil(
+                            convertedCosts[contract.id] ?? contract.projectCost,
+                            displayCurrency
+                          )
+                        : "—"}
+                    </span>
                   </TableCell>
                   <TableCell>
                     <Badge variant={getStatusBadgeVariant(contract.status)}>
@@ -156,20 +177,29 @@ export function ClientContracts({
                         contract.status.slice(1)}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/contracts?contract=${contract.id}`}>
-                      <Button size="sm" variant="ghost">
-                        <ArrowSquareOut className="mr-2 h-4 w-4" />
-                        View
-                      </Button>
-                    </Link>
-                  </TableCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
       </CardContent>
+
+      <Sheet
+        onOpenChange={(open) => !open && setSelectedContractId(null)}
+        open={selectedContractId !== null}
+      >
+        <SheetContent
+          side="right"
+          className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-2xl p-3 sm:p-4"
+        >
+          <SheetHeader className="sr-only">
+            <SheetTitle>Contract Details</SheetTitle>
+          </SheetHeader>
+          {selectedContractId && (
+            <ContractPreview contractId={selectedContractId} />
+          )}
+        </SheetContent>
+      </Sheet>
     </Card>
   );
 }

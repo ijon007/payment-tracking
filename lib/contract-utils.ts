@@ -9,6 +9,8 @@ export interface ContractTemplate {
   terms: string;
   createdAt: Date;
   updatedAt: Date;
+  pdfPath?: string; // Path to PDF file (for dummy/default templates)
+  pdfData?: string; // Base64 encoded PDF data (for uploaded templates)
 }
 
 export interface Contract {

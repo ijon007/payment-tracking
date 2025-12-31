@@ -35,7 +35,7 @@ export function EmailDialog({
     getClient,
     invoices,
     contracts,
-    getContractTemplate,
+    userContractTemplate,
   } = usePaymentStore();
 
   const client = getClient(clientId);
@@ -111,7 +111,7 @@ export function EmailDialog({
         continue;
       }
 
-      const template = getContractTemplate(contract.templateId);
+      const template = userContractTemplate;
       if (!template) {
         continue;
       }

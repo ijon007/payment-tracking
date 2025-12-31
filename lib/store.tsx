@@ -21,7 +21,7 @@ import {
 
 const STORAGE_KEY = "payment-tracker-clients";
 const INVOICES_STORAGE_KEY = "payment-tracker-invoices";
-const CONTRACT_TEMPLATES_STORAGE_KEY = "payment-tracker-contract-templates";
+const USER_CONTRACT_TEMPLATE_KEY = "payment-tracker-user-contract-template";
 const CONTRACTS_STORAGE_KEY = "payment-tracker-contracts";
 
 // Helper to serialize/deserialize dates
@@ -65,9 +65,10 @@ function deserializeInvoices(json: string): Invoice[] {
   }));
 }
 
-// Helper to serialize/deserialize contract templates
-function serializeContractTemplates(templates: ContractTemplate[]): string {
-  return JSON.stringify(templates, (_key, value) => {
+// Helper to serialize/deserialize user contract template
+function serializeUserContractTemplate(template: ContractTemplate | null): string {
+  if (!template) return "";
+  return JSON.stringify(template, (_key, value) => {
     if (value instanceof Date) {
       return { __type: "Date", value: value.toISOString() };
     }
@@ -75,13 +76,18 @@ function serializeContractTemplates(templates: ContractTemplate[]): string {
   });
 }
 
-function deserializeContractTemplates(json: string): ContractTemplate[] {
-  const parsed = JSON.parse(json);
-  return parsed.map((template: any) => ({
-    ...template,
-    createdAt: new Date(template.createdAt),
-    updatedAt: new Date(template.updatedAt),
-  }));
+function deserializeUserContractTemplate(json: string): ContractTemplate | null {
+  if (!json) return null;
+  try {
+    const parsed = JSON.parse(json);
+    return {
+      ...parsed,
+      createdAt: new Date(parsed.createdAt),
+      updatedAt: new Date(parsed.updatedAt),
+    };
+  } catch {
+    return null;
+  }
 }
 
 // Helper to serialize/deserialize contracts
@@ -145,19 +151,10 @@ interface PaymentStoreContextType {
   getInvoice: (id: string) => Invoice | undefined;
   getInvoiceByToken: (token: string) => Invoice | undefined;
   updateInvoice: (id: string, updates: Partial<Invoice>) => void;
-  contractTemplates: ContractTemplate[];
+  userContractTemplate: ContractTemplate | null;
+  setUserContractTemplate: (template: ContractTemplate | null) => void;
   contracts: Contract[];
-  addContractTemplate: (
-    template: Omit<ContractTemplate, "id" | "createdAt" | "updatedAt">
-  ) => void;
-  updateContractTemplate: (
-    id: string,
-    updates: Partial<ContractTemplate>
-  ) => void;
-  deleteContractTemplate: (id: string) => void;
-  getContractTemplate: (id: string) => ContractTemplate | undefined;
   generateContract: (data: {
-    templateId: string;
     clientId: string;
     startDate: Date;
     endDate: Date;
@@ -215,25 +212,25 @@ export function PaymentStoreProvider({
     return [];
   });
 
-  // Load contract templates from localStorage on mount
-  const [contractTemplates, setContractTemplates] = useState<
-    ContractTemplate[]
+  // Load user contract template from localStorage on mount
+  const [userContractTemplate, setUserContractTemplateState] = useState<
+    ContractTemplate | null
   >(() => {
     if (typeof window === "undefined") {
-      return [];
+      return null;
     }
     try {
-      const stored = localStorage.getItem(CONTRACT_TEMPLATES_STORAGE_KEY);
+      const stored = localStorage.getItem(USER_CONTRACT_TEMPLATE_KEY);
       if (stored) {
-        return deserializeContractTemplates(stored);
+        return deserializeUserContractTemplate(stored);
       }
     } catch (error) {
       console.error(
-        "Failed to load contract templates from localStorage:",
+        "Failed to load user contract template from localStorage:",
         error
       );
     }
-    return [];
+    return null;
   });
 
   // Load contracts from localStorage on mount
@@ -274,22 +271,30 @@ export function PaymentStoreProvider({
     }
   }, [invoices]);
 
-  // Save contract templates to localStorage whenever they change
+  // Save user contract template to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        localStorage.setItem(
-          CONTRACT_TEMPLATES_STORAGE_KEY,
-          serializeContractTemplates(contractTemplates)
-        );
+        if (userContractTemplate) {
+          localStorage.setItem(
+            USER_CONTRACT_TEMPLATE_KEY,
+            serializeUserContractTemplate(userContractTemplate)
+          );
+        } else {
+          localStorage.removeItem(USER_CONTRACT_TEMPLATE_KEY);
+        }
       } catch (error) {
         console.error(
-          "Failed to save contract templates to localStorage:",
+          "Failed to save user contract template to localStorage:",
           error
         );
       }
     }
-  }, [contractTemplates]);
+  }, [userContractTemplate]);
+
+  const setUserContractTemplate = useCallback((template: ContractTemplate | null) => {
+    setUserContractTemplateState(template);
+  }, []);
 
   // Save contracts to localStorage whenever they change
   useEffect(() => {
@@ -521,51 +526,8 @@ export function PaymentStoreProvider({
     );
   }, []);
 
-  const addContractTemplate = useCallback(
-    (
-      templateData: Omit<ContractTemplate, "id" | "createdAt" | "updatedAt">
-    ) => {
-      const now = new Date();
-      const template: ContractTemplate = {
-        ...templateData,
-        id: `contract-template-${Date.now()}`,
-        createdAt: now,
-        updatedAt: now,
-      };
-      setContractTemplates((prev) => [...prev, template]);
-    },
-    []
-  );
-
-  const updateContractTemplate = useCallback(
-    (id: string, updates: Partial<ContractTemplate>) => {
-      setContractTemplates((prev) =>
-        prev.map((template) =>
-          template.id === id
-            ? { ...template, ...updates, updatedAt: new Date() }
-            : template
-        )
-      );
-    },
-    []
-  );
-
-  const deleteContractTemplate = useCallback((id: string) => {
-    setContractTemplates((prev) =>
-      prev.filter((template) => template.id !== id)
-    );
-  }, []);
-
-  const getContractTemplate = useCallback(
-    (id: string) => {
-      return contractTemplates.find((t) => t.id === id);
-    },
-    [contractTemplates]
-  );
-
   const generateContract = useCallback(
     (data: {
-      templateId: string;
       clientId: string;
       startDate: Date;
       endDate: Date;
@@ -581,7 +543,7 @@ export function PaymentStoreProvider({
     }): Contract => {
       const contract: Contract = {
         id: `contract-${Date.now()}`,
-        templateId: data.templateId,
+        templateId: userContractTemplate?.id || "default", // Keep for backward compatibility
         clientId: data.clientId,
         contractNumber: generateContractNumber(),
         issueDate: new Date(),
@@ -601,7 +563,7 @@ export function PaymentStoreProvider({
       setContracts((prev) => [...prev, contract]);
       return contract;
     },
-    []
+    [userContractTemplate]
   );
 
   const getContract = useCallback(
@@ -626,12 +588,9 @@ export function PaymentStoreProvider({
         getInvoice,
         getInvoiceByToken,
         updateInvoice,
-        contractTemplates,
+        userContractTemplate,
+        setUserContractTemplate,
         contracts,
-        addContractTemplate,
-        updateContractTemplate,
-        deleteContractTemplate,
-        getContractTemplate,
         generateContract,
         getContract,
       }}

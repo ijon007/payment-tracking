@@ -4,7 +4,6 @@ import { CaretDown, MagnifyingGlass } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { ClientDialog } from "@/components/client-dialog";
 import { ClientTableRow } from "@/components/clients/client-table-row";
-import { ContractGenerator } from "@/components/contracts/contract-generator";
 import { EmailDialog } from "@/components/email/email-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,9 +35,6 @@ export default function ClientsPage() {
   const { clients } = usePaymentStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("All Status");
-  const [contractDialogClientId, setContractDialogClientId] = useState<
-    string | null
-  >(null);
   const [emailDialogClientId, setEmailDialogClientId] = useState<string | null>(
     null
   );
@@ -62,10 +58,6 @@ export default function ClientsPage() {
 
   const handleEmail = (client: (typeof clients)[0]) => {
     setEmailDialogClientId(client.id);
-  };
-
-  const handleGenerateContract = (client: (typeof clients)[0]) => {
-    setContractDialogClientId(client.id);
   };
 
   return (
@@ -182,7 +174,6 @@ export default function ClientsPage() {
                       client={client}
                       key={client.id}
                       onEmail={handleEmail}
-                      onGenerateContract={handleGenerateContract}
                     />
                   ))}
                 </TableBody>
@@ -195,14 +186,6 @@ export default function ClientsPage() {
           )}
         </CardContent>
       </Card>
-
-      {contractDialogClientId && (
-        <ContractGenerator
-          clientId={contractDialogClientId}
-          onOpenChange={(open) => !open && setContractDialogClientId(null)}
-          open={contractDialogClientId !== null}
-        />
-      )}
 
       {emailDialogClientId && (
         <EmailDialog

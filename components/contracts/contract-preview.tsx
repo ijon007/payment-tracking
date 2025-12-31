@@ -23,7 +23,7 @@ export function ContractPreview({
   endDate,
   terms,
 }: ContractPreviewProps) {
-  const { getContract, getContractTemplate, getClient } = usePaymentStore();
+  const { getContract, userContractTemplate, getClient } = usePaymentStore();
 
   let contract: Contract | null = null;
   let contractTemplate: ContractTemplate | null = null;
@@ -32,14 +32,33 @@ export function ContractPreview({
   let contractEndDate: Date | null = null;
   let contractTerms = "";
 
+  let contractProjectCost: number | undefined;
+  let contractPaymentMethod: string | undefined;
+  let contractProjectDuration: string | undefined;
+  let contractMaintenanceCost: number | undefined;
+  let contractClientAddress: string | undefined;
+  let contractClientEmail: string | undefined;
+  let contractClientPhone: string | undefined;
+  let contractCompanyRepresentatives: string | undefined;
+
   if (contractId) {
     contract = getContract(contractId) || null;
     if (contract) {
-      contractTemplate = getContractTemplate(contract.templateId) || null;
+      // Use user template (single template system)
+      contractTemplate = userContractTemplate || null;
       contractClient = getClient(contract.clientId) || null;
       contractStartDate = contract.startDate;
       contractEndDate = contract.endDate;
       contractTerms = contract.terms;
+      // Get all contract data
+      contractProjectCost = contract.projectCost;
+      contractPaymentMethod = contract.paymentMethod;
+      contractProjectDuration = contract.projectDuration;
+      contractMaintenanceCost = contract.maintenanceCost;
+      contractClientAddress = contract.clientAddress;
+      contractClientEmail = contract.clientEmail;
+      contractClientPhone = contract.clientPhone;
+      contractCompanyRepresentatives = contract.companyRepresentatives;
     }
   } else if (template && client && startDate && endDate && terms) {
     contractTemplate = template;
@@ -53,93 +72,224 @@ export function ContractPreview({
     return null;
   }
 
+  // Format date for display (DD / MM / YYYY)
+  const formatDateForContract = (date: Date | null | undefined) => {
+    if (!date) return "___ / ___ / ___";
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day} / ${month} / ${year}`;
+  };
+
   return (
     <Card className="bg-white text-black">
-      <CardContent className="p-8">
-        <div className="space-y-8">
-          {/* Header */}
-          <div className="flex items-start justify-between">
-            <div>
-              {contractTemplate.logoUrl && (
-                <img
-                  alt={contractTemplate.companyName}
-                  className="mb-4 h-12"
-                  src={contractTemplate.logoUrl}
-                />
-              )}
-              <h2 className="font-bold text-2xl">
-                {contractTemplate.companyName}
-              </h2>
-              <div className="mt-2 space-y-1 text-muted-foreground text-sm">
-                {contractTemplate.companyAddress && (
-                  <p>{contractTemplate.companyAddress}</p>
-                )}
-                <p>{contractTemplate.companyEmail}</p>
-                {contractTemplate.companyPhone && (
-                  <p>{contractTemplate.companyPhone}</p>
-                )}
+      <CardContent className="p-8 font-serif">
+        <div className="space-y-6 text-sm leading-relaxed">
+          {/* Title */}
+          <h1 className="text-center text-xl font-bold uppercase mb-8">
+            KONTRATË BASHKËPUNIMI PËR ZHVILLIM WEBSITE
+          </h1>
+
+          {/* Section 1: Palët e kontratës */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">1. Palët e kontratës</h2>
+            <div className="space-y-2">
+              <p>
+                - <strong>Core Point</strong> – Agjenci për zhvillim website-esh, përfaqësuar nga{" "}
+                <span className="font-medium">
+                  {contractCompanyRepresentatives || "Johan Gjinko dhe Ijon Kushta"}
+                </span>
+                , në vijim do të quhet "Zhvilluesi".
+              </p>
+              <div className="ml-4 space-y-1">
+                <p className="font-semibold">Të dhënat e kontaktit të Zhvilluesit:</p>
+                <p>Email: {contractTemplate.companyEmail || "dev.corepoint@gmail.com"}</p>
+                <p>Telefon: {contractTemplate.companyPhone || "+355 69 267 5398"}</p>
+              </div>
+              <p>
+                - <span className="font-medium">{contractClient.name}</span>, me adresë në{" "}
+                <span className="font-medium">
+                  {contractClientAddress || "_______________"}
+                </span>
+                , në vijim do të quhet "Klienti".
+              </p>
+              <div className="ml-4 space-y-1">
+                <p className="font-semibold">Të dhënat e kontaktit të Klientit:</p>
+                <p>
+                  Email:{" "}
+                  <span className="font-medium">
+                    {contractClientEmail || "_______________"}
+                  </span>
+                </p>
+                <p>
+                  Telefon:{" "}
+                  <span className="font-medium">
+                    {contractClientPhone || "_______________"}
+                  </span>
+                </p>
               </div>
             </div>
-            <div className="text-right">
-              <h1 className="mb-2 font-bold text-3xl">CONTRACT</h1>
-              {contract && (
-                <p className="text-muted-foreground text-sm">
-                  Contract #: {contract.contractNumber}
-                </p>
-              )}
-              {contract && (
-                <p className="text-muted-foreground text-sm">
-                  Issue Date: {format(contract.issueDate, "MMM dd, yyyy")}
-                </p>
-              )}
+          </div>
+
+          {/* Section 2: Objekti i kontratës */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">2. Objekti i kontratës</h2>
+            <p>
+              - Objekti i kësaj kontrate është zhvillimi, krijimi dhe dorëzimi i një website-i për Klientin sipas kërkesave të tij të përcaktuara gjatë fazës së diskutimit paraprak, si dhe ofrimi i mirëmbajtjes dhe hosting-ut sipas marrëveshjes.
+            </p>
+          </div>
+
+          {/* Section 3: Përshkrimi i shërbimit */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">3. Përshkrimi i shërbimit</h2>
+            <div className="space-y-2">
+              <p className="font-semibold">Zhvilluesi angazhohet të:</p>
+              <ul className="ml-6 list-disc space-y-1">
+                <li>Krijojë dhe zhvillojë website-in në përputhje me kërkesat e klientit;</li>
+                <li>Përditësojë klientin në mënyrë të vazhdueshme mbi ecurinë e punës;</li>
+                <li>Dorëzojë website-in në afatin e përcaktuar në kontratë;</li>
+                <li>Sigurojë mirëmbajtje teknike dhe hosting.</li>
+              </ul>
+              <p className="font-semibold">Klienti angazhohet të:</p>
+              <ul className="ml-6 list-disc space-y-1">
+                <li>Japë të gjitha informacionet e nevojshme (tekste, imazhe, logo, etj.) në kohë;</li>
+                <li>Bëjë pagesat sipas kushteve të përcaktuara;</li>
+                <li>Mos kërkojë ndryshime të mëdha jashtë objektit pa rënë dakord për kosto shtesë.</li>
+              </ul>
             </div>
           </div>
 
-          {/* Contract Parties */}
-          <div className="grid grid-cols-2 gap-8">
-            <div>
-              <h3 className="mb-2 font-semibold">Client:</h3>
-              <p className="font-medium">{contractClient.name}</p>
-            </div>
-            <div className="text-right">
-              <h3 className="mb-2 font-semibold">Contract Period:</h3>
-              {contractStartDate && (
-                <p>Start: {format(contractStartDate, "MMM dd, yyyy")}</p>
-              )}
-              {contractEndDate && (
-                <p>End: {format(contractEndDate, "MMM dd, yyyy")}</p>
-              )}
+          {/* Section 5: Çmimi dhe mënyra e pagesës */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">5. Çmimi dhe mënyra e pagesës</h2>
+            <div className="space-y-2">
+              <p>
+                - Totali i kostos së projektit është{" "}
+                <span className="font-medium">
+                  {contractProjectCost ? `${contractProjectCost.toLocaleString()} lekë` : "____ lekë"}
+                </span>
+                .
+              </p>
+              <p>- Pagesa do të kryhet në dy faza:</p>
+              <ul className="ml-6 list-disc space-y-1">
+                <li>30% parapagim në momentin e nënshkrimit të kontratës (nisja e punës).</li>
+                <li>70% pagesë përfundimtare pas dorëzimit të website-it.</li>
+              </ul>
+              <p>
+                - Pagesat do të kryhen nëpërmjet{" "}
+                <span className="font-medium">
+                  {contractPaymentMethod || "_______________"}
+                </span>
+                .
+              </p>
             </div>
           </div>
 
-          {/* Terms & Conditions */}
-          <div className="border-t border-b pt-4 pb-4">
-            <h3 className="mb-4 font-semibold">Terms & Conditions</h3>
-            <div className="whitespace-pre-line text-muted-foreground text-sm">
-              {contractTerms || contractTemplate.terms}
+          {/* Section 6: Afatet kohore */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">6. Afatet kohore</h2>
+            <div className="space-y-2">
+              <p>
+                - Data e Fillimit të Punës do të jetë më{" "}
+                <span className="font-medium">
+                  {contractStartDate ? formatDateForContract(contractStartDate) : "___ / ___ / 2025"}
+                </span>
+                , pas kryerjes së parapagimit prej 30% të pagës totale të website-it nga ana e Klientit.
+              </p>
+              <p>
+                - Zhvilluesi angazhohet ta përfundojë projektin brenda{" "}
+                <span className="font-medium">
+                  {contractProjectDuration || "_______________"}
+                </span>{" "}
+                nga Data e Fillimit të Punës.
+              </p>
+              <p>- Në rast vonese të pagesës së parapagimit ose të materialeve nga Klienti, afati i dorëzimit do të shtyhet në mënyrë proporcionale.</p>
             </div>
           </div>
 
-          {/* Signature Sections */}
-          <div className="grid grid-cols-2 gap-8 pt-4">
-            <div>
-              <h3 className="mb-2 font-semibold">Client Signature</h3>
-              <div className="mt-2 border-t border-dashed pt-8">
-                {contract?.clientSignature ? (
-                  <p className="text-sm">{contract.clientSignature}</p>
-                ) : (
-                  <p className="text-muted-foreground text-sm">Signature</p>
-                )}
+          {/* Section 7: Mirëmbajtja dhe Hosting */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">7. Mirëmbajtja dhe Hosting</h2>
+            <div className="space-y-2">
+              <p>- Pas dorëzimit të website-it, Klienti vazhdon me sherbimet e mirëmbajtjes dhe hostingut nga Zhvilluesi.</p>
+              <p>- Kostot mujore për këto shërbime janë:</p>
+              <p>
+                - Kostoja e mirëmbajtjes:{" "}
+                <span className="font-medium">
+                  {contractMaintenanceCost ? `${contractMaintenanceCost.toLocaleString()} lekë/muaj` : "______________ lekë/muaj"}
+                </span>
+              </p>
+              <p className="text-xs italic">(Përfshin hosting, përditësime sigurie, ndihmë teknike, përmirësime të faqes etj.)</p>
+            </div>
+          </div>
+
+          {/* Section 8: Pronësia intelektuale */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">8. Pronësia intelektuale</h2>
+            <div className="space-y-2">
+              <p>- E drejta e përdorimit dhe pronësisë së website-it i kalon Klientit vetëm pasi projekti të jetë paguar plotësisht.</p>
+              <p>- Para këtij momenti, çdo kod, dizajn apo përmbajtje mbetet pronë e Zhvilluesit.</p>
+            </div>
+          </div>
+
+          {/* Section 9: Ndryshime dhe kërkesa shtesë */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">9. Ndryshime dhe kërkesa shtesë</h2>
+            <p>- Çdo kërkesë shtesë përtej specifikimeve fillestare do të konsiderohet shërbim i ri dhe do të ketë kosto shtesë të përcaktuar me shkrim.</p>
+          </div>
+
+          {/* Section 10: Përfundimi ose ndërprerja e kontratës */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">10. Përfundimi ose ndërprerja e kontratës</h2>
+            <div className="space-y-2">
+              <p>- Çdo palë mund të ndërpresë kontratën me njoftim me shkrim nëse pala tjetër nuk respekton detyrimet.</p>
+              <p>- Në rast ndërprerjeje nga Klienti pas fillimit të punës, parapagimi 30% nuk rimbursohet.</p>
+            </div>
+          </div>
+
+          {/* Section 11: Konfidencialiteti */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">11. Konfidencialiteti</h2>
+            <p>- Palët angazhohen të ruajnë konfidencialitetin e çdo informacioni teknik, tregtar apo profesional që bëhet i njohur gjatë bashkëpunimit.</p>
+          </div>
+
+          {/* Section 12: Forca madhore */}
+          <div className="space-y-3">
+            <h2 className="font-bold text-base">12. Forca madhore</h2>
+            <p>- Asnjëra palë nuk mban përgjegjësi për mosrealizim detyrimesh për shkak të forcës madhore (fatkeqësi natyrore, ndërprerje energjie, konflikte të jashtme etj.)</p>
+          </div>
+
+          {/* Closing statement */}
+          <div className="space-y-3 mt-8">
+            <p>
+              Me nënshkrimin e kësaj kontrate, palët pranojnë dhe bien dakord për të gjitha kushtet, detyrimet dhe marrëveshjet e përcaktuara më sipër.
+            </p>
+            <p>
+              Kjo kontratë hyn në fuqi në <strong>Datën e Fillimit të Punës</strong> të përcaktuar në pikën 6 të saj.
+            </p>
+          </div>
+
+          {/* Signatures */}
+          <div className="mt-12 grid grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <div>
+                <p>Data {contract ? formatDateForContract(contract.issueDate) : "___ / ___ / ___"}</p>
+                <p className="mt-8 font-bold">Core Point</p>
+                <p>Johan GJINKO</p>
               </div>
             </div>
-            <div>
-              <h3 className="mb-2 font-semibold">Company Signature</h3>
-              <div className="mt-2 border-t border-dashed pt-8">
-                {contract?.companySignature ? (
-                  <p className="text-sm">{contract.companySignature}</p>
-                ) : (
-                  <p className="text-muted-foreground text-sm">Signature</p>
-                )}
+            <div className="space-y-4">
+              <div>
+                <p>Data {contract ? formatDateForContract(contract.issueDate) : "___ / ___ / ___"}</p>
+                <p className="mt-8 font-bold">Klienti</p>
+                <p className="border-b border-black pb-1">
+                  {contractClient.name}
+                </p>
+                <p className="mt-2 border-b border-black pb-1">
+                  {(contractClient as any)?.companyName || ""}
+                </p>
+                <p className="mt-8">Ijon KUSHTA</p>
+                <p className="mt-4 border-b border-black pb-1 w-24"></p>
               </div>
             </div>
           </div>

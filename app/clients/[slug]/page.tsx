@@ -3,7 +3,6 @@
 import {
   ArrowLeft,
   Envelope,
-  Signature,
 } from "@phosphor-icons/react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +11,6 @@ import { ClientDealInfo } from "@/components/clients/client-deal-info";
 import { ClientGeneralInfo } from "@/components/clients/client-general-info";
 import { ClientInvoices } from "@/components/clients/client-invoices";
 import { ClientNavbar } from "@/components/clients/client-navbar";
-import { ContractGenerator } from "@/components/contracts/contract-generator";
 import { EmailDialog } from "@/components/email/email-dialog";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -32,7 +30,6 @@ export default function ClientDetailPage() {
   const [mounted, setMounted] = useState(false);
   const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [contractDialogOpen, setContractDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("general-info");
   const [isScrolled, setIsScrolled] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -126,22 +123,6 @@ export default function ClientDetailPage() {
                   <p>Email</p>
                 </TooltipContent>
               </Tooltip>
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      onClick={() => setContractDialogOpen(true)}
-                      size="icon"
-                      variant="secondary"
-                    >
-                      <Signature weight="fill" className="size-4" />
-                    </Button>
-                  }
-                />
-                <TooltipContent side="bottom">
-                  <p>Generate Contract</p>
-                </TooltipContent>
-              </Tooltip>
             </div>
           </div>
         </div>
@@ -172,14 +153,6 @@ export default function ClientDetailPage() {
           clientId={clientId}
           onOpenChange={setEmailDialogOpen}
           open={emailDialogOpen}
-        />
-      )}
-
-      {contractDialogOpen && (
-        <ContractGenerator
-          clientId={clientId}
-          onOpenChange={setContractDialogOpen}
-          open={contractDialogOpen}
         />
       )}
     </Tabs>
