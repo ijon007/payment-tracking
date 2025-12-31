@@ -8,8 +8,9 @@ import {
   useEffect,
   useState,
 } from "react";
-import type { Contract, ContractTemplate } from "./contract-utils";
+import type { Contract, ContractTemplate, ContractSettings, PaymentPlan } from "./contract-utils";
 import { generateContractNumber } from "./contract-utils";
+import { calculateContractTotals, createDefaultContractSettings } from "./contract-settings";
 import type { Invoice } from "./invoice-utils";
 import { calculateInvoiceTotals, generateInvoiceNumber, generateShareToken } from "./invoice-utils";
 import type { Client, Payment } from "./payment-utils";
@@ -169,6 +170,8 @@ interface PaymentStoreContextType {
     clientEmail?: string;
     clientPhone?: string;
     companyRepresentatives?: string;
+    settings?: ContractSettings;
+    paymentPlan?: PaymentPlan;
   }) => Contract;
   getContract: (id: string) => Contract | undefined;
   getContractByToken: (token: string) => Contract | undefined;
@@ -544,7 +547,18 @@ export function PaymentStoreProvider({
       clientEmail?: string;
       clientPhone?: string;
       companyRepresentatives?: string;
+      settings?: ContractSettings;
+      paymentPlan?: PaymentPlan;
     }): Contract => {
+      // Use provided settings or create default
+      const settings = data.settings || createDefaultContractSettings("USD");
+      
+      // Calculate discount and tax amounts
+      const { discount, tax } = calculateContractTotals(
+        data.projectCost || 0,
+        settings
+      );
+
       const contract: Contract = {
         id: `contract-${Date.now()}`,
         templateId: userContractTemplate?.id || "default", // Keep for backward compatibility
@@ -564,6 +578,12 @@ export function PaymentStoreProvider({
         companyRepresentatives: data.companyRepresentatives,
         status: "created",
         shareToken: generateShareToken(),
+        // New fields
+        settings,
+        currency: settings.currency,
+        paymentPlan: data.paymentPlan,
+        discountAmount: discount > 0 ? discount : undefined,
+        taxAmount: tax > 0 ? tax : undefined,
       };
       setContracts((prev) => [...prev, contract]);
       return contract;

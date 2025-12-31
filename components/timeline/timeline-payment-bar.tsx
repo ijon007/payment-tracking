@@ -101,29 +101,29 @@ export function TimelinePaymentBar({
         }
       />
       <TooltipContent
-        className="w-80 bg-card border border-border text-foreground shadow-lg"
+        className="w-80 border border-border bg-card text-foreground shadow-lg"
         hideArrow
         side="bottom"
       >
         <div className="space-y-2.5 py-1.5">
-          <div className="font-semibold text-base text-white">
+          <div className="font-semibold text-base text-foreground">
             {payment.clientName}
           </div>
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-zinc-400">Amount:</span>
-              <span className="font-medium text-white">
+              <span className="text-muted-foreground">Amount:</span>
+              <span className="font-medium text-foreground">
                 {formatCurrency(payment.amount)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-zinc-400">Due:</span>
-              <span className="text-white">
+              <span className="text-muted-foreground">Due:</span>
+              <span className="text-foreground">
                 {formatDate(payment.dueDate)}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-zinc-400">Status:</span>
+              <span className="text-muted-foreground">Status:</span>
               <Badge
                 className="text-xs"
                 variant={
@@ -139,8 +139,8 @@ export function TimelinePaymentBar({
               </Badge>
             </div>
           </div>
-          <div className="border-zinc-700 border-t pt-1.5">
-            <div className="text-xs text-zinc-400">
+          <div className="border-border border-t pt-1.5">
+            <div className="text-xs text-muted-foreground">
               {payment.type === "retainer"
                 ? "Retainer"
                 : `Installment #${payment.installmentNumber}`}

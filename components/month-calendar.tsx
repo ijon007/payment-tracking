@@ -203,7 +203,7 @@ export function MonthCalendar({
                         }
                       />
                       <TooltipContent
-                        className="0 w-64 border border-white/6 bg-zinc-900 text-foreground"
+                        className="0 w-64 border border-border bg-card text-foreground"
                         hideArrow
                         side="top"
                       >
@@ -236,12 +236,12 @@ export function MonthCalendar({
                                 </span>
                               </div>
                             )}
-                            {event.contractNumber && (
+                            {event.clientName && (
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">
-                                  Contract:
+                                  Client:
                                 </span>
-                                <span>{event.contractNumber}</span>
+                                <span>{event.clientName}</span>
                               </div>
                             )}
                             <div className="flex justify-between">

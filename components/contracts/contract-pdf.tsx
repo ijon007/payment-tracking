@@ -3,6 +3,7 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { Contract, ContractTemplate } from "@/lib/contract-utils";
 import type { Client } from "@/lib/payment-utils";
+import { calculateContractTotals, formatContractCurrency } from "@/lib/contract-settings";
 
 // Define styles matching the Albanian contract template
 const styles = StyleSheet.create({
@@ -112,6 +113,106 @@ export function ContractPDF({ contract, template, client }: ContractPDFProps) {
     .toString()
     .padStart(2, "0");
   const startYear = contract.startDate.getFullYear();
+
+  // Get settings and currency
+  const settings = contract.settings;
+  const currency = contract.currency || settings?.currency || "USD";
+  const paymentPlan = contract.paymentPlan;
+
+  // Calculate totals
+  const { subtotal, discount, tax, total } = calculateContractTotals(
+    contract.projectCost || 0,
+    settings
+  );
+
+  // Format currency for display
+  const formatCurrencyDisplay = (amount: number) => {
+    return formatContractCurrency(amount, currency);
+  };
+
+  // Render payment plan breakdown
+  const renderPaymentPlanPDF = () => {
+    if (!paymentPlan || !contract.projectCost) {
+      // Default simple structure
+      return (
+        <>
+          <Text style={styles.paragraph}>- Pagesa do të kryhet në dy faza:</Text>
+          <Text style={styles.bulletPoint}>
+            - 30% parapagim në momentin e nënshkrimit të kontratës (nisja e punës).
+          </Text>
+          <Text style={styles.bulletPoint}>
+            - 70% pagesë përfundimtare pas dorëzimit të website-it.
+          </Text>
+        </>
+      );
+    }
+
+    if (paymentPlan.structure === "simple") {
+      return (
+        <>
+          <Text style={styles.paragraph}>- Pagesa do të kryhet në dy faza:</Text>
+          <Text style={styles.bulletPoint}>
+            - 30% parapagim në momentin e nënshkrimit të kontratës (nisja e punës).
+          </Text>
+          <Text style={styles.bulletPoint}>
+            - 70% pagesë përfundimtare pas dorëzimit të website-it.
+          </Text>
+        </>
+      );
+    }
+
+    if (paymentPlan.structure === "installments" && paymentPlan.installments) {
+      return (
+        <>
+          <Text style={styles.paragraph}>
+            - Pagesa do të kryhet në {paymentPlan.installments.length} faza:
+          </Text>
+          {paymentPlan.installments.map((inst, index) => (
+            <Text key={inst.id} style={styles.bulletPoint}>
+              - {inst.percentage}% ({formatCurrencyDisplay(inst.amount || 0)})
+              {inst.description && ` - ${inst.description}`}
+              {inst.dueDate && ` - Afati: ${formatDateAlbanian(inst.dueDate)}`}
+              {index === 0 && " parapagim në momentin e nënshkrimit të kontratës"}
+              {index === paymentPlan.installments!.length - 1 && " pagesë përfundimtare"}
+            </Text>
+          ))}
+        </>
+      );
+    }
+
+    if (paymentPlan.structure === "milestones" && paymentPlan.milestones) {
+      return (
+        <>
+          <Text style={styles.paragraph}>
+            - Pagesa do të kryhet sipas arritjes së milestone-ave:
+          </Text>
+          {paymentPlan.milestones.map((milestone) => (
+            <Text key={milestone.id} style={styles.bulletPoint}>
+              - <Text style={styles.boldText}>{milestone.name}</Text>: {milestone.percentage}% (
+              {formatCurrencyDisplay(milestone.amount || 0)}) - {milestone.description}
+              {milestone.dueDate && ` (Afati: ${formatDateAlbanian(milestone.dueDate)})`}
+            </Text>
+          ))}
+        </>
+      );
+    }
+
+    if (paymentPlan.structure === "custom" && paymentPlan.customPayments) {
+      return (
+        <>
+          <Text style={styles.paragraph}>- Pagesat e personalizuara:</Text>
+          {paymentPlan.customPayments.map((payment) => (
+            <Text key={payment.id} style={styles.bulletPoint}>
+              - {formatCurrencyDisplay(payment.amount)} - {payment.description}
+              {payment.dueDate && ` (Afati: ${formatDateAlbanian(payment.dueDate)})`}
+            </Text>
+          ))}
+        </>
+      );
+    }
+
+    return null;
+  };
 
   return (
     <Document>
@@ -225,22 +326,66 @@ export function ContractPDF({ contract, template, client }: ContractPDFProps) {
             <>
               <Text style={styles.paragraph}>
                 - Totali i kostos së projektit është{" "}
-                {contract.projectCost.toLocaleString("sq-AL")} lekë.
+                {formatCurrencyDisplay(contract.projectCost)}.
               </Text>
-              <Text style={styles.paragraph}>
-                - Pagesa do të kryhet në dy faza:
-              </Text>
-              <Text style={styles.bulletPoint}>
-                - 30% parapagim në momentin e nënshkrimit të kontratës (nisja e
-                punës).
-              </Text>
-              <Text style={styles.bulletPoint}>
-                - 70% pagesë përfundimtare pas dorëzimit të website-it.
-              </Text>
+              {renderPaymentPlanPDF()}
               {contract.paymentMethod && (
                 <Text style={styles.paragraph}>
                   - Pagesat do të kryhen nëpërmjet {contract.paymentMethod}.
                 </Text>
+              )}
+
+              {/* Discount Section */}
+              {settings?.discountEnabled && discount > 0 && (
+                <>
+                  <Text style={styles.paragraph}>
+                    - Zbritje:{" "}
+                    {settings.discountType === "percentage"
+                      ? `${settings.discountValue}%`
+                      : formatCurrencyDisplay(settings.discountValue || 0)}{" "}
+                    = -{formatCurrencyDisplay(discount)}
+                  </Text>
+                </>
+              )}
+
+              {/* Tax Section */}
+              {settings?.taxEnabled && tax > 0 && (
+                <>
+                  <Text style={styles.paragraph}>
+                    - {settings.taxType === "vat" ? "TVSH" : "Tatimi mbi shitjet"}:{" "}
+                    {settings.taxPercent}% = +{formatCurrencyDisplay(tax)}
+                  </Text>
+                </>
+              )}
+
+              {/* Totals Summary */}
+              {(settings?.discountEnabled || settings?.taxEnabled) && (
+                <>
+                  <View style={{ marginTop: 10, padding: 10, border: "1px solid #000" }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
+                      <Text style={styles.paragraph}>Nëntotali:</Text>
+                      <Text style={styles.paragraph}>{formatCurrencyDisplay(subtotal)}</Text>
+                    </View>
+                    {settings.discountEnabled && discount > 0 && (
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
+                        <Text style={styles.paragraph}>Zbritje:</Text>
+                        <Text style={styles.paragraph}>-{formatCurrencyDisplay(discount)}</Text>
+                      </View>
+                    )}
+                    {settings.taxEnabled && tax > 0 && (
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
+                        <Text style={styles.paragraph}>
+                          {settings.taxType === "vat" ? "TVSH" : "Tatimi"}:
+                        </Text>
+                        <Text style={styles.paragraph}>+{formatCurrencyDisplay(tax)}</Text>
+                      </View>
+                    )}
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", borderTop: "1px solid #000", paddingTop: 5, marginTop: 5 }}>
+                      <Text style={[styles.paragraph, styles.boldText]}>Totali:</Text>
+                      <Text style={[styles.paragraph, styles.boldText]}>{formatCurrencyDisplay(total)}</Text>
+                    </View>
+                  </View>
+                </>
               )}
             </>
           ) : (
@@ -290,7 +435,7 @@ export function ContractPDF({ contract, template, client }: ContractPDFProps) {
               </Text>
               <Text style={styles.bulletPoint}>
                 - Kostoja e mirëmbajtjes:{" "}
-                {contract.maintenanceCost.toLocaleString("sq-AL")} lekë/muaj
+                {contract.maintenanceCost ? formatCurrencyDisplay(contract.maintenanceCost) : "shuma"}/muaj
               </Text>
               <Text style={styles.paragraph}>
                 (Përfshin hosting, përditësime sigurie, ndihmë teknike,

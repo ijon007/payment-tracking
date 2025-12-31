@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { EditableContractPreview } from "@/components/contracts/editable-contract-preview";
+import { EditableContractPreview } from "@/components/contracts/editable-contract/editable-contract-preview";
+import { ContractSettingsDropdown } from "@/components/contracts/contract-settings-dropdown";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -10,6 +11,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { usePaymentStore } from "@/lib/store";
+import { useSettings } from "@/lib/settings-store";
+import type { ContractSettings, PaymentPlan } from "@/lib/contract-utils";
+import type { Currency } from "@/lib/currency-utils";
+import { createDefaultContractSettings } from "@/lib/contract-settings";
 
 interface ContractSheetProps {
   open: boolean;
@@ -25,6 +30,7 @@ export function ContractSheet({
   onContractCreated,
 }: ContractSheetProps) {
   const { clients, userContractTemplate, generateContract } = usePaymentStore();
+  const { settings: appSettings } = useSettings();
 
   const [selectedClientId, setSelectedClientId] = useState<string | undefined>(clientId);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
@@ -40,12 +46,28 @@ export function ContractSheet({
     "Johan Gjinko dhe Ijon Kushta"
   );
   const [terms, setTerms] = useState<string>("");
+  
+  // Contract settings state
+  const [contractSettings, setContractSettings] = useState<ContractSettings>(() => {
+    const selectedClient = clientId ? clients.find((c) => c.id === clientId) : undefined;
+    const currency = (selectedClient?.currency as Currency) || appSettings.baseCurrency;
+    return createDefaultContractSettings(currency);
+  });
+  
+  const [paymentPlan, setPaymentPlan] = useState<PaymentPlan | undefined>(undefined);
 
   useEffect(() => {
     if (clientId) {
       setSelectedClientId(clientId);
+      const selectedClient = clients.find((c) => c.id === clientId);
+      if (selectedClient?.currency) {
+        setContractSettings((prev) => ({
+          ...prev,
+          currency: selectedClient.currency as Currency,
+        }));
+      }
     }
-  }, [clientId]);
+  }, [clientId, clients]);
 
   useEffect(() => {
     if (!startDate) {
@@ -66,6 +88,36 @@ export function ContractSheet({
       setTerms(userContractTemplate.terms);
     }
   }, [userContractTemplate]);
+
+  // Initialize payment plan when structure changes
+  useEffect(() => {
+    const structure = contractSettings.paymentStructure;
+    
+    // If payment plan doesn't exist or structure changed, initialize it
+    if (!paymentPlan || paymentPlan.structure !== structure) {
+      if (structure === "simple") {
+        setPaymentPlan({ structure: "simple" });
+      } else if (structure === "installments") {
+        setPaymentPlan({
+          structure: "installments",
+          installments: [
+            { id: Date.now().toString(), percentage: 30 },
+            { id: (Date.now() + 1).toString(), percentage: 70 },
+          ],
+        });
+      } else if (structure === "milestones") {
+        setPaymentPlan({
+          structure: "milestones",
+          milestones: [],
+        });
+      } else if (structure === "custom") {
+        setPaymentPlan({
+          structure: "custom",
+          customPayments: [],
+        });
+      }
+    }
+  }, [contractSettings.paymentStructure]);
 
   const handleCreateContract = () => {
     if (!(selectedClientId && startDate && endDate && userContractTemplate)) {
@@ -96,6 +148,8 @@ export function ContractSheet({
       clientEmail: clientEmail || undefined,
       clientPhone: clientPhone || undefined,
       companyRepresentatives: companyRepresentatives || undefined,
+      settings: contractSettings,
+      paymentPlan: paymentPlan,
     });
 
     handleClose();
@@ -115,6 +169,10 @@ export function ContractSheet({
     setClientPhone("");
     setCompanyRepresentatives("Johan Gjinko dhe Ijon Kushta");
     setTerms(userContractTemplate?.terms || "");
+    const selectedClient = clientId ? clients.find((c) => c.id === clientId) : undefined;
+    const currency = (selectedClient?.currency as Currency) || appSettings.baseCurrency;
+    setContractSettings(createDefaultContractSettings(currency));
+    setPaymentPlan(undefined);
     onOpenChange(false);
   };
 
@@ -145,34 +203,51 @@ export function ContractSheet({
                 </p>
               </div>
             ) : (
-              <EditableContractPreview
-                clients={clients}
-                selectedClientId={selectedClientId}
-                template={userContractTemplate}
-                startDate={startDate}
-                endDate={endDate}
-                projectCost={projectCost}
-                paymentMethod={paymentMethod}
-                projectDuration={projectDuration}
-                maintenanceCost={maintenanceCost}
-                clientAddress={clientAddress}
-                clientEmail={clientEmail}
-                clientPhone={clientPhone}
-                companyRepresentatives={companyRepresentatives}
-                terms={terms}
-                onClientChange={setSelectedClientId}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
-                onProjectCostChange={setProjectCost}
-                onPaymentMethodChange={setPaymentMethod}
-                onProjectDurationChange={setProjectDuration}
-                onMaintenanceCostChange={setMaintenanceCost}
-                onClientAddressChange={setClientAddress}
-                onClientEmailChange={setClientEmail}
-                onClientPhoneChange={setClientPhone}
-                onCompanyRepresentativesChange={setCompanyRepresentatives}
-                onTermsChange={setTerms}
-              />
+              <div className="space-y-2">
+                <div className="flex justify-end">
+                  <ContractSettingsDropdown
+                    settings={contractSettings}
+                    onSettingsChange={(updates) =>
+                      setContractSettings((prev) => ({ ...prev, ...updates }))
+                    }
+                  />
+                </div>
+
+                <EditableContractPreview
+                  clients={clients}
+                  selectedClientId={selectedClientId}
+                  template={userContractTemplate}
+                  startDate={startDate}
+                  endDate={endDate}
+                  projectCost={projectCost}
+                  paymentMethod={paymentMethod}
+                  projectDuration={projectDuration}
+                  maintenanceCost={maintenanceCost}
+                  clientAddress={clientAddress}
+                  clientEmail={clientEmail}
+                  clientPhone={clientPhone}
+                  companyRepresentatives={companyRepresentatives}
+                  terms={terms}
+                  settings={contractSettings}
+                  paymentPlan={paymentPlan}
+                  onClientChange={setSelectedClientId}
+                  onStartDateChange={setStartDate}
+                  onEndDateChange={setEndDate}
+                  onProjectCostChange={setProjectCost}
+                  onPaymentMethodChange={setPaymentMethod}
+                  onProjectDurationChange={setProjectDuration}
+                  onMaintenanceCostChange={setMaintenanceCost}
+                  onClientAddressChange={setClientAddress}
+                  onClientEmailChange={setClientEmail}
+                  onClientPhoneChange={setClientPhone}
+                  onCompanyRepresentativesChange={setCompanyRepresentatives}
+                  onTermsChange={setTerms}
+                  onSettingsChange={(updates) =>
+                    setContractSettings((prev) => ({ ...prev, ...updates }))
+                  }
+                  onPaymentPlanChange={setPaymentPlan}
+                />
+              </div>
             )}
           </div>
 
