@@ -35,6 +35,7 @@ export interface Contract {
   clientSignature?: string;
   companySignature?: string;
   status: "created" | "sent" | "signed" | "active" | "expired";
+  shareToken?: string;
 }
 
 /**

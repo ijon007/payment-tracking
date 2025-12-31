@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description: "View invoice",
 };
 
-export default function PublicLayout({
+export default function InvoicePublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

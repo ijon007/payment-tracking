@@ -3,7 +3,7 @@
 import { Plus } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { ContractList } from "@/components/contracts/contract-list";
-import { ContractPreview } from "@/components/contracts/contract-preview";
+import { ContractPreview, ContractPreviewActions } from "@/components/contracts/contract-preview";
 import { ContractTemplateUpload } from "@/components/contracts/contract-template-upload";
 import { ContractSheet } from "@/components/contracts/contract-sheet";
 import { ContractFilters } from "@/components/contracts/contract-filters";
@@ -66,7 +66,10 @@ export default function ContractsPage() {
       </div>
 
       <div className="grid gap-4 sm:gap-6">
-        {!hasTemplate ? (
+        {!mounted ? (
+          // Render consistent placeholder during SSR to prevent hydration mismatch
+          <div className="min-h-[200px]" />
+        ) : !hasTemplate ? (
           <ContractTemplateUpload />
         ) : (
           <div>
@@ -92,12 +95,19 @@ export default function ContractsPage() {
           side="right"
           className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-2xl p-0"
         >
-          <div className="h-full overflow-y-auto p-3 sm:p-4">
+          <div className="flex h-full flex-col">
             <SheetHeader className="sr-only">
               <SheetTitle>Contract Details</SheetTitle>
             </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+              {selectedContractId && (
+                <ContractPreview contractId={selectedContractId} showActions={false} />
+              )}
+            </div>
             {selectedContractId && (
-              <ContractPreview contractId={selectedContractId} />
+              <div className="flex justify-end border-t p-3 sm:p-4">
+                <ContractPreviewActions contractId={selectedContractId} />
+              </div>
             )}
           </div>
         </SheetContent>

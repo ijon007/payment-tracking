@@ -176,7 +176,7 @@ export function ContractSheet({
             )}
           </div>
 
-          <div className="border-t p-3 sm:p-6">
+          <div className="border-t p-3">
             <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2">
               <Button onClick={handleClose} variant="outline" className="w-full sm:w-auto">
                 Cancel

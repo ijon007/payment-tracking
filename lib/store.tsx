@@ -171,6 +171,8 @@ interface PaymentStoreContextType {
     companyRepresentatives?: string;
   }) => Contract;
   getContract: (id: string) => Contract | undefined;
+  getContractByToken: (token: string) => Contract | undefined;
+  updateContract: (id: string, updates: Partial<Contract>) => void;
 }
 
 const PaymentStoreContext = createContext<PaymentStoreContextType | undefined>(
@@ -561,6 +563,7 @@ export function PaymentStoreProvider({
         clientPhone: data.clientPhone,
         companyRepresentatives: data.companyRepresentatives,
         status: "created",
+        shareToken: generateShareToken(),
       };
       setContracts((prev) => [...prev, contract]);
       return contract;
@@ -574,6 +577,21 @@ export function PaymentStoreProvider({
     },
     [contracts]
   );
+
+  const getContractByToken = useCallback(
+    (token: string) => {
+      return contracts.find((c) => c.shareToken === token);
+    },
+    [contracts]
+  );
+
+  const updateContract = useCallback((id: string, updates: Partial<Contract>) => {
+    setContracts((prev) =>
+      prev.map((contract) =>
+        contract.id === id ? { ...contract, ...updates } : contract
+      )
+    );
+  }, []);
 
   return (
     <PaymentStoreContext.Provider
@@ -595,6 +613,8 @@ export function PaymentStoreProvider({
         contracts,
         generateContract,
         getContract,
+        getContractByToken,
+        updateContract,
       }}
     >
       {children}

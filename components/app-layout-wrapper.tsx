@@ -6,7 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isPublicRoute = pathname?.startsWith("/invoice/");
+  const isPublicRoute = pathname?.startsWith("/invoice/") || pathname?.startsWith("/contract/");
 
   if (isPublicRoute) {
     return <>{children}</>;

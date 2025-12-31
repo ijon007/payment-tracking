@@ -1,10 +1,17 @@
 "use client";
 
+import { Download, Link, Check } from "@phosphor-icons/react";
+import { pdf } from "@react-pdf/renderer";
 import { format } from "date-fns";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Contract, ContractTemplate } from "@/lib/contract-utils";
 import type { Client } from "@/lib/payment-utils";
+import { generateShareToken } from "@/lib/invoice-utils";
+import { ContractPDF } from "@/components/contracts/contract-pdf";
 import { usePaymentStore } from "@/lib/store";
+import { toast } from "sonner";
 
 interface ContractPreviewProps {
   contractId?: string;
@@ -13,6 +20,10 @@ interface ContractPreviewProps {
   startDate?: Date;
   endDate?: Date;
   terms?: string;
+  showActions?: boolean;
+  showShareButton?: boolean;
+  onShareLinkClick?: () => void;
+  onDownloadPDFClick?: () => void;
 }
 
 export function ContractPreview({
@@ -22,8 +33,13 @@ export function ContractPreview({
   startDate,
   endDate,
   terms,
+  showActions = true,
+  showShareButton = true,
+  onShareLinkClick,
+  onDownloadPDFClick,
 }: ContractPreviewProps) {
-  const { getContract, userContractTemplate, getClient } = usePaymentStore();
+  const { getContract, userContractTemplate, getClient, updateContract } = usePaymentStore();
+  const [linkCopied, setLinkCopied] = useState(false);
 
   let contract: Contract | null = null;
   let contractTemplate: ContractTemplate | null = null;
@@ -81,9 +97,56 @@ export function ContractPreview({
     return `${day} / ${month} / ${year}`;
   };
 
+  const handleDownloadPDF = async () => {
+    if (!contract || !contractTemplate || !contractClient) return;
+
+    try {
+      const blob = await pdf(
+        <ContractPDF contract={contract} template={contractTemplate} client={contractClient} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${contract.contractNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded successfully");
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      toast.error("Failed to generate PDF");
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    if (!contract) return;
+
+    // Get or create share token
+    let shareToken = contract.shareToken;
+    if (!shareToken) {
+      shareToken = generateShareToken();
+      // Update contract with new token
+      updateContract(contract.id, { shareToken });
+    }
+
+    const shareUrl = `${window.location.origin}/contract/${shareToken}`;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      toast.success("Share link copied to clipboard");
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
+    }
+  };
+
   return (
-    <Card className="bg-white text-black">
-      <CardContent className="p-8 font-serif">
+    <div>
+      <Card className="bg-white text-black">
+        <CardContent className="p-8 font-serif">
         <div className="space-y-6 text-sm leading-relaxed">
           {/* Title */}
           <h1 className="text-center text-xl font-bold uppercase mb-8">
@@ -294,7 +357,112 @@ export function ContractPreview({
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      {contract && showActions && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {showShareButton && (
+            <Button onClick={onShareLinkClick || handleCopyShareLink}>
+              {linkCopied ? (
+                <>
+                  <Check className="size-4" weight="bold" />
+                  Link Copied
+                </>
+              ) : (
+                <>
+                  <Link className="size-4" weight="bold" />
+                  Copy Share Link
+                </>
+              )}
+            </Button>
+          )}
+          <Button onClick={onDownloadPDFClick || handleDownloadPDF} variant="outline">
+            <Download className="size-4" weight="fill" />
+            Download PDF
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Component for action buttons that can be used in sticky footer
+export function ContractPreviewActions({ contractId }: { contractId: string }) {
+  const { getContract, getClient, userContractTemplate, updateContract } = usePaymentStore();
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    const contract = getContract(contractId);
+    if (!contract) return;
+    const contractTemplate = userContractTemplate;
+    const contractClient = getClient(contract.clientId);
+    if (!contractTemplate || !contractClient) return;
+
+    try {
+      const blob = await pdf(
+        <ContractPDF contract={contract} template={contractTemplate} client={contractClient} />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${contract.contractNumber}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("PDF downloaded successfully");
+    } catch (error) {
+      console.error("Failed to generate PDF:", error);
+      toast.error("Failed to generate PDF");
+    }
+  };
+
+  const handleCopyShareLink = async () => {
+    const contract = getContract(contractId);
+    if (!contract) return;
+
+    // Get or create share token
+    let shareToken = contract.shareToken;
+    if (!shareToken) {
+      shareToken = generateShareToken();
+      // Update contract with new token
+      updateContract(contract.id, { shareToken });
+    }
+
+    const shareUrl = `${window.location.origin}/contract/${shareToken}`;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      toast.success("Share link copied to clipboard");
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy link:", error);
+      toast.error("Failed to copy link");
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <Button onClick={handleCopyShareLink}>
+        {linkCopied ? (
+          <>
+            <Check className="size-4" weight="bold" />
+            Link Copied
+          </>
+        ) : (
+          <>
+            <Link className="size-4" weight="bold" />
+            Copy Share Link
+          </>
+        )}
+      </Button>
+      <Button onClick={handleDownloadPDF} variant="outline">
+        <Download className="size-4" weight="fill" />
+        Download PDF
+      </Button>
+    </div>
   );
 }

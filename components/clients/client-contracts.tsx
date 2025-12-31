@@ -31,7 +31,7 @@ import {
 import { useFormattedDate } from "@/lib/date-utils";
 import type { Client } from "@/lib/payment-utils";
 import { usePaymentStore } from "@/lib/store";
-import { ContractPreview } from "@/components/contracts/contract-preview";
+import { ContractPreview, ContractPreviewActions } from "@/components/contracts/contract-preview";
 
 interface ClientContractsProps {
   client: Client;
@@ -192,14 +192,23 @@ export function ClientContracts({
       >
         <SheetContent
           side="right"
-          className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-2xl p-3 sm:p-4"
+          className="right-0! top-0! bottom-0! h-screen! w-full overflow-y-auto rounded-none shadow-2xl sm:right-4! sm:top-4! sm:bottom-4! sm:h-[calc(100vh-2rem)]! sm:rounded-lg sm:max-w-2xl p-0"
         >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Contract Details</SheetTitle>
-          </SheetHeader>
-          {selectedContractId && (
-            <ContractPreview contractId={selectedContractId} />
-          )}
+          <div className="flex h-full flex-col">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Contract Details</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+              {selectedContractId && (
+                <ContractPreview contractId={selectedContractId} showActions={false} />
+              )}
+            </div>
+            {selectedContractId && (
+              <div className="border-t p-3 sm:p-4">
+                <ContractPreviewActions contractId={selectedContractId} />
+              </div>
+            )}
+          </div>
         </SheetContent>
       </Sheet>
     </Card>
