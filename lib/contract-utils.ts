@@ -16,7 +16,7 @@ export interface ContractTemplate {
   pdfData?: string; // Base64 encoded PDF data (for uploaded templates)
 }
 
-export type PaymentStructure = "installments" | "milestones" | "custom" | "simple";
+export type PaymentStructure = "installments" | "milestones" | "custom" | "simple" | "none";
 
 export interface Installment {
   id: string;

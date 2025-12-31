@@ -256,3 +256,13 @@
   --error-bg: oklch(0.18 0.08 25);
   --error-border: oklch(0.5 0.2 25);
 }
+
+/* Hide number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}

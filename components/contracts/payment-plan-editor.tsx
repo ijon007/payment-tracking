@@ -52,9 +52,12 @@ export function PaymentPlanEditor({
   currency,
   onPaymentPlanChange,
 }: PaymentPlanEditorProps) {
-  const [localPlan, setLocalPlan] = useState<PaymentPlan>(() => {
+  const [localPlan, setLocalPlan] = useState<PaymentPlan | undefined>(() => {
     if (paymentPlan) {
       return paymentPlan;
+    }
+    if (paymentStructure === "none") {
+      return undefined;
     }
     if (paymentStructure === "simple") {
       return { structure: "simple" };
@@ -81,7 +84,12 @@ export function PaymentPlanEditor({
   });
 
   useEffect(() => {
-    if (paymentStructure !== localPlan.structure) {
+    if (paymentStructure === "none") {
+      setLocalPlan(undefined);
+      onPaymentPlanChange({ structure: "none" });
+      return;
+    }
+    if (!localPlan || paymentStructure !== localPlan.structure) {
       // Structure changed, reset plan
       if (paymentStructure === "simple") {
         setLocalPlan({ structure: "simple" });
@@ -105,10 +113,13 @@ export function PaymentPlanEditor({
         });
       }
     }
-  }, [paymentStructure, localPlan.structure]);
+  }, [paymentStructure, localPlan?.structure]);
 
   useEffect(() => {
     // Recalculate amounts when projectCost changes
+    if (paymentStructure === "none" || !localPlan) {
+      return;
+    }
     if (projectCost && projectCost > 0) {
       const updated = calculatePaymentPlan(projectCost, localPlan);
       setLocalPlan(updated);
@@ -116,7 +127,11 @@ export function PaymentPlanEditor({
     } else {
       onPaymentPlanChange(localPlan);
     }
-  }, [projectCost]);
+  }, [projectCost, paymentStructure, localPlan]);
+
+  if (paymentStructure === "none" || !localPlan) {
+    return null;
+  }
 
   const validation = validatePaymentPlan(localPlan);
   const totalPercentage =

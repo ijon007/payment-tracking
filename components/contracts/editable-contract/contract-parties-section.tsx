@@ -66,9 +66,9 @@ export function ContractPartiesSection({
               render={
                 <Button
                   className={cn(
-                    "inline-block h-auto border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors hover:bg-transparent",
+                    "inline-block h-auto border-b bg-transparent px-1 py-0.5 text-center focus-visible:ring-0 transition-colors hover:bg-transparent focus-visible:border-foreground",
                     selectedClient?.name
-                      ? "border-solid border-foreground text-foreground hover:text-foreground"
+                      ? "border-solid border-foreground/50 text-foreground hover:text-foreground"
                       : "border-dashed border-muted text-muted-foreground hover:text-muted-foreground"
                   )}
                   variant="ghost"

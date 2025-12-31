@@ -31,7 +31,7 @@ export function InlineEditableField({
       className={cn(
         "inline-block h-auto border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
         value
-          ? "border-solid border-foreground"
+          ? "border-solid border-foreground/20 focus-visible:border-foreground"
           : "border-dashed border-muted text-muted-foreground",
         className
       )}

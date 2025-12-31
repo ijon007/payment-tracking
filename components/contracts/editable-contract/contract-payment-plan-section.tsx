@@ -32,20 +32,28 @@ export function ContractPaymentPlanSection({
 }: ContractPaymentPlanSectionProps) {
   const structure = paymentPlan?.structure || settings?.paymentStructure || "simple";
 
+  if (structure === "none") {
+    return null;
+  }
+
   const updateInstallment = (
     id: string,
     field: "percentage" | "description" | "dueDate",
     value: number | string | Date | undefined
   ) => {
-    if (!paymentPlan?.installments || !projectCost) return;
+    if (!paymentPlan?.installments) return;
     const updated = {
       ...paymentPlan,
       installments: paymentPlan.installments.map((inst) =>
         inst.id === id ? { ...inst, [field]: value } : inst
       ),
     };
-    const recalculated = calculatePaymentPlan(projectCost, updated);
-    onPaymentPlanChange?.(recalculated);
+    if (projectCost) {
+      const recalculated = calculatePaymentPlan(projectCost, updated);
+      onPaymentPlanChange?.(recalculated);
+    } else {
+      onPaymentPlanChange?.(updated);
+    }
   };
 
   const updateMilestone = (
@@ -53,15 +61,19 @@ export function ContractPaymentPlanSection({
     field: "name" | "percentage" | "description" | "dueDate",
     value: number | string | Date | undefined
   ) => {
-    if (!paymentPlan?.milestones || !projectCost) return;
+    if (!paymentPlan?.milestones) return;
     const updated = {
       ...paymentPlan,
       milestones: paymentPlan.milestones.map((milestone) =>
         milestone.id === id ? { ...milestone, [field]: value } : milestone
       ),
     };
-    const recalculated = calculatePaymentPlan(projectCost, updated);
-    onPaymentPlanChange?.(recalculated);
+    if (projectCost) {
+      const recalculated = calculatePaymentPlan(projectCost, updated);
+      onPaymentPlanChange?.(recalculated);
+    } else {
+      onPaymentPlanChange?.(updated);
+    }
   };
 
   const updateCustomPayment = (
@@ -80,7 +92,7 @@ export function ContractPaymentPlanSection({
   };
 
   const addInstallment = () => {
-    if (!paymentPlan || !projectCost) return;
+    if (!paymentPlan) return;
     const newId = Date.now().toString();
     const updated = {
       ...paymentPlan,
@@ -89,8 +101,12 @@ export function ContractPaymentPlanSection({
         { id: newId, percentage: 0 },
       ],
     };
-    const recalculated = calculatePaymentPlan(projectCost, updated);
-    onPaymentPlanChange?.(recalculated);
+    if (projectCost) {
+      const recalculated = calculatePaymentPlan(projectCost, updated);
+      onPaymentPlanChange?.(recalculated);
+    } else {
+      onPaymentPlanChange?.(updated);
+    }
   };
 
   const removeInstallment = (id: string) => {
@@ -199,33 +215,43 @@ export function ContractPaymentPlanSection({
           - Pagesa do të kryhet në {paymentPlan.installments.length} faza:
           {" "}
           <Button
-            className="inline h-auto border-b border-dashed border-foreground bg-transparent p-0 px-1 font-normal text-foreground hover:bg-transparent hover:text-foreground"
+            className="inline size-3 bg-transparent hover:text-foreground hover:bg-transparent"
             variant="ghost"
             onClick={addInstallment}
+            size="icon"
             type="button"
           >
-            <Plus className="size-3" />
+            <Plus className="size-3" weight="bold" />
           </Button>
         </p>
         <ul className="ml-6 list-disc space-y-1">
           {paymentPlan.installments.map((inst, index) => (
-            <li key={inst.id} className="flex items-start gap-2">
+            <li key={inst.id} className="flex items-center justify-between gap-2">
               <span className="flex-1">
                 <Input
                   className={cn(
-                    "inline-block h-auto w-16 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
+                    "inline-block h-auto w-6 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
                     inst.percentage > 0
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   type="number"
                   min="0"
                   max="100"
                   step="0.01"
-                  value={inst.percentage || ""}
+                  value={inst.percentage ?? ""}
                   onChange={(e) => {
-                    const value = Number.parseFloat(e.target.value) || 0;
-                    updateInstallment(inst.id, "percentage", value);
+                    const inputValue = e.target.value;
+                    if (inputValue === "") {
+                      updateInstallment(inst.id, "percentage", undefined);
+                      return;
+                    }
+                    const numValue = Number.parseFloat(inputValue);
+                    if (!Number.isNaN(numValue) && numValue >= 0) {
+                      // Clamp to max 100
+                      const clampedValue = Math.min(numValue, 100);
+                      updateInstallment(inst.id, "percentage", clampedValue);
+                    }
                   }}
                   placeholder="%"
                 />
@@ -236,7 +262,7 @@ export function ContractPaymentPlanSection({
                   className={cn(
                     "inline-block h-auto w-48 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
                     inst.description
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   value={inst.description || ""}
@@ -252,12 +278,13 @@ export function ContractPaymentPlanSection({
                     render={
                       <Button
                         className={cn(
-                          "inline h-auto border-b bg-transparent p-0 font-normal transition-colors hover:bg-transparent",
+                          "inline h-auto border-b bg-transparent px-1 py-0.5 font-normal transition-colors hover:bg-transparent focus-visible:border-foreground",
                           inst.dueDate
-                            ? "border-solid border-foreground text-foreground hover:text-foreground"
+                            ? "border-solid border-foreground/50 text-foreground hover:text-foreground"
                             : "border-dashed border-muted text-muted-foreground hover:text-muted-foreground"
                         )}
                         variant="ghost"
+                        type="button"
                       >
                         {inst.dueDate
                           ? formatDateForContract(inst.dueDate)
@@ -270,9 +297,9 @@ export function ContractPaymentPlanSection({
                       className="p-2"
                       initialFocus
                       mode="single"
-                      onSelect={(date) =>
-                        updateInstallment(inst.id, "dueDate", date)
-                      }
+                      onSelect={(date) => {
+                        updateInstallment(inst.id, "dueDate", date || undefined);
+                      }}
                       selected={inst.dueDate}
                     />
                   </PopoverContent>
@@ -283,12 +310,12 @@ export function ContractPaymentPlanSection({
               </span>
               {(paymentPlan.installments?.length ?? 0) > 1 && (
                 <Button
-                  className="h-auto p-0 text-muted-foreground hover:text-destructive"
-                  variant="ghost"
+                  className="h-auto p-0"
+                  variant="destructive"
                   onClick={() => removeInstallment(inst.id)}
                   type="button"
                 >
-                  <Trash className="size-3" />
+                  <Trash className="size-3" weight="fill" />
                 </Button>
               )}
             </li>
@@ -314,49 +341,57 @@ export function ContractPaymentPlanSection({
           - Pagesa do të kryhet sipas arritjes së milestone-ave:
           {" "}
           <Button
-            className="inline h-auto border-b border-dashed border-foreground bg-transparent p-0 px-1 font-normal text-foreground hover:bg-transparent hover:text-foreground"
+            className="inline size-3 bg-transparent hover:text-foreground hover:bg-transparent"
             variant="ghost"
             onClick={addMilestone}
+            size="icon"
             type="button"
           >
-            <Plus className="size-3" />
+            <Plus className="size-3" weight="bold" />
           </Button>
         </p>
         <ul className="ml-6 list-disc space-y-1">
           {paymentPlan.milestones.map((milestone) => (
-            <li key={milestone.id} className="flex items-start gap-2">
+            <li key={milestone.id} className="flex items-center justify-between gap-2">
               <span className="flex-1">
-                <strong>
-                  <Input
-                    className={cn(
-                      "inline-block h-auto w-32 border-b bg-transparent p-0 font-bold focus-visible:ring-0 transition-colors",
-                      milestone.name
-                        ? "border-solid border-foreground"
-                        : "border-dashed border-muted text-muted-foreground"
-                    )}
-                    value={milestone.name || ""}
-                    onChange={(e) =>
-                      updateMilestone(milestone.id, "name", e.target.value)
-                    }
-                    placeholder="name"
-                  />
-                </strong>
-                :{" "}
                 <Input
                   className={cn(
-                    "inline-block h-auto w-16 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
+                    "inline-block h-auto w-32 border-b bg-transparent p-0 focus-visible:ring-0 transition-colors",
+                    milestone.name
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
+                      : "border-dashed border-muted text-muted-foreground"
+                  )}
+                  value={milestone.name || ""}
+                  onChange={(e) =>
+                    updateMilestone(milestone.id, "name", e.target.value)
+                  }
+                  placeholder="name"
+                />
+                {" "}:{" "}
+                <Input
+                  className={cn(
+                    "inline-block h-auto w-6 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
                     milestone.percentage > 0
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   type="number"
                   min="0"
                   max="100"
                   step="0.01"
-                  value={milestone.percentage || ""}
+                  value={milestone.percentage ?? ""}
                   onChange={(e) => {
-                    const value = Number.parseFloat(e.target.value) || 0;
-                    updateMilestone(milestone.id, "percentage", value);
+                    const inputValue = e.target.value;
+                    if (inputValue === "") {
+                      updateMilestone(milestone.id, "percentage", undefined);
+                      return;
+                    }
+                    const numValue = Number.parseFloat(inputValue);
+                    if (!Number.isNaN(numValue) && numValue >= 0) {
+                      // Clamp to max 100
+                      const clampedValue = Math.min(numValue, 100);
+                      updateMilestone(milestone.id, "percentage", clampedValue);
+                    }
                   }}
                   placeholder="%"
                 />
@@ -365,7 +400,7 @@ export function ContractPaymentPlanSection({
                   className={cn(
                     "inline-block h-auto w-48 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
                     milestone.description
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   value={milestone.description || ""}
@@ -381,12 +416,13 @@ export function ContractPaymentPlanSection({
                     render={
                       <Button
                         className={cn(
-                          "inline h-auto border-b bg-transparent p-0 font-normal transition-colors hover:bg-transparent",
+                          "inline h-auto border-b bg-transparent px-1 py-0.5 font-normal transition-colors hover:bg-transparent focus-visible:border-foreground",
                           milestone.dueDate
-                            ? "border-solid border-foreground text-foreground hover:text-foreground"
+                            ? "border-solid border-foreground/50 text-foreground hover:text-foreground"
                             : "border-dashed border-muted text-muted-foreground hover:text-muted-foreground"
                         )}
                         variant="ghost"
+                        type="button"
                       >
                         {milestone.dueDate
                           ? formatDateForContract(milestone.dueDate)
@@ -399,9 +435,9 @@ export function ContractPaymentPlanSection({
                       className="p-2"
                       initialFocus
                       mode="single"
-                      onSelect={(date) =>
-                        updateMilestone(milestone.id, "dueDate", date)
-                      }
+                      onSelect={(date) => {
+                        updateMilestone(milestone.id, "dueDate", date || undefined);
+                      }}
                       selected={milestone.dueDate}
                     />
                   </PopoverContent>
@@ -409,12 +445,12 @@ export function ContractPaymentPlanSection({
                 )
               </span>
               <Button
-                className="h-auto p-0 text-muted-foreground hover:text-destructive"
-                variant="ghost"
+                className="h-auto p-0"
+                variant="destructive"
                 onClick={() => removeMilestone(milestone.id)}
                 type="button"
               >
-                <Trash className="size-3" />
+                <Trash className="size-3" weight="fill" />
               </Button>
             </li>
           ))}
@@ -439,12 +475,13 @@ export function ContractPaymentPlanSection({
           - Pagesat e personalizuara:
           {" "}
           <Button
-            className="inline h-auto border-b border-dashed border-foreground bg-transparent p-0 px-1 font-normal text-foreground hover:bg-transparent hover:text-foreground"
+            className="inline size-3 bg-transparent hover:text-foreground hover:bg-transparent"
             variant="ghost"
             onClick={addCustomPayment}
+            size="icon"
             type="button"
           >
-            <Plus className="size-3" />
+            <Plus className="size-3" weight="bold" />
           </Button>
         </p>
         <ul className="ml-6 list-disc space-y-1">
@@ -455,7 +492,7 @@ export function ContractPaymentPlanSection({
                   className={cn(
                     "inline-block h-auto w-32 border-b bg-transparent p-0 text-center font-medium focus-visible:ring-0 transition-colors",
                     payment.amount > 0
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   type="number"
@@ -473,7 +510,7 @@ export function ContractPaymentPlanSection({
                   className={cn(
                     "inline-block h-auto w-48 border-b bg-transparent p-0 text-center focus-visible:ring-0 transition-colors",
                     payment.description
-                      ? "border-solid border-foreground"
+                      ? "border-solid border-foreground/50 focus-visible:border-foreground"
                       : "border-dashed border-muted text-muted-foreground"
                   )}
                   value={payment.description || ""}
@@ -489,12 +526,13 @@ export function ContractPaymentPlanSection({
                     render={
                       <Button
                         className={cn(
-                          "inline h-auto border-b bg-transparent p-0 font-normal transition-colors hover:bg-transparent",
+                          "inline h-auto border-b bg-transparent px-1 py-0.5 font-normal transition-colors hover:bg-transparent focus-visible:border-foreground",
                           payment.dueDate
-                            ? "border-solid border-foreground text-foreground hover:text-foreground"
+                            ? "border-solid border-foreground/50 text-foreground hover:text-foreground"
                             : "border-dashed border-muted text-muted-foreground hover:text-muted-foreground"
                         )}
                         variant="ghost"
+                        type="button"
                       >
                         {payment.dueDate
                           ? formatDateForContract(payment.dueDate)
@@ -507,9 +545,9 @@ export function ContractPaymentPlanSection({
                       className="p-2"
                       initialFocus
                       mode="single"
-                      onSelect={(date) =>
-                        updateCustomPayment(payment.id, "dueDate", date)
-                      }
+                      onSelect={(date) => {
+                        updateCustomPayment(payment.id, "dueDate", date || undefined);
+                      }}
                       selected={payment.dueDate}
                     />
                   </PopoverContent>
@@ -517,12 +555,12 @@ export function ContractPaymentPlanSection({
                 )
               </span>
               <Button
-                className="h-auto p-0 text-muted-foreground hover:text-destructive"
-                variant="ghost"
+                className="h-auto p-0"
+                variant="destructive"
                 onClick={() => removeCustomPayment(payment.id)}
                 type="button"
               >
-                <Trash className="size-3" />
+                <Trash className="size-3" weight="fill" />
               </Button>
             </li>
           ))}

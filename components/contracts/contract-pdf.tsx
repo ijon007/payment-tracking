@@ -147,6 +147,10 @@ export function ContractPDF({ contract, template, client }: ContractPDFProps) {
       );
     }
 
+    if (paymentPlan.structure === "none") {
+      return null;
+    }
+
     if (paymentPlan.structure === "simple") {
       return (
         <>

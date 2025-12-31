@@ -5,7 +5,6 @@ import {
   CurrencyDollar,
   FileText,
   Gear,
-  Receipt,
   Tag,
   CreditCard,
 } from "@phosphor-icons/react";
@@ -44,7 +43,7 @@ const CONTRACT_SIZES: { value: "A4" | "Letter" | "Legal"; label: string }[] = [
 ];
 
 const PAYMENT_STRUCTURES: { value: PaymentStructure; label: string }[] = [
-  { value: "simple", label: "Simple (30%/70%)" },
+  { value: "none", label: "None" },
   { value: "installments", label: "Installments" },
   { value: "milestones", label: "Milestones" },
   { value: "custom", label: "Custom" },
@@ -74,13 +73,6 @@ export function ContractSettingsDropdown({
     onSettingsChange({ 
       discountEnabled: enabled,
       discountValue: enabled ? settings.discountValue || 0 : undefined,
-    });
-  };
-
-  const handleTaxToggle = (enabled: boolean) => {
-    onSettingsChange({ 
-      taxEnabled: enabled,
-      taxPercent: enabled ? settings.taxPercent || 0 : undefined,
     });
   };
 
@@ -148,23 +140,6 @@ export function ContractSettingsDropdown({
             <DropdownMenuRadioGroup
               value={settings.discountEnabled ? "yes" : "no"}
               onValueChange={(value) => handleDiscountToggle(value === "yes")}
-            >
-              <DropdownMenuRadioItem value="yes">Yes</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="no">No</DropdownMenuRadioItem>
-            </DropdownMenuRadioGroup>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-
-        {/* Tax */}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <Receipt className="size-4" weight="fill" />
-            <span>Add tax</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuRadioGroup
-              value={settings.taxEnabled ? "yes" : "no"}
-              onValueChange={(value) => handleTaxToggle(value === "yes")}
             >
               <DropdownMenuRadioItem value="yes">Yes</DropdownMenuRadioItem>
               <DropdownMenuRadioItem value="no">No</DropdownMenuRadioItem>

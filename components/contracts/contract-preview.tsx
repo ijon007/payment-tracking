@@ -140,6 +140,10 @@ export function ContractPreview({
       );
     }
 
+    if (contractPaymentPlan.structure === "none") {
+      return null;
+    }
+
     if (contractPaymentPlan.structure === "simple") {
       return (
         <>

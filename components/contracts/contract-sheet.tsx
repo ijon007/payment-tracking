@@ -95,7 +95,9 @@ export function ContractSheet({
     
     // If payment plan doesn't exist or structure changed, initialize it
     if (!paymentPlan || paymentPlan.structure !== structure) {
-      if (structure === "simple") {
+      if (structure === "none") {
+        setPaymentPlan(undefined);
+      } else if (structure === "simple") {
         setPaymentPlan({ structure: "simple" });
       } else if (structure === "installments") {
         setPaymentPlan({

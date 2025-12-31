@@ -31,9 +31,9 @@ export function InlineDatePicker({
         render={
           <Button
             className={cn(
-              "inline h-auto border-b bg-transparent p-0 font-normal transition-colors hover:bg-transparent",
+              "inline h-auto border-b bg-transparent px-1 py-0.5 font-normal transition-colors hover:bg-transparent focus-visible:border-foreground",
               date
-                ? "border-solid border-foreground text-foreground hover:text-foreground"
+                ? "border-solid border-foreground/50 text-foreground hover:text-foreground"
                 : "border-dashed border-muted text-muted-foreground hover:text-muted-foreground"
             )}
             variant="ghost"

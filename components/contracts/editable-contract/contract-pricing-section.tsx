@@ -6,9 +6,8 @@ import { InlineEditableField } from "./inline-editable-field";
 import { ContractSection } from "./contract-section";
 import { ContractPaymentPlanSection } from "./contract-payment-plan-section";
 import { formatCurrencyDisplay, getCurrencyDisplayName } from "./contract-utils";
-import { formatCurrency } from "@/lib/currency-utils";
 import type { ContractSettings, PaymentPlan } from "@/lib/contract-utils";
-import type { Currency } from "@/lib/currency-utils";
+import { cn } from "@/lib/utils";
 
 interface ContractPricingSectionProps {
   projectCost?: number;
@@ -61,7 +60,7 @@ export function ContractPricingSection({
     <ContractSection title="5. Çmimi dhe mënyra e pagesës">
       <div className="space-y-2">
         <p>
-          - {(settings?.discountEnabled || settings?.taxEnabled) ? "Nëntotali" : "Totali"} i kostos së projektit është{" "}
+          - {settings?.discountEnabled ? "Nëntotali" : "Totali"} i kostos së projektit është{" "}
           <InlineEditableField
             className="w-32 font-medium"
             onBlur={onProjectCostBlur}
@@ -75,12 +74,12 @@ export function ContractPricingSection({
 
         {settings?.discountEnabled && (
           <p>
-            - U aplikua zbritje prej{" "}
+            - U aplikua zbritje prej:{" "}
             <DropdownMenu>
               <DropdownMenuTrigger
                 render={
                   <Button
-                    className="inline h-auto border-b border-dashed border-foreground bg-transparent p-0 font-normal text-foreground hover:bg-transparent hover:text-foreground"
+                    className="inline border-b border-foreground/20 font-normal text-foreground hover:bg-transparent hover:text-foreground focus-visible:border-foreground"
                     variant="ghost"
                   >
                     {settings.discountType === "percentage" ? "%" : currency === "ALL" ? "lekë" : getCurrencyDisplayName(currency)}
@@ -121,27 +120,7 @@ export function ContractPricingSection({
           </p>
         )}
 
-        {settings?.taxEnabled && (
-          <p>
-            - U aplikua {settings.taxType === "vat" ? "TVSH" : "tatimi mbi shitjet"} prej{" "}
-            <InlineEditableField
-              className="w-20"
-              onBlur={onTaxBlur}
-              onChange={onTaxInputChange}
-              placeholder="0"
-              type="text"
-              value={taxInput}
-            />
-            %{tax > 0 && (
-              <>
-                {" "}
-                (në shumë: {formatCurrencyDisplay(tax, currency)}).
-              </>
-            )}
-          </p>
-        )}
-
-        {(settings?.discountEnabled || settings?.taxEnabled) && (
+        {settings?.discountEnabled && (
           <p>
             - Totali i përgjithshëm i kontratës është{" "}
             <span className="font-semibold">{formatCurrencyDisplay(total, currency)}</span>.
@@ -157,12 +136,40 @@ export function ContractPricingSection({
         />
         <p>
           - Pagesat do të kryhen nëpërmjet{" "}
-          <InlineEditableField
-            className="w-48"
-            onChange={(value) => onPaymentMethodChange?.(value)}
-            placeholder="payment method"
-            value={paymentMethod || ""}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  className={cn(
+                    "inline border-b font-normal text-foreground hover:bg-transparent hover:text-foreground focus-visible:border-foreground",
+                    paymentMethod
+                      ? "border-solid border-foreground/50"
+                      : "border-dashed border-muted text-muted-foreground"
+                  )}
+                  variant="ghost"
+                >
+                  {paymentMethod || "Payment method"}
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="start" className="w-fit">
+              <DropdownMenuItem
+                onClick={() => onPaymentMethodChange?.("Cash")}
+              >
+                Cash
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onPaymentMethodChange?.("Bank Transfer")}
+              >
+                Bank transfer
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => onPaymentMethodChange?.("online payment processor")}
+              >
+                Online payment processor
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           .
         </p>
       </div>
