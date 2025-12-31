@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Contract, ContractTemplate } from "@/lib/contract-utils";
+import type { Contract, ContractTemplate, PaymentPlan, Installment, Milestone, CustomPayment } from "@/lib/contract-utils";
 import type { Client } from "@/lib/payment-utils";
 import { generateShareToken } from "@/lib/invoice-utils";
 import { ContractPDF } from "@/components/contracts/contract-pdf";
@@ -17,7 +17,7 @@ import {
   calculateContractTotals,
   formatContractCurrency,
 } from "@/lib/contract-settings";
-import { formatCurrency } from "@/lib/currency-utils";
+import { formatCurrency, type Currency } from "@/lib/currency-utils";
 
 interface ContractPreviewProps {
   contractId?: string;
@@ -63,8 +63,8 @@ export function ContractPreview({
   let contractClientPhone: string | undefined;
   let contractCompanyRepresentatives: string | undefined;
   let contractSettings;
-  let contractPaymentPlan;
-  let contractCurrency = "USD";
+  let contractPaymentPlan: PaymentPlan | undefined;
+  let contractCurrency: Currency = "USD";
 
   if (contractId) {
     contract = getContract(contractId) || null;
@@ -120,7 +120,7 @@ export function ContractPreview({
 
   // Format currency for display
   const formatCurrencyDisplay = (amount: number) => {
-    return formatContractCurrency(amount, contractCurrency);
+    return formatContractCurrency(amount, contractCurrency as Currency);
   };
 
   // Render payment plan breakdown
@@ -163,7 +163,7 @@ export function ContractPreview({
         <>
           <p>- Pagesa do të kryhet në {contractPaymentPlan.installments.length} faza:</p>
           <ul className="ml-6 list-disc space-y-1">
-            {contractPaymentPlan.installments.map((inst, index) => (
+            {contractPaymentPlan.installments.map((inst: Installment, index: number) => (
               <li key={inst.id}>
                 {inst.percentage}% ({formatCurrencyDisplay(inst.amount || 0)})
                 {inst.description && ` - ${inst.description}`}
@@ -182,7 +182,7 @@ export function ContractPreview({
         <>
           <p>- Pagesa do të kryhet sipas arritjes së milestone-ave:</p>
           <ul className="ml-6 list-disc space-y-1">
-            {contractPaymentPlan.milestones.map((milestone) => (
+            {contractPaymentPlan.milestones.map((milestone: Milestone) => (
               <li key={milestone.id}>
                 <strong>{milestone.name}</strong>: {milestone.percentage}% (
                 {formatCurrencyDisplay(milestone.amount || 0)}) - {milestone.description}
@@ -199,7 +199,7 @@ export function ContractPreview({
         <>
           <p>- Pagesat e personalizuara:</p>
           <ul className="ml-6 list-disc space-y-1">
-            {contractPaymentPlan.customPayments.map((payment) => (
+            {contractPaymentPlan.customPayments.map((payment: CustomPayment) => (
               <li key={payment.id}>
                 {formatCurrencyDisplay(payment.amount)} - {payment.description}
                 {payment.dueDate && ` (Afati: ${formatDateForContract(payment.dueDate)})`}
@@ -262,7 +262,7 @@ export function ContractPreview({
   return (
     <div>
       <Card className="bg-white text-black">
-        <CardContent className="p-8 font-serif">
+        <CardContent className="p-8">
         <div className="space-y-6 text-sm leading-relaxed">
           {/* Title */}
           <h1 className="text-center text-xl font-bold uppercase mb-8">
@@ -362,7 +362,7 @@ export function ContractPreview({
                 )}>
                   {contractProjectCost
                     ? `${formatCurrencyDisplay(contractProjectCost)}`
-                    : `shuma ${contractCurrency === "ALL" ? "lekë" : formatCurrency(1, contractCurrency).replace("1.00", "").trim()}`}
+                    : `shuma ${contractCurrency === "ALL" ? "lekë" : formatCurrency(1, contractCurrency as Currency).replace("1.00", "").trim()}`}
                 </span>
                 .
               </p>
@@ -476,7 +476,7 @@ export function ContractPreview({
                 )}>
                   {contractMaintenanceCost
                     ? `${formatCurrencyDisplay(contractMaintenanceCost)}/${contractCurrency === "ALL" ? "muaj" : "month"}`
-                    : `shuma ${contractCurrency === "ALL" ? "lekë" : formatCurrency(1, contractCurrency).replace("1.00", "").trim()}/muaj`}
+                    : `shuma ${contractCurrency === "ALL" ? "lekë" : formatCurrency(1, contractCurrency as Currency).replace("1.00", "").trim()}/muaj`}
                 </span>
               </p>
               <p className="text-xs italic">(Përfshin hosting, përditësime sigurie, ndihmë teknike, përmirësime të faqes etj.)</p>
