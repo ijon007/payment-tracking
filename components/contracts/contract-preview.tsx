@@ -261,7 +261,7 @@ export function ContractPreview({
 
   return (
     <div>
-      <Card className="bg-white text-black">
+      <Card className="bg-card text-foreground">
         <CardContent className="p-8">
         <div className="space-y-6 text-sm leading-relaxed">
           {/* Title */}

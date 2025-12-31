@@ -21,7 +21,8 @@ export interface CalendarEvent {
     | "payment"
     | "contract-start"
     | "contract-expiration"
-    | "project-completion";
+    | "project-completion"
+    | "invoice-due";
   date: Date;
   clientName: string;
   clientId: string;
@@ -29,6 +30,8 @@ export interface CalendarEvent {
   contractNumber?: string;
   paymentId?: string;
   contractId?: string;
+  invoiceId?: string;
+  invoiceNumber?: string;
 }
 
 interface MonthCalendarProps {
@@ -97,6 +100,8 @@ export function MonthCalendar({
         return "bg-orange-500/20 border-orange-500/50 text-orange-700 dark:text-orange-300";
       case "project-completion":
         return "bg-purple-500/20 border-purple-500/50 text-purple-700 dark:text-purple-300";
+      case "invoice-due":
+        return "bg-yellow-500/20 border-yellow-500/50 text-yellow-700 dark:text-yellow-300";
     }
   };
 
@@ -110,6 +115,8 @@ export function MonthCalendar({
         return WarningCircle;
       case "project-completion":
         return CheckCircle;
+      case "invoice-due":
+        return FileText;
     }
   };
 
@@ -123,6 +130,8 @@ export function MonthCalendar({
         return "Expires";
       case "project-completion":
         return "Complete";
+      case "invoice-due":
+        return event.invoiceNumber || formatCurrency(event.amount || 0);
     }
   };
 

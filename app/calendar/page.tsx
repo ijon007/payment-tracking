@@ -8,7 +8,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePaymentStore } from "@/lib/store";
 
 export default function CalendarPage() {
-  const { clients, contracts, getClient } = usePaymentStore();
+  const { clients, contracts, invoices, getClient } = usePaymentStore();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [mounted, setMounted] = useState(false);
 
@@ -25,8 +25,8 @@ export default function CalendarPage() {
     if (!mounted) {
       return [];
     }
-    return collectCalendarEvents(clients, contracts, getClient);
-  }, [clients, contracts, getClient, mounted]);
+    return collectCalendarEvents(clients, contracts, invoices, getClient);
+  }, [clients, contracts, invoices, getClient, mounted]);
 
   // Navigate to previous month
   const goToPreviousMonth = () => {

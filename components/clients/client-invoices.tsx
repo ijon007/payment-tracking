@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowSquareOut } from "@phosphor-icons/react";
+import { ArrowSquareOut, FileText } from "@phosphor-icons/react";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   type Currency,
   convertCurrency,
   formatCurrency as formatCurrencyUtil,
@@ -44,7 +49,7 @@ export function ClientInvoices({
   client,
   displayCurrency,
 }: ClientInvoicesProps) {
-  const { invoices } = usePaymentStore();
+  const { invoices, contracts, getContract } = usePaymentStore();
   const formatDate = useFormattedDate();
   const clientInvoices = useMemo(
     () => invoices.filter((i) => i.clientId === client.id),
@@ -126,12 +131,14 @@ export function ClientInvoices({
               <TableHead className="w-[110px] border-r">Amount</TableHead>
               <TableHead className="w-[100px] border-r">Status</TableHead>
               <TableHead className="w-[140px] border-r">Invoice</TableHead>
+              <TableHead className="w-[120px] border-r">Source</TableHead>
               <TableHead className="w-[100px]">Created</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {clientInvoices.map((invoice) => {
               const statusBadge = getStatusBadge(invoice.status);
+              const contract = invoice.contractId ? getContract(invoice.contractId) : null;
               return (
                 <TableRow
                   key={invoice.id}
@@ -170,6 +177,27 @@ export function ClientInvoices({
                         </span>
                       )}
                     </div>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    {contract ? (
+                      <Tooltip>
+                        <TooltipTrigger
+                          render={
+                            <Badge variant="outline" className="text-xs gap-1">
+                              <FileText className="h-3 w-3" />
+                              {contract.contractNumber}
+                            </Badge>
+                          }
+                        />
+                        <TooltipContent>
+                          <p>From Contract: {contract.contractNumber}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">
+                        Standalone
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className="text-sm">

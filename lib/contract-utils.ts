@@ -98,6 +98,7 @@ export interface Contract {
   paymentPlan?: PaymentPlan;
   discountAmount?: number; // Calculated
   taxAmount?: number; // Calculated
+  invoiceIds?: string[]; // Array of auto-generated invoice IDs
 }
 
 /**

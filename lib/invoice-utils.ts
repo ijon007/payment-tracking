@@ -27,6 +27,9 @@ export interface Invoice {
   notes?: string;
   paymentDetails?: string;
   shareToken?: string;
+  // Contract linking
+  contractId?: string; // Links invoice to contract (undefined = standalone)
+  paymentPlanItemId?: string; // Links to specific installment/milestone/custom payment ID
   // Invoice customization settings
   dateFormat?: DateFormat;
   invoiceSize?: "A4" | "Letter" | "Legal";

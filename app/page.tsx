@@ -18,7 +18,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePaymentStore } from "@/lib/store";
 
 export default function Dashboard() {
-  const { clients } = usePaymentStore();
+  const { clients, invoices } = usePaymentStore();
   const [openDialog, setOpenDialog] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -28,8 +28,9 @@ export default function Dashboard() {
 
   // Calculate totals - use empty array during SSR to prevent hydration mismatch
   const clientsToUse = mounted ? clients : [];
+  const invoicesToUse = mounted ? invoices : [];
   const { totalRevenue, totalOutstanding, totalDue, totalRetainers } =
-    calculateTotals(clientsToUse);
+    calculateTotals(clientsToUse, invoicesToUse);
   const { revenueData, outstandingData, dueData, retainersData } =
     generateDashboardChartData(clientsToUse);
 

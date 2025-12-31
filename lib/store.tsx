@@ -13,6 +13,7 @@ import { generateContractNumber } from "./contract-utils";
 import { calculateContractTotals, createDefaultContractSettings } from "./contract-settings";
 import type { Invoice } from "./invoice-utils";
 import { calculateInvoiceTotals, generateInvoiceNumber, generateShareToken } from "./invoice-utils";
+import { generateInvoicesFromContract } from "./invoice-generation";
 import type { Client, Payment } from "./payment-utils";
 import {
   calculateClientStatus,
@@ -63,6 +64,9 @@ function deserializeInvoices(json: string): Invoice[] {
     ...invoice,
     issueDate: new Date(invoice.issueDate),
     dueDate: new Date(invoice.dueDate),
+    // Migration: Set defaults for new fields
+    contractId: invoice.contractId || undefined,
+    paymentPlanItemId: invoice.paymentPlanItemId || undefined,
   }));
 }
 
@@ -113,6 +117,8 @@ function deserializeContracts(json: string): Contract[] {
       : undefined,
     // Migrate old "draft" status to "created"
     status: contract.status === "draft" ? "created" : contract.status,
+    // Migration: Set default for new field
+    invoiceIds: contract.invoiceIds || [],
   }));
 }
 
@@ -150,6 +156,8 @@ interface PaymentStoreContextType {
     currency?: Invoice["currency"];
     discountEnabled?: boolean;
     showQrCode?: boolean;
+    contractId?: string;
+    paymentPlanItemId?: string;
   }) => Invoice;
   getInvoice: (id: string) => Invoice | undefined;
   getInvoiceByToken: (token: string) => Invoice | undefined;
@@ -468,6 +476,8 @@ export function PaymentStoreProvider({
       currency?: Invoice["currency"];
       discountEnabled?: boolean;
       showQrCode?: boolean;
+      contractId?: string;
+      paymentPlanItemId?: string;
     }): Invoice => {
       const { subtotal, salesTax, vat, total } = calculateInvoiceTotals(
         data.items,
@@ -494,6 +504,9 @@ export function PaymentStoreProvider({
         notes: data.notes,
         paymentDetails: data.paymentDetails,
         shareToken: generateShareToken(),
+        // Contract linking
+        contractId: data.contractId,
+        paymentPlanItemId: data.paymentPlanItemId,
         // Invoice settings
         dateFormat: data.dateFormat,
         invoiceSize: data.invoiceSize,
@@ -584,11 +597,58 @@ export function PaymentStoreProvider({
         paymentPlan: data.paymentPlan,
         discountAmount: discount > 0 ? discount : undefined,
         taxAmount: tax > 0 ? tax : undefined,
+        invoiceIds: [], // Initialize empty array
       };
+      
       setContracts((prev) => [...prev, contract]);
+      
+      // Auto-generate invoices if payment plan exists
+      if (userContractTemplate && data.paymentPlan && contract.paymentPlan) {
+        const client = clients.find((c) => c.id === data.clientId);
+        if (client) {
+          // Check if payment plan has items to generate invoices for
+          const hasItems = 
+            (contract.paymentPlan.structure === "installments" && contract.paymentPlan.installments && contract.paymentPlan.installments.length > 0) ||
+            (contract.paymentPlan.structure === "milestones" && contract.paymentPlan.milestones && contract.paymentPlan.milestones.length > 0) ||
+            (contract.paymentPlan.structure === "custom" && contract.paymentPlan.customPayments && contract.paymentPlan.customPayments.length > 0);
+          
+          // For installments/milestones, projectCost is required to calculate amounts
+          if (hasItems) {
+            // Check if projectCost is needed but missing
+            const needsProjectCost = 
+              (contract.paymentPlan.structure === "installments" || contract.paymentPlan.structure === "milestones") &&
+              (!contract.projectCost || contract.projectCost <= 0);
+            
+            if (needsProjectCost) {
+              console.warn(`Contract ${contract.contractNumber}: Cannot generate invoices - projectCost is required for ${contract.paymentPlan.structure} payment structure`);
+            } else {
+              const generatedInvoices = generateInvoicesFromContract(
+                contract,
+                client,
+                userContractTemplate,
+                generateInvoice
+              );
+              
+              // Update contract with invoice IDs
+              if (generatedInvoices.length > 0) {
+                const invoiceIds = generatedInvoices.map((inv) => inv.id);
+                setContracts((prev) =>
+                  prev.map((c) =>
+                    c.id === contract.id ? { ...c, invoiceIds } : c
+                  )
+                );
+                console.log(`Generated ${generatedInvoices.length} invoice(s) for contract ${contract.contractNumber}`);
+              } else {
+                console.warn(`Contract ${contract.contractNumber}: No invoices generated - payment plan items may not have valid amounts`);
+              }
+            }
+          }
+        }
+      }
+      
       return contract;
     },
-    [userContractTemplate]
+    [userContractTemplate, clients, generateInvoice]
   );
 
   const getContract = useCallback(
@@ -606,12 +666,54 @@ export function PaymentStoreProvider({
   );
 
   const updateContract = useCallback((id: string, updates: Partial<Contract>) => {
-    setContracts((prev) =>
-      prev.map((contract) =>
-        contract.id === id ? { ...contract, ...updates } : contract
-      )
-    );
-  }, []);
+    setContracts((prev) => {
+      const contract = prev.find((c) => c.id === id);
+      if (!contract) return prev;
+      
+      const updatedContract = { ...contract, ...updates };
+      
+      // Check if payment plan changed and needs invoice regeneration
+      const paymentPlanChanged = 
+        updates.paymentPlan !== undefined && 
+        JSON.stringify(contract.paymentPlan) !== JSON.stringify(updates.paymentPlan);
+      
+      if (paymentPlanChanged && userContractTemplate && updatedContract.paymentPlan) {
+        // Find and delete old invoices linked to this contract
+        const oldInvoiceIds = contract.invoiceIds || [];
+        setInvoices((prevInvoices) =>
+          prevInvoices.filter((inv) => !oldInvoiceIds.includes(inv.id))
+        );
+        
+        // Generate new invoices
+        const client = clients.find((c) => c.id === updatedContract.clientId);
+        if (client) {
+          const hasItems = 
+            (updatedContract.paymentPlan.structure === "installments" && updatedContract.paymentPlan.installments && updatedContract.paymentPlan.installments.length > 0) ||
+            (updatedContract.paymentPlan.structure === "milestones" && updatedContract.paymentPlan.milestones && updatedContract.paymentPlan.milestones.length > 0) ||
+            (updatedContract.paymentPlan.structure === "custom" && updatedContract.paymentPlan.customPayments && updatedContract.paymentPlan.customPayments.length > 0);
+          
+          if (hasItems) {
+            const generatedInvoices = generateInvoicesFromContract(
+              updatedContract,
+              client,
+              userContractTemplate,
+              generateInvoice
+            );
+            
+            // Update contract with new invoice IDs
+            const newInvoiceIds = generatedInvoices.map((inv) => inv.id);
+            updatedContract.invoiceIds = newInvoiceIds;
+          } else {
+            updatedContract.invoiceIds = [];
+          }
+        } else {
+          updatedContract.invoiceIds = [];
+        }
+      }
+      
+      return prev.map((c) => (c.id === id ? updatedContract : c));
+    });
+  }, [userContractTemplate, clients, generateInvoice]);
 
   return (
     <PaymentStoreContext.Provider

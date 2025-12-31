@@ -14,7 +14,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePaymentStore } from "@/lib/store";
 
 export default function TimelinePage() {
-  const { clients } = usePaymentStore();
+  const { clients, contracts, invoices } = usePaymentStore();
   const [mounted, setMounted] = useState(false);
 
   // Ensure we only render date-dependent content on client
@@ -22,13 +22,13 @@ export default function TimelinePage() {
     setMounted(true);
   }, []);
 
-  // Flatten all payments from all clients into a single array
+  // Flatten all payments from all clients and contracts into a single array
   const allPayments = useMemo(() => {
     if (!mounted) {
       return [];
     }
-    return calculatePaymentStatuses(clients);
-  }, [clients, mounted]);
+    return calculatePaymentStatuses(clients, contracts, invoices);
+  }, [clients, contracts, invoices, mounted]);
 
   // Create client color mapping
   const clientColorMap = useMemo(() => {

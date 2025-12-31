@@ -1,10 +1,12 @@
 import type { CalendarEvent } from "@/components/month-calendar";
 import type { Contract } from "@/lib/contract-utils";
+import type { Invoice } from "@/lib/invoice-utils";
 import type { Client } from "@/lib/payment-utils";
 
 export function collectCalendarEvents(
   clients: Client[],
   contracts: Contract[],
+  invoices: Invoice[],
   getClient: (id: string) => Client | undefined
 ): CalendarEvent[] {
   const allEvents: CalendarEvent[] = [];
@@ -83,6 +85,29 @@ export function collectCalendarEvents(
           clientId: contract.clientId,
           contractNumber: contract.contractNumber,
           contractId: contract.id,
+        });
+      }
+    }
+  });
+
+  // Invoice due dates (only unpaid)
+  invoices.forEach((invoice) => {
+    if (invoice.status !== "paid") {
+      const client = getClient(invoice.clientId);
+      if (client) {
+        const dueDate = new Date(invoice.dueDate);
+        dueDate.setHours(0, 0, 0, 0);
+
+        allEvents.push({
+          id: `invoice-due-${invoice.id}`,
+          type: "invoice-due",
+          date: dueDate,
+          clientName: client.name,
+          clientId: invoice.clientId,
+          amount: invoice.total,
+          invoiceId: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          contractId: invoice.contractId,
         });
       }
     }
