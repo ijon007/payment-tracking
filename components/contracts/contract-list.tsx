@@ -41,6 +41,11 @@ function getStatusBadge(
         label: "Sent", 
         variant: "secondary" 
       };
+    case "created":
+      return { 
+        label: "Created", 
+        variant: "outline" 
+      };
     case "expired":
       return { 
         label: "Expired", 
@@ -48,7 +53,7 @@ function getStatusBadge(
       };
     default:
       return { 
-        label: "Draft", 
+        label: "Created", 
         variant: "outline" 
       };
   }
@@ -155,13 +160,13 @@ export function ContractList({ contracts, onContractClick }: ContractListProps) 
           <Table>
             <TableHeader>
               <TableRow className="text-sm hover:bg-card">
-                <TableHead className="w-[140px] border-r">Contract Number</TableHead>
                 <TableHead className="w-[120px] border-r">Client</TableHead>
-                <TableHead className="w-[100px] border-r">Start Date</TableHead>
-                <TableHead className="w-[100px] border-r">End Date</TableHead>
                 <TableHead className="w-[110px] border-r">Project Cost</TableHead>
                 <TableHead className="w-[100px] border-r">Status</TableHead>
-                <TableHead className="w-[100px]">Created</TableHead>
+                <TableHead className="w-[100px] border-r">Start Date</TableHead>
+                <TableHead className="w-[100px] border-r">End Date</TableHead>
+                <TableHead className="w-[140px] border-r">Contract Number</TableHead>
+                <TableHead className="w-[100px]">Created At</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -177,22 +182,7 @@ export function ContractList({ contracts, onContractClick }: ContractListProps) 
                     onClick={() => onContractClick(contract.id)}
                   >
                     <TableCell className="border-r">
-                      <span className="text-sm font-medium">
-                        {contract.contractNumber}
-                      </span>
-                    </TableCell>
-                    <TableCell className="border-r">
                       <span className="text-sm">{clientName}</span>
-                    </TableCell>
-                    <TableCell className="border-r">
-                      <span className="text-sm">
-                        {formatDate(contract.startDate)}
-                      </span>
-                    </TableCell>
-                    <TableCell className="border-r">
-                      <span className="text-sm">
-                        {formatDate(contract.endDate)}
-                      </span>
                     </TableCell>
                     <TableCell className="border-r">
                       <span className="text-sm">
@@ -208,6 +198,21 @@ export function ContractList({ contracts, onContractClick }: ContractListProps) 
                       >
                         {statusBadge.label}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="border-r">
+                      <span className="text-sm">
+                        {formatDate(contract.startDate)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="border-r">
+                      <span className="text-sm">
+                        {formatDate(contract.endDate)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="border-r">
+                      <span className="text-sm">
+                        {contract.contractNumber}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <span className="text-sm">

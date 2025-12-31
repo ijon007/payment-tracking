@@ -6,6 +6,8 @@ import { ContractList } from "@/components/contracts/contract-list";
 import { ContractPreview } from "@/components/contracts/contract-preview";
 import { ContractTemplateUpload } from "@/components/contracts/contract-template-upload";
 import { ContractSheet } from "@/components/contracts/contract-sheet";
+import { ContractFilters } from "@/components/contracts/contract-filters";
+import type { Contract } from "@/lib/contract-utils";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -24,6 +26,7 @@ export default function ContractsPage() {
     null
   );
   const [contractSheetOpen, setContractSheetOpen] = useState(false);
+  const [filteredContracts, setFilteredContracts] = useState<Contract[]>(contracts);
 
   useEffect(() => {
     setMounted(true);
@@ -32,6 +35,10 @@ export default function ContractsPage() {
   // Use empty arrays during SSR to prevent hydration mismatch
   const contractsToUse = mounted ? contracts : [];
   const hasTemplate = mounted && userContractTemplate !== null;
+
+  useEffect(() => {
+    setFilteredContracts(contracts);
+  }, [contracts]);
 
   const handleContractCreated = (contractId: string) => {
     setContractSheetOpen(false);
@@ -63,11 +70,14 @@ export default function ContractsPage() {
           <ContractTemplateUpload />
         ) : (
           <div>
-            <h2 className="mb-3 sm:mb-4 font-semibold text-base sm:text-lg">
-              Generated Contracts
-            </h2>
+            <div className="mb-4">
+              <ContractFilters
+                contracts={contractsToUse}
+                onFilterChange={setFilteredContracts}
+              />
+            </div>
             <ContractList
-              contracts={contractsToUse}
+              contracts={filteredContracts}
               onContractClick={setSelectedContractId}
             />
           </div>

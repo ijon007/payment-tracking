@@ -110,6 +110,8 @@ function deserializeContracts(json: string): Contract[] {
     projectCompletionDate: contract.projectCompletionDate
       ? new Date(contract.projectCompletionDate)
       : undefined,
+    // Migrate old "draft" status to "created"
+    status: contract.status === "draft" ? "created" : contract.status,
   }));
 }
 
@@ -558,7 +560,7 @@ export function PaymentStoreProvider({
         clientEmail: data.clientEmail,
         clientPhone: data.clientPhone,
         companyRepresentatives: data.companyRepresentatives,
-        status: "draft",
+        status: "created",
       };
       setContracts((prev) => [...prev, contract]);
       return contract;

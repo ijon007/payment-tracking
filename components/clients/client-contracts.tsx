@@ -79,7 +79,7 @@ export function ClientContracts({
   }, [clientContracts, displayCurrency]);
 
   const getStatusBadgeVariant = (
-    status: "draft" | "sent" | "signed" | "active" | "expired"
+    status: "created" | "sent" | "signed" | "active" | "expired"
   ): "default" | "secondary" | "destructive" | "outline" => {
     switch (status) {
       case "active":
@@ -87,6 +87,8 @@ export function ClientContracts({
         return "default";
       case "sent":
         return "secondary";
+      case "created":
+        return "outline";
       case "expired":
         return "destructive";
       default:

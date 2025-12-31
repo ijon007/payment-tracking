@@ -34,7 +34,7 @@ export interface Contract {
   companyRepresentatives?: string; // e.g., "Johan Gjinko dhe Ijon Kushta"
   clientSignature?: string;
   companySignature?: string;
-  status: "draft" | "sent" | "signed" | "active" | "expired";
+  status: "created" | "sent" | "signed" | "active" | "expired";
 }
 
 /**
